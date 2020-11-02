@@ -1,10 +1,12 @@
 # cartagena
 
-A Clojure library designed to ... well, that part is up to you.
+The game in clojure.
+Based on the work from Mark Bastian at https://github.com/markbastian/pirates. I have re-done everything except the visual gui part that is just Mark's.
 
 ## Usage
 
-FIXME
+Note- It only works with java8
+"lein run" is the easiest way to lauch it
 
 ## License
 
