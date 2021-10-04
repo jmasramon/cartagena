@@ -2,7 +2,6 @@
 
 ;; Functions that need to know how deck is implemented
 
-
 (defn random-deck [num cards-reservoir]
   (for [x (take num (range))]
     (rand-nth (seq cards-reservoir))))

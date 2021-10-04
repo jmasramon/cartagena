@@ -1,6 +1,7 @@
 (ns cartagena.setters.otherEntities
     )
 
+;; player
 (defn update-player [color newPlayer player]
     (if (= color (first (keys player)))
         newPlayer

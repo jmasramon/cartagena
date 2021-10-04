@@ -1,5 +1,6 @@
 (ns cartagena.getters.mainEntities)
 
+;; game
 (defn players [game-state]
     (game-state :players))
 

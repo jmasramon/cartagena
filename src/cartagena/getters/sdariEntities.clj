@@ -1,6 +1,7 @@
 (ns cartagena.getters.sdariEntities
 	(:require [cartagena.getters.mainEntities :refer :all]))
 
+;; player
 (defn player [players color]
 	; (= color (first (map first (map keys players)))))
 	(first (filter #(= color (first (keys %)))
@@ -12,6 +13,7 @@
 (defn cards [players player-color]
 	(((player players player-color) player-color) :cards))
 
+;; board
 (defn boat [board]
 	(last board))
 
@@ -30,6 +32,7 @@
 (defn squares-of-type [board type]
 	(filterv #(= (% :type) type) board ))
 
+;; square
 (defn square-contents-vector
   "Convert the pieces on the given square to a vector of pieces"
   ([square] 
