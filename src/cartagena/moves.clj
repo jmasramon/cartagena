@@ -2,7 +2,7 @@
 	(:require [cartagena.setters.sdariEntities :refer [add-piece remove-piece]]
 				[cartagena.getters.mainEntities :refer [board]]
 				))
-; TODO: move the empty solot finders to the proper file
+; TODO: move the empty slot finders to the proper file
 (defn empty-slot
 	([slot card color]
 	(and
@@ -54,7 +54,6 @@
 			0)
 	)
 )
-
 
 (defn move-piece [board from to color]
 	; (println "move-piece with from:" from "to:" to "color:" color)

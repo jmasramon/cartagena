@@ -2,7 +2,7 @@
 	(:require [cartagena.getters.sdariEntities :refer [boat player square-pieces]]
 			  [cartagena.getters.mainEntities :refer [board]]))
 
-; TODO: non predicate functions should be moved to a new getters
+; TODO: reorder functions by data abstraction barrier point of view insted of by type
 
 (defn winner? [game-state]
 	(let [board (board game-state)
