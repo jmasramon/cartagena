@@ -1,19 +1,57 @@
 (ns cartagena.data-abstractions.board
   (:require
+   [clojure.data.generators :refer [shuffle]]
+   [cartagena.core :refer [card-types]]
    [cartagena.data-abstractions.square
-    :refer [square-of-type? inc-square-players dec-square-players make-starting-square make-board-section make-empty-pieces]]))
+    :refer [make-square square-of-type? inc-square-players dec-square-players make-starting-square make-empty-pieces]]))
 
-(defn initial-board [types players]
-  (let [used-colors (flatten (map keys players))]
-    (vec (flatten [(make-starting-square used-colors)
-                   (make-board-section types used-colors)
-                   (make-board-section types used-colors)
-                   (make-board-section types used-colors)
-                   (make-board-section types used-colors)
-                   (make-board-section types used-colors)
-                   (make-board-section types used-colors)
-                   (merge (make-empty-pieces used-colors) ;; TODO: use make-square instead
-                          {:type :boat})]))))
+;; a board is a set of squares
+;; it is made of six sets (or board-section's) of six squares each of one random type of card
+;; ex: 
+;; [{:pieces {:green 6, :yellow 6}, :type :start}
+;;  {:pieces {:green 0, :yellow 0}, :type :flag}
+;;  {:pieces {:green 0, :yellow 0}, :type :pistol}
+;;  {:pieces {:green 0, :yellow 0}, :type :bottle}
+;;  {:pieces {:green 0, :yellow 0}, :type :hat}
+;;  {:pieces {:green 0, :yellow 0}, :type :keys}
+;;  {:pieces {:green 0, :yellow 0}, :type :sword}
+;;  {:pieces {:green 0, :yellow 0}, :type :hat}
+;;  {:pieces {:green 0, :yellow 0}, :type :flag}
+;;  {:pieces {:green 0, :yellow 0}, :type :bottle}
+;; .....
+;;  {:pieces {:green 0, :yellow 0}, :type :boat}]
+
+;; builders
+(defn make-board-section
+  "creates a board sections"
+  [types used-colors]
+  (let [shuffled-types (shuffle (vec types))]
+    (vec (for [type shuffled-types]
+           (make-square type used-colors)))))
+
+(defn make-board
+  ([players]
+   (let [used-colors (flatten (map keys players))]
+     (vec (flatten [(make-starting-square used-colors)
+                    (make-board-section card-types used-colors)
+                    (make-board-section card-types used-colors)
+                    (make-board-section card-types used-colors)
+                    (make-board-section card-types used-colors)
+                    (make-board-section card-types used-colors)
+                    (make-board-section card-types used-colors)
+                    (merge (make-empty-pieces used-colors) ;; TODO: use make-square instead
+                           {:type :boat})]))))
+  ([types players]
+   (let [used-colors (flatten (map keys players))]
+     (vec (flatten [(make-starting-square used-colors)
+                    (make-board-section types used-colors)
+                    (make-board-section types used-colors)
+                    (make-board-section types used-colors)
+                    (make-board-section types used-colors)
+                    (make-board-section types used-colors)
+                    (make-board-section types used-colors)
+                    (merge (make-empty-pieces used-colors) ;; TODO: use make-square instead
+                           {:type :boat})])))))
 
 ;; getters
 (defn boat [board]

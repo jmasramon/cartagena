@@ -1,5 +1,6 @@
 (ns cartagena.data-abstractions.player
   (:require
+   [cartagena.core :refer [starting-actions def-num-players pirate-colors num-cards card-types]]
    [cartagena.data-abstractions.deck :refer [random-deck]]))
 
 ;; Functions that need to know how player is implemented
@@ -11,10 +12,15 @@
 
 (defn make-player [color cards])
 
-(defn random-players [num players-reservoir cardNum cards-reservoir]
+(defn random-players
+  ([num]
+  (vec (for [x (take num pirate-colors)]
+         {x {:cards (random-deck num-cards card-types)
+             :actions starting-actions}})))
+  ([num players-reservoir cardNum cards-reservoir]
   (vec (for [x (take num players-reservoir)]
          {x {:cards (random-deck cardNum cards-reservoir)
-             :actions 3}})))
+             :actions starting-actions}}))))
 
 ;; getters
 (defn player-color [player]

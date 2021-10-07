@@ -1,10 +1,10 @@
 (ns cartagena.data-abstractions.game
   (:require
    [clojure.data.generators :refer [rand-nth shuffle]]
-   [cartagena.core :refer [pirate-colors card-types]]
+   [cartagena.core :refer [pirate-colors card-types def-num-players num-cards deck-size starting-actions]]
    [cartagena.data-abstractions.player :refer [random-players players-colors player update-player-in-players]]
    [cartagena.data-abstractions.deck :refer [random-deck]]
-   [cartagena.data-abstractions.board :refer [initial-board boat]]))
+   [cartagena.data-abstractions.board :refer [make-board boat]]))
 
 ;; Functions that need to know how game is implemented
 ;; game-state: 
@@ -18,19 +18,21 @@
 
 (defn make-game
   ([]
-   (let [players (random-players 3 pirate-colors 6 card-types)]
+   (let [players (random-players def-num-players)
+         players-colors (players-colors players)]
      {:players players
-      :turn-order (players-turns (players-colors players))
-      :turn (random-initial-turn pirate-colors)
-      :deck (random-deck 50 card-types)
-      :board (initial-board card-types players)}))
+      :turn-order (players-turns players-colors)
+      :turn (random-initial-turn players-colors)
+      :deck (random-deck)
+      :board (make-board players)}))
   ([num-players]
-   (let [players (random-players num-players pirate-colors 6 card-types)]
+   (let [players (random-players num-players)
+         players-colors (players-colors players)]
      {:players players
-      :turn-order (players-turns (players-colors players))
-      :turn (random-initial-turn pirate-colors)
-      :deck (random-deck 50 card-types)
-      :board (initial-board card-types players)})))
+      :turn-order (players-turns players-colors)
+      :turn (random-initial-turn players-colors)
+      :deck (random-deck)
+      :board (make-board players)})))
 
 ;; getters
 (defn players [game]
@@ -45,11 +47,11 @@
 (defn next-turn [game]
   ((turn game) (turn-order game)))
 
-(defn board [game]
-  (game :board))
-
 (defn deck [game]
   (game :deck))
+
+(defn board [game]
+  (game :board))
 
 (defn active-player [game]
   (let [turn (turn game)
@@ -57,13 +59,18 @@
     (first (filter #(= turn (first (keys %))) players))))
 
 (defn active-player-color [game]
-  (get-in game [:turn]))
+  (turn game))
+
+(defn player-color [game] (active-player game))
+
+(defn next-player [game]
+  (next-turn game))
 
 (defn winner? [game-state]
   (let [board (board game-state)
         boat (boat board)
         pieces (vals (get-in boat [:pieces]))]
-    (> (count (filter #(= % 6) pieces)) 0)))
+    (> (count (filter #(= % num-cards) pieces)) 0)))
 
 ;; setters
 (defn set-players [game players]
@@ -84,7 +91,7 @@
 (defn start-turn [game-state turn-color]
   (let [players (players game-state)
         player (player players turn-color)
-        modified-player (assoc-in player [turn-color :actions] 3)
+        modified-player (assoc-in player [turn-color :actions] starting-actions)
         modified-players (update-player-in-players players turn-color modified-player)]
     (assoc-in game-state [:players] modified-players)))
 

@@ -22,53 +22,53 @@
 
 (defn popup
   "Main game logic is called from here"
-  [parent ^MouseEvent event cards game-state square-index]
+  [parent ^MouseEvent event cards game square-index]
   (let [playable-cards (playable-cards cards)
         f (fn [menu]
             (doseq [cardMenuItem (zipmap playable-cards (map #(JMenuItem. (str "Play " %)) playable-cards))]
-              (.addActionListener (val cardMenuItem) (create-action parent #(swap! game-state play-card (first (key cardMenuItem)) square-index)))
+              (.addActionListener (val cardMenuItem) (create-action parent #(swap! game play-card (first (key cardMenuItem)) square-index)))
               (.add menu (val cardMenuItem))))]
     (if (.isPopupTrigger event)
       (.show (doto (JPopupMenu.)
                f
-               (.add (doto (JMenuItem. "Fall Back") (.addActionListener (create-action parent #(swap! game-state fall-back square-index)))))
-               (.add (doto (JMenuItem. "Pass") (.addActionListener (create-action parent #(swap! game-state pass))))))
+               (.add (doto (JMenuItem. "Fall Back") (.addActionListener (create-action parent #(swap! game fall-back square-index)))))
+               (.add (doto (JMenuItem. "Pass") (.addActionListener (create-action parent #(swap! game pass))))))
              (.getComponent event) (.x (.getPoint event)) (.y (.getPoint event))))))
 
 (defn get-click-index [x y]
   (first (filter #(.contains ^Shape (get track-shapes %) x y) (range (count track-shapes)))))
 
-(defn clicker [parent game-state]
+(defn clicker [parent game]
   (let [click-handler #(when-let [clicked (get-click-index (-> % .getPoint .x) (-> % .getPoint .y))]
-                         (let [color (player-color (active-player @game-state))]
+                         (let [color (player-color (active-player @game))]
                            (popup parent %
-                                  (cards (players @game-state) (player-color (active-player @game-state)))
-                                  game-state clicked)))]
+                                  (cards (players @game) color)
+                                  game clicked)))]
     (proxy [MouseAdapter] []
       (mousePressed [event] (click-handler event))
       (mouseReleased [event] (click-handler event)))))
 
-(defn draw-board [game-state]
+(defn draw-board [game]
   (let [component (proxy [Component] []
                     (paint [graphics]
                       (doto graphics
-                        (draw-squares (:board @game-state))
-                        (draw-cards (active-player @game-state))
-                        (draw-pieces (:board @game-state)))))]
-    (.addMouseListener component (clicker component game-state))
+                        (draw-squares (:board @game))
+                        (draw-cards (active-player @game))
+                        (draw-pieces (:board @game)))))]
+    (.addMouseListener component (clicker component game))
     component))
 
 (defn frame [initial-game-state exit-condition]
   (let [frame (JFrame. "Cartagena!")
         ; first-player (first (keys (:turn-order initial-game-state)))
         ; started (cartagena.core/start-turn initial-game-state first-player)
-        ;game-state (atom (almost-win started))
-        ; game-state (atom started)
-        game-state (atom initial-game-state)]
-    ; (setup-winner-watch game-state)
+        ;game (atom (almost-win started))
+        ; game (atom started)
+        game (atom initial-game-state)]
+    ; (setup-winner-watch game)
     (doto frame
       (.setSize 600 600)
-      (.add ^Component (draw-board game-state) BorderLayout/CENTER)
+      (.add ^Component (draw-board game) BorderLayout/CENTER)
       (.add (JLabel. "Right-click on square with piece to make a move.") BorderLayout/SOUTH)
       (.setDefaultCloseOperation exit-condition)
       (.setVisible true)
@@ -78,7 +78,7 @@
 (defn -main []
   (let [n (JOptionPane/showInputDialog nil "Enter players (2-5):")
         colors (take (read-string n) pirate-colors)
-        players (map #(partial {:color % :name (str %)}) colors)]
+        players (map #(str % "-player") colors)]
     (println "Num players:" n "Colors:" colors "Players names:" players)
     (frame
      (make-game (count colors)) ; filter just the chosen players

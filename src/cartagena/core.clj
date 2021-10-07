@@ -1,13 +1,13 @@
-(ns cartagena.core
-  (:require [clojure.set :refer [union]]))
+(ns cartagena.core)
 
 ;; Constants
-(def pirate-colors #{:red :green :yellow})
+(def pirate-colors #{:red :green :yellow}) ;; TODO: there should be more colors to choose from
 (def card-types #{:hat :flag :pistol :sword :bottle :keys})
-(def board-steps-types (union #{:start :finish} card-types))
-(def turns {:yellow :blue, :blue :green, :green :yellow})
+(def num-cards (count card-types))
+(def deck-size 50)
+(def def-num-players 3)
 (def starting-actions 3)
-(def actions #{:advance :retreat})
+
 
 ;; Data structures
 ;; example of full game data (state of the game)
@@ -32,3 +32,16 @@
 ;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
 ;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
 ;;  :deck [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]}
+
+;; DATA ABSTRACTIONS
+
+
+;; -- moves --  ; change the game
+;; -- game --   ; contains players, cards, and board
+  ;; -- player --
+
+  ;; -- deck --
+    ;; -- cards --  
+
+  ;; -- board --
+    ;; -- square --

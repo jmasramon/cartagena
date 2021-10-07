@@ -1,11 +1,37 @@
 (ns cartagena.data-abstractions.board-test
   (:require [clojure.test :refer [deftest is testing]]
-            [cartagena.core]
             [clojure.data.generators :refer [*rnd*]]
+            [cartagena.core]
             [cartagena.data-abstractions.board :refer :all]))
 
-(deftest initial-board-test
-  (testing "initial-board"
+(deftest make-board-section-test
+  (testing "make-board-section"
+    (is (= true
+           (vector? (make-board-section cartagena.core/card-types
+                                        [:yellow :green :red])))
+        "should return a vector")
+    (is (= 6
+           (count (make-board-section cartagena.core/card-types
+                                      [:yellow :green :red])))
+        "should return 6 squares")
+    (is (= 6
+           (count (into (make-board-section cartagena.core/card-types
+                                            [:yellow :green :red])
+                        #{})))
+        "should not have repeated types of squares")
+    (binding [*rnd* (java.util.Random. 12345)]
+      (is (= [{:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+              {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+              {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+              {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+              {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+              {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}]
+             (make-board-section cartagena.core/card-types
+                                 [:yellow :green :red]))))))
+
+
+(deftest make-board-test
+  (testing "make-board"
     (binding [*rnd* (java.util.Random. 12345)]
       (is (= [{:pieces {:green 6, :yellow 6}, :type :start}
               {:pieces {:green 0, :yellow 0}, :type :flag}
@@ -45,9 +71,9 @@
               {:pieces {:green 0, :yellow 0}, :type :flag}
               {:pieces {:green 0, :yellow 0}, :type :bottle}
               {:pieces {:green 0, :yellow 0}, :type :boat}]
-             (initial-board   cartagena.core/card-types
-                              [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-                               {:green {:cards '(:keys :bottle :pistol :bottle :keys :sword), :actions 2}}]))))))
+             (make-board   cartagena.core/card-types
+                           [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+                            {:green {:cards '(:keys :bottle :pistol :bottle :keys :sword), :actions 2}}]))))))
 
 (deftest getters-tests
   (testing "boat"

@@ -158,9 +158,27 @@
            (turn-order fullGameState)))))
 
 (deftest turn-test
-  (testing "players"
+  (testing "getting the turn"
     (is (= :green
            (turn fullGameState)))))
+
+(deftest active-player-test
+  (testing "active-player"
+    (is (=  {:red {:cards '(:bottle :pistol :flag :flag :keys :bottle), :actions 3}}
+            (active-player {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+                                      {:green {:cards '(:flag :keys :pistol :sword :bottle :hat), :actions 0}}
+                                      {:red {:cards '(:bottle :pistol :flag :flag :keys :bottle), :actions 3}}]
+                            :turn-order {:green :red, :red :yellow, :yellow :green}
+                            :turn :red})))))
+
+(deftest active-player-color-test
+  (testing "getting the active-player-color"
+    (is (= :green
+           (active-player-color fullGameState)))
+    (is (=  :red
+            (active-player-color {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]
+                                  :turn-order {:green :red, :red :yellow, :yellow :green}
+                                  :turn :red})))))
 
 (deftest next-turn-test
   (testing "players"
@@ -184,21 +202,6 @@
     (is (= [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]
            (deck fullGameState)))))
 
-(deftest active-player-test
-  (testing "active-player"
-    (is (=  {:red {:cards '(:bottle :pistol :flag :flag :keys :bottle), :actions 3}}
-            (active-player {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-                                      {:green {:cards '(:flag :keys :pistol :sword :bottle :hat), :actions 0}}
-                                      {:red {:cards '(:bottle :pistol :flag :flag :keys :bottle), :actions 3}}]
-                            :turn-order {:green :red, :red :yellow, :yellow :green}
-                            :turn :red})))))
-
-(deftest active-player-color-test
-  (testing "active-player-color"
-    (is (=  :red
-            (active-player-color {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]
-                                  :turn-order {:green :red, :red :yellow, :yellow :green}
-                                  :turn :red})))))
 
 ;;setters
 (deftest set-players-test

@@ -1,8 +1,7 @@
 (ns cartagena.data-abstractions.square-test
   (:require [clojure.test :refer [deftest is testing]]
-            [clojure.data.generators :refer [*rnd*]]
             [cartagena.core]
-            [cartagena.data-abstractions.square :refer [dec-square-players inc-square-players make-square make-starting-square make-empty-pieces make-board-section square-contents-vector square-of-type? square-pieces]]))
+            [cartagena.data-abstractions.square :refer [dec-square-players inc-square-players make-square make-starting-square make-empty-pieces square-contents-vector square-of-type? square-pieces]]))
 
 (def board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
             {:pieces {:green 1, :red 2, :yellow 3}, :type :bottle}
@@ -12,7 +11,6 @@
             {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
             {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}])
-
 
 (deftest make-starting-square-test
   (testing "make-starting-square"
@@ -53,31 +51,6 @@
       (is (=  :hat
               (:type res))
           "type should be :hat"))))
-
-(deftest make-board-section-test
-  (testing "make-board-section"
-    (is (= true
-           (vector? (make-board-section cartagena.core/card-types
-                                        [:yellow :green :red])))
-        "should return a vector")
-    (is (= 6
-           (count (make-board-section cartagena.core/card-types
-                                      [:yellow :green :red])))
-        "should return 6 squares")
-    (is (= 6
-           (count (into (make-board-section cartagena.core/card-types
-                                            [:yellow :green :red])
-                        #{})))
-        "should not have repeated types of squares")
-    (binding [*rnd* (java.util.Random. 12345)]
-      (is (= [{:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-              {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-              {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-              {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-              {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-              {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}]
-             (make-board-section cartagena.core/card-types
-                                 [:yellow :green :red]))))))
 
 (deftest inc-square-players-test
   (testing "inc-square-players"
