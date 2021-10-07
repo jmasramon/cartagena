@@ -1,4 +1,6 @@
-(ns cartagena.data-abstractions.square)
+(ns cartagena.data-abstractions.square
+  (:require
+   [clojure.data.generators :refer [shuffle]]))
 
 ;; Functions that need to know how square is 
 ;; square is implemented as a map {:pieces pieces_map, :type type_set_instance}
@@ -6,24 +8,31 @@
 ;; and type_set_instance is #{:hat :flag :pistol :sword :bottle :keys} plus :start and :boat
 
 
-(defn starting-pieces [used-colors]
+(defn make-starting-square
+  "creates the start square"
+  [used-colors]
   {:pieces (into (sorted-map) (zipmap used-colors (repeat 6)))
    :type :start})
 
-(defn empty-pieces [used-colors]
+(defn make-empty-pieces
+  "Creates the empty-pieces map for a square"
+  [used-colors]
   {:pieces (into (sorted-map) (zipmap used-colors (repeat 0)))})
 
 (defn make-square
+  "Creates a square of specific type"
   [type used-colors]
   (case type
-    :start (starting-pieces used-colors)
-    :end (merge (empty-pieces used-colors) {:type :boat})
-     (merge (empty-pieces used-colors) {:type type})))
+    :start (make-starting-square used-colors)
+    :end (merge (make-empty-pieces used-colors) {:type :boat})
+    (merge (make-empty-pieces used-colors) {:type type})))
 
-(defn new-board-section [types used-colors]
+(defn make-board-section
+  "creates a board sections"
+  [types used-colors]
   (let [shuffled-types (shuffle (vec types))]
     (vec (for [type shuffled-types]
-           (merge (empty-pieces used-colors)
+           (merge (make-empty-pieces used-colors)
                   {:type type})))))
 
 ;; setters

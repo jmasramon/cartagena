@@ -1,5 +1,6 @@
 (ns cartagena.swingUI.swingUI
   (:require [cartagena.core :refer [pirate-colors]]
+            ;; improve data abstractions: only game and moves should be needed
             [cartagena.data-abstractions.game :refer [make-game players active-player]]
             [cartagena.data-abstractions.player :refer [cards player-color]]
             [cartagena.data-abstractions.cards :refer [playable-cards]]
@@ -19,16 +20,14 @@
       (action)
       (.repaint parent))))
 
-(defn popup [parent ^MouseEvent event cards game-state square-index]
+(defn popup
   "Main game logic is called from here"
+  [parent ^MouseEvent event cards game-state square-index]
   (let [playable-cards (playable-cards cards)
         f (fn [menu]
             (doseq [cardMenuItem (zipmap playable-cards (map #(JMenuItem. (str "Play " %)) playable-cards))]
-             ;  (println "playable-cards:" playable-cards)
-            	; (println "popup playcard action cardMenuItem:" cardMenuItem "key:" (key cardMenuItem) "card:" (first (key cardMenuItem)) "square index:" square-index)
               (.addActionListener (val cardMenuItem) (create-action parent #(swap! game-state play-card (first (key cardMenuItem)) square-index)))
               (.add menu (val cardMenuItem))))]
-    ; (println "cards" cards "(cards-amounts cards)" (cards-amounts cards) "Playable cards:" playable-cards)
     (if (.isPopupTrigger event)
       (.show (doto (JPopupMenu.)
                f
@@ -43,7 +42,6 @@
   (let [click-handler #(when-let [clicked (get-click-index (-> % .getPoint .x) (-> % .getPoint .y))]
                          (let [color (player-color (active-player @game-state))]
                            (popup parent %
-                          		; (get-in @game-state [:players color :cards])
                                   (cards (players @game-state) (player-color (active-player @game-state)))
                                   game-state clicked)))]
     (proxy [MouseAdapter] []
@@ -54,9 +52,7 @@
   (let [component (proxy [Component] []
                     (paint [graphics]
                       (doto graphics
-                      	; (println "Drawing board. Board:" (:board @game-state))
                         (draw-squares (:board @game-state))
-                        ; (println "active Player:" (active-player @game-state))
                         (draw-cards (active-player @game-state))
                         (draw-pieces (:board @game-state)))))]
     (.addMouseListener component (clicker component game-state))
@@ -85,6 +81,5 @@
         players (map #(partial {:color % :name (str %)}) colors)]
     (println "Num players:" n "Colors:" colors "Players names:" players)
     (frame
-      ; (cartagena.core/init-game-state players)
      (make-game (count colors)) ; filter just the chosen players
      JFrame/EXIT_ON_CLOSE)))

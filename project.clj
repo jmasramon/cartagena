@@ -8,5 +8,4 @@
                  [proto-repl "0.3.1"]]
   :profiles {:dev {:plugins [[com.jakemccrary/lein-test-refresh "0.24.1"]
                              [venantius/ultra "0.6.0"]]}}
-  :repl-options {:init-ns cartagena.gameplay}
   :main cartagena.swingUI.swingUI)

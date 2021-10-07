@@ -1,19 +1,19 @@
 (ns cartagena.data-abstractions.board
   (:require
    [cartagena.data-abstractions.square
-    :refer [square-of-type? inc-square-players dec-square-players starting-pieces new-board-section empty-pieces]]))
+    :refer [square-of-type? inc-square-players dec-square-players make-starting-square make-board-section make-empty-pieces]]))
 
 (defn initial-board [types players]
   (let [used-colors (flatten (map keys players))]
-    (vec (flatten    [(starting-pieces used-colors)
-                      (new-board-section types used-colors)
-                      (new-board-section types used-colors)
-                      (new-board-section types used-colors)
-                      (new-board-section types used-colors)
-                      (new-board-section types used-colors)
-                      (new-board-section types used-colors)
-                      (merge (empty-pieces used-colors) ;; TODO: use make-square instead
-                             {:type :boat})]))))
+    (vec (flatten [(make-starting-square used-colors)
+                   (make-board-section types used-colors)
+                   (make-board-section types used-colors)
+                   (make-board-section types used-colors)
+                   (make-board-section types used-colors)
+                   (make-board-section types used-colors)
+                   (make-board-section types used-colors)
+                   (merge (make-empty-pieces used-colors) ;; TODO: use make-square instead
+                          {:type :boat})]))))
 
 ;; getters
 (defn boat [board]
