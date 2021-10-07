@@ -1,6 +1,6 @@
 (ns cartagena.swingUI.shaping-test
-  (:require [clojure.test :refer :all]
-            [cartagena.swingUI.shaping :refer :all]))
+  (:require [clojure.test :refer [deftest is testing]]
+            [cartagena.swingUI.shaping :refer [create-square hand-shapes]]))
 
 (deftest create-square-test
     (testing "create-square"

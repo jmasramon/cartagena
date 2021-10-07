@@ -1,11 +1,11 @@
 (ns cartagena.swingUI.drawing
   (:require [clojure.java.io :as io]
-            [cartagena.core :refer [card-types]]
-            [cartagena.getters.sdariEntities :refer [square-type square-contents-vector]]
-            [cartagena.getters.otherEntities :refer [player-color player-cards cards-amounts]]
+            [cartagena.data-abstractions.square :refer [square-type square-contents-vector]]
+            [cartagena.data-abstractions.player :refer [player-color player-cards]]
+            [cartagena.data-abstractions.cards :refer [cards-amounts]]
             [cartagena.swingUI.shaping :refer [track-shapes hand-shapes]]
             )
-  (:import (java.awt Color BorderLayout Component Graphics2D Shape)
+  (:import (java.awt Color Graphics2D)
            (javax.imageio ImageIO)
            (java.awt.geom Ellipse2D$Double RectangularShape)
            ))

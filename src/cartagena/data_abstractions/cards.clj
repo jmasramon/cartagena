@@ -1,9 +1,22 @@
-(ns cartagena.data-abstractions.cards)
+(ns cartagena.data-abstractions.cards
+  (:require  [clojure.data.generators :refer [rand-nth]]))
 
-(defn cards-amounts [cards]
+(defn random-card [cards-reservoir]
+  (rand-nth (seq cards-reservoir)))
+
+(defn random-deck [num cards-reservoir]
+  (for [x (take num (range))]
+    (rand-nth (seq cards-reservoir))))
+
+(defn cards-amounts
+  "counts how many cards of each type we have in a vector of cards"
+  [cards]
   (frequencies cards))
 
-(defn playable-cards [cards]
+;; TODO: this function makes no sense because cards-amounts never returns zeroes, remove it
+(defn playable-cards
+  "returns cards with frequencies bigger than 0"
+  [cards]
   (filter #(> (val %) 0) (cards-amounts cards)))
 
 ;; helper function

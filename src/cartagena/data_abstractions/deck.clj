@@ -1,4 +1,5 @@
-(ns cartagena.data-abstractions.deck)
+(ns cartagena.data-abstractions.deck
+  (:require  [clojure.data.generators :refer [rand-nth]]))
 
 ;; Functions that need to know how deck is implemented
 

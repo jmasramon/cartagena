@@ -1,66 +1,92 @@
 (ns cartagena.data-abstractions.game
   (:require
-   [cartagena.data-abstractions.player :refer [update-player player]]))
+   [clojure.data.generators :refer [rand-nth shuffle]]
+   [cartagena.core :refer [pirate-colors card-types]]
+   [cartagena.data-abstractions.player :refer [random-players players-colors player update-player-in-players]]
+   [cartagena.data-abstractions.deck :refer [random-deck]]
+   [cartagena.data-abstractions.board :refer [initial-board boat]]))
 
-;; Functions that need to know how game-state is implemented
+;; Functions that need to know how game is implemented
 ;; game-state: 
 ;; {players turn board deck}
+(defn random-initial-turn [turns-reservoir]
+  (rand-nth (seq turns-reservoir)))
 
-(defn make-game [])
+(defn players-turns [players-colors]
+  (let [random-ordered-players-colors (shuffle players-colors)]
+    (zipmap random-ordered-players-colors (rest (cycle random-ordered-players-colors)))))
+
+(defn make-game
+  ([]
+   (let [players (random-players 3 pirate-colors 6 card-types)]
+     {:players players
+      :turn-order (players-turns (players-colors players))
+      :turn (random-initial-turn pirate-colors)
+      :deck (random-deck 50 card-types)
+      :board (initial-board card-types players)}))
+  ([num-players]
+   (let [players (random-players num-players pirate-colors 6 card-types)]
+     {:players players
+      :turn-order (players-turns (players-colors players))
+      :turn (random-initial-turn pirate-colors)
+      :deck (random-deck 50 card-types)
+      :board (initial-board card-types players)})))
 
 ;; getters
-(defn players [game-state]
-  (game-state :players))
+(defn players [game]
+  (game :players))
 
-(defn turn-order [game-state]
-  (game-state :turn-order))
+(defn turn-order [game]
+  (game :turn-order))
 
-(defn turn [game-state]
-  (game-state :turn))
+(defn turn [game]
+  (game :turn))
 
-(defn nex-turn [game-state]
-  ((turn game-state) (turn-order game-state)))
+(defn next-turn [game]
+  ((turn game) (turn-order game)))
 
-(defn board [game-state]
-  (game-state :board))
+(defn board [game]
+  (game :board))
 
-(defn deck [game-state]
-  (game-state :deck))
+(defn deck [game]
+  (game :deck))
 
-(defn active-player [game-state]
-  (let [turn (turn game-state)
-        players (players game-state)]
+(defn active-player [game]
+  (let [turn (turn game)
+        players (players game)]
     (first (filter #(= turn (first (keys %))) players))))
 
-(defn next-active-player-color [game-state]
-  (get-in game-state [:turn]))
+(defn active-player-color [game]
+  (get-in game [:turn]))
+
+(defn winner? [game-state]
+  (let [board (board game-state)
+        boat (boat board)
+        pieces (vals (get-in boat [:pieces]))]
+    (> (count (filter #(= % 6) pieces)) 0)))
 
 ;; setters
-(defn set-players [game-state players]
-  (assoc-in game-state [:players] players))
+(defn set-players [game players]
+  (assoc-in game [:players] players))
 
-(defn set-turn-order [game-state turn-order]
-  (assoc-in game-state [:turn-order] turn-order))
+(defn set-turn-order [game turn-order]
+  (assoc-in game [:turn-order] turn-order))
 
-(defn set-turn [game-state turn]
-  (assoc-in game-state [:turn] turn))
+(defn set-turn [game turn]
+  (assoc-in game [:turn] turn))
 
-(defn set-board [game-state board]
-  (assoc-in game-state [:board] board))
+(defn set-board [game board]
+  (assoc-in game [:board] board))
 
-(defn set-deck [game-state deck]
-  (assoc-in game-state [:deck] deck))
+(defn set-deck [game deck]
+  (assoc-in game [:deck] deck))
 
-(defn update-player-in-players [players color newPlayer]
-  (map (partial update-player color newPlayer) players))
+(defn start-turn [game-state turn-color]
+  (let [players (players game-state)
+        player (player players turn-color)
+        modified-player (assoc-in player [turn-color :actions] 3)
+        modified-players (update-player-in-players players turn-color modified-player)]
+    (assoc-in game-state [:players] modified-players)))
 
-(defn add-turns [players color]
-  (let [player (player players color)
-        newPlayer (assoc-in player [color :actions] 3)]
-    (update-player-in-players players color newPlayer)))
 
-(defn decrease-turns [players color]
-  (let [player (player players color)
-        newPlayer (update-in player [color :actions] dec)]
-    (update-player-in-players players color newPlayer)))
 
