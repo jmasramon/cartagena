@@ -1,10 +1,10 @@
 (ns cartagena.swingUI.swingUI
   (:require [cartagena.core :refer [pirate-colors]]
-            ;; improve data abstractions: only game and moves should be needed
+            [cartagena.data-abstractions.moves :refer [pass play-card fall-back]]
             [cartagena.data-abstractions.game :refer [cards make-game players active-player]]
+            ;; improve data abstractions: only game and moves should be needed
             [cartagena.data-abstractions.player :refer [color]]
             [cartagena.data-abstractions.deck :refer [playable-cards]]
-            [cartagena.data-abstractions.moves :refer [pass play-card fall-back]]
 
             [cartagena.swingUI.shaping :refer [track-shapes]]
             [cartagena.swingUI.drawing :refer [draw-squares draw-cards draw-pieces]])
@@ -60,7 +60,7 @@
 
 (defn frame [initial-game-state exit-condition]
   (let [frame (JFrame. "Cartagena!")
-         game (atom initial-game-state)]
+        game (atom initial-game-state)]
     (doto frame
       (.setSize 600 600)
       (.add ^Component (draw-board game) BorderLayout/CENTER)

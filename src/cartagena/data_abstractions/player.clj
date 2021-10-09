@@ -5,7 +5,7 @@
 
 ;; Functions that need to know how player is implemented
 ;; player:
-;;  {color cards actions} ex: {:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}
+;;  {color cards actions} ex: {:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
 ;; players:
 ;;  [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
 ;;   {:green {:cards '(:keys :bottle :pistol :bottle :keys :sword), :actions 2}}]
@@ -13,6 +13,11 @@
 ;;   color  (constant; unchangeable)
 ;;   actions 
 ;;   cards
+
+;; TODO: change player data structure implementation so color is not so problematic
+;; right now we need to know the color of a player in order to interact with it
+;; Better implementation: {:color :yellow, :cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}
+;; Good test of data abstraction barriers -> nothing else should need changing
 
 (defn make-player
   "Make a player with a color and a list of cards. It has 3 actions"
@@ -45,30 +50,19 @@
     (= card (some #{card} (:cards (color player))))))
 
 ;; setters
-(defn set-cards [player cards]
+(defn set-cards 
+  ""
+  [player cards]
   (let [color (first (keys player))]
     (assoc-in player [color :cards] cards)))
 
-(defn set-actions [player actions]
+(defn set-actions 
+  ""
+  [player actions]
   (assoc-in player [(color player) :actions] actions))
 
-;; TODO: this function makes no sense. Remove it
-(defn- update-player
-  "Updates a player if it is of a color"
-  [color newPlayer player]
-  (if (= color (first (keys player)))
-    newPlayer
-    player))
-
-;; this function is too white-box
-;; it forces external modules to know how the player
-;; is implemented
-(defn update-player-in-players
-  "Changes a player in the list of players"
-  [players color newPlayer]
-  (map (partial update-player color newPlayer) players))
-
 (defn add-random-card-to-player
+  ""
   [player]
   (let [cards (cards player)
         new-card (random-card card-types)

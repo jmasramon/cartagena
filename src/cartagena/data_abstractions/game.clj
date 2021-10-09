@@ -2,7 +2,7 @@
   (:require
    [clojure.data.generators :refer [rand-nth shuffle]]
    [cartagena.core :refer [def-num-players num-cards card-types pirate-colors]]
-   [cartagena.data-abstractions.player :as p :refer [make-player color update-player-in-players set-cards]]
+   [cartagena.data-abstractions.player :as p :refer [make-player color set-cards]]
    [cartagena.data-abstractions.deck :refer [random-deck remove-card]]
    [cartagena.data-abstractions.board :as b :refer [make-board boat]]))
 
@@ -159,6 +159,18 @@
   (assoc-in game [:deck] deck))
 
 ;; state-changers
+;; TODO: this function makes no sense. Remove it
+(defn update-player
+  "Updates a player if it is of a color"
+  [color newPlayer player]
+  (if (= color (first (keys player)))
+    newPlayer
+    player))
+
+(defn update-player-in-players
+  "Changes a player in the list of players"
+  [players color newPlayer]
+  (map (partial update-player color newPlayer) players))
 
 (defn add-random-card-to-player
   [players color]

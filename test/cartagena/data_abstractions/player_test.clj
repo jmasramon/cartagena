@@ -24,29 +24,6 @@
         (is (= '(:sword :pistol :keys :flag :flag :sword)
                (cards (set-cards player '(:sword :pistol :keys :flag :flag :sword)))))))))
 
-(deftest update-player-test
-  (testing "update-player"
-    (let [update-player #'cartagena.data-abstractions.player/update-player]
-      (is (=  {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 3}}
-              (update-player   :green
-                               {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 3}}
-                               {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}})))
-      (is (=  {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-              (update-player   :yellow
-                               {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 3}}
-                               {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}))))))
-
-(deftest update-player-in-players-test
-  (testing "update-player-in-players"
-    (is (=  [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-             {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 3}}
-             {:red {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]
-            (update-player-in-players    [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-                                          {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-                                          {:red {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]
-                                         :green
-                                         {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 3}})))))
-
 (deftest add-random-card-to-player-test
   (testing "add-random-card-to-player"
     (binding [*rnd* (java.util.Random. 12345)]
