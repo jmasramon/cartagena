@@ -1,10 +1,36 @@
 (ns cartagena.data-abstractions.game
   (:require
    [clojure.data.generators :refer [rand-nth shuffle]]
-   [cartagena.core :refer [def-num-players num-cards]]
-   [cartagena.data-abstractions.player :refer [random-players color colors update-player-in-players add-random-card-to-player decrease-actions actions reset-actions cards set-cards]]
+   [cartagena.core :refer [def-num-players num-cards card-types pirate-colors]]
+   [cartagena.data-abstractions.player :as p :refer [make-player color update-player-in-players set-cards]]
    [cartagena.data-abstractions.deck :refer [random-deck remove-card]]
    [cartagena.data-abstractions.board :as b :refer [make-board boat]]))
+
+;; Data structures
+;; example of full game data (state of the game)
+;; {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+;;            {:green {:cards '(:keys :bottle :pistol :bottle :keys :sword), :actions 2}}]
+;;  :turn-order {:green :red, :red :yellow, :yellow :green}  
+;;  :turn :green
+;;  :board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}
+;;          {:pieces {:green 6, :red 6, :yellow 0}, :type :flag}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
+;;  :deck [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]}
+
+
 
 ;; Functions that need to know how game is implemented
 ;; game-state: 
@@ -14,27 +40,43 @@
   [turns-reservoir]
   (rand-nth (seq turns-reservoir)))
 
-(defn players-turns
+(defn make-turn-order
   "Define the random order in which the players will play"
   [players-colors]
   (let [random-ordered-players-colors (shuffle players-colors)]
     (zipmap random-ordered-players-colors (rest (cycle random-ordered-players-colors)))))
 
+(defn make-random-players
+  "Make a list of num players"
+  ([num]
+   (let [cards (random-deck num-cards card-types)]
+     (vec (for [color (take num pirate-colors)]
+            (make-player color cards)))))
+  ([num players-reservoir cardNum cards-reservoir]
+   (let [cards (random-deck cardNum cards-reservoir)]
+     (vec (for [color (take num players-reservoir)]
+            (make-player color cards))))))
+
+(defn colors
+  "Get list of colors from list of players"
+  [players]
+  (flatten (map keys players)))
+
 (defn make-game
   "Create a new game"
   ([]
-   (let [players (random-players def-num-players)
+   (let [players (make-random-players def-num-players)
          players-colors (colors players)]
      {:players players
-      :turn-order (players-turns players-colors)
+      :turn-order (make-turn-order players-colors)
       :turn (random-initial-turn players-colors)
       :deck (random-deck)
       :board (make-board players)}))
   ([num-players]
-   (let [players (random-players num-players)
+   (let [players (make-random-players num-players)
          players-colors (colors players)]
      {:players players
-      :turn-order (players-turns players-colors)
+      :turn-order (make-turn-order players-colors)
       :turn (random-initial-turn players-colors)
       :deck (random-deck)
       :board (make-board players)})))
@@ -42,6 +84,12 @@
 ;; getters
 (defn players [game]
   (game :players))
+
+(defn player
+  "Get one player from a list of players"
+  [players color]
+  (first (filter #(= color (first (keys %)))
+                 players)))
 
 (defn turn-order [game]
   (game :turn-order))
@@ -77,6 +125,23 @@
         pieces (vals (get-in boat [:pieces]))]
     (> (count (filter #(= % num-cards) pieces)) 0)))
 
+(defn actions
+  "Get the actions of the player"
+  [players color]
+  (:actions (color (player players color))))
+
+(defn cards
+  "Get the cards of a player"
+  [players color]
+  (:cards (color (player players color))))
+
+;; testers
+(defn player-has-card?
+  "Does the player have a card?"
+  [players color card]
+  (let [player (player players color)]
+    (= card (some #{card} (:cards (color player))))))
+
 ;; setters
 (defn set-players [game players]
   (assoc-in game [:players] players))
@@ -94,6 +159,27 @@
   (assoc-in game [:deck] deck))
 
 ;; state-changers
+
+(defn add-random-card-to-player
+  [players color]
+  (let [player (player players color)
+        new-player (p/add-random-card-to-player player)]
+    (update-player-in-players players color new-player)))
+
+(defn reset-actions
+  "Puts actions back to 3"
+  [players color]
+  (let [player (player players color)
+        newPlayer (assoc-in player [color :actions] 3)]
+    (update-player-in-players players color newPlayer)))
+
+(defn decrease-actions
+  "Takes one action from the player"
+  [players color]
+  (let [player (player players color)
+        newPlayer (update-in player [color :actions] dec)]
+    (update-player-in-players players color newPlayer)))
+
 (defn add-random-card-to-active-player
   "Add a (random) card to the active player"
   [game]
@@ -102,14 +188,14 @@
         updated-players (add-random-card-to-player players color)]
     (set-players game updated-players)))
 
-(defn move-piece 
+(defn move-piece
   "Moves a piece from to"
   [game from to]
   (let [board (board game)
         color (active-player-color game)]
     (set-board game (b/move-piece board from to color))))
 
-(defn turn-played 
+(defn turn-played
   "Reduces the num of actions from the active user.
    If zero remaining, set 3 actions to next user"
   [game]
@@ -119,8 +205,8 @@
         decreased-action-players (decrease-actions (players game) color)
         remaining-actions (actions decreased-action-players color)
         new-players (if (= 0 remaining-actions)
-                     (reset-actions decreased-action-players next-player)
-                     decreased-action-players)
+                      (reset-actions decreased-action-players next-player)
+                      decreased-action-players)
         new-game (set-players game new-players)]
     (if (= 0 remaining-actions)
       (set-turn new-game next-player)
@@ -132,7 +218,7 @@
   (let [players (players game)
         active-player (active-player game)
         color (color active-player)
-        cards (cards active-player)
+        cards (p/cards active-player)
         new-cards (remove-card cards card)
         updated-player (set-cards active-player new-cards)
         updated-players (update-player-in-players players color updated-player)]

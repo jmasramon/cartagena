@@ -2,7 +2,6 @@
   (:require  [clojure.test :refer :all]
              [clojure.data.generators :refer [*rnd*]]
              [cartagena.core :refer [pirate-colors card-types]]
-             [cartagena.data-abstractions.player :refer [random-players]]
              [cartagena.data-abstractions.game :refer :all]))
 
 (def fullGameState {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
@@ -32,16 +31,45 @@
       (is (=  :yellow
               (random-initial-turn  pirate-colors))))))
 
-(deftest players-turns-test
-  (testing "players-turns-turn"
+(deftest make-turn-order-test
+  (testing "make-turn-order-turn"
     (binding [*rnd* (java.util.Random. 12345)]
       (is (=  {:green :red, :red :yellow, :yellow :green}
-              (players-turns  (flatten (map keys (random-players 3 pirate-colors 6 card-types))))))
+              (make-turn-order  (flatten (map keys (make-random-players 3 pirate-colors 6 card-types))))))
       (is (=  {:green :red, :red :yellow, :yellow :green}
-              (players-turns  (flatten (map keys (random-players 3 pirate-colors 6 card-types)))))))))
+              (make-turn-order  (flatten (map keys (make-random-players 3 pirate-colors 6 card-types)))))))))
+
+(deftest make-random-players-test
+  (testing "Random players"
+    (binding [*rnd* (java.util.Random. 12345)]
+      (let [[a b c] (make-random-players 3)]
+        (is (=  {:yellow {:actions 3, :cards '(:sword :pistol :keys :flag :flag :sword)}}
+                a))
+        (is (=  {:green {:actions 3, :cards '(:sword :pistol :keys :flag :flag :sword)}}
+                b))
+        (is (=  {:red {:actions 3, :cards '(:sword :pistol :keys :flag :flag :sword)}}
+                c)))
+      (let [[a b c] (make-random-players 3 pirate-colors 6 card-types)]
+        (is (=  {:yellow {:actions 3, :cards '(:sword :hat :bottle :keys :pistol :bottle)}}
+                a))
+        (is (=  {:green {:actions 3, :cards '(:sword :hat :bottle :keys :pistol :bottle)}}
+                b))
+        (is (=  {:red {:actions 3, :cards '(:sword :hat :bottle :keys :pistol :bottle)}}
+                c))))))
+
+
+(deftest colors-test
+  (testing "colors-test"
+    (binding [*rnd* (java.util.Random. 12345)]
+      (let [players (make-random-players 3 pirate-colors 6 card-types)]
+        (is (= '(:yellow :green :red)
+               (colors players)))))))
+
+
+
 ;; TODO: make this test work by making the result of make-game deterministic
 ;; (deftest make-game-test
-;;   (testing "players-turns-turn"
+;;   (testing "make-turn-order-turn"
 ;;     (binding [*rnd* (java.util.Random. 12345)]
 ;;       (let [res (make-game)]
 ;;         (is (=  {:board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
@@ -350,3 +378,70 @@
              (remove-played-card fullGameState :keys))
           "Only the actions of the active (green) player should change from 2 to 1"))))
 
+(deftest add-random-card-to-player-test
+  (testing "add-random-card-to-player"
+    (binding [*rnd* (java.util.Random. 12345)]
+      (is (=  [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+               {:green {:cards '(:bottle :bottle :keys :keys :pistol :sword :sword), :actions 0}}
+               {:red {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]
+              (add-random-card-to-player [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+                                          {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+                                          {:red {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]
+                                         :green))))))
+
+(deftest reset-actions-test
+  (testing "reset-actions"
+    (is (= [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+            {:green {:cards '(:flag :keys :pistol :sword :bottle :hat), :actions 0}}
+            {:red {:cards '(:bottle :pistol :flag :flag :keys :bottle), :actions 3}}]
+           (reset-actions [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+                           {:green {:cards '(:flag :keys :pistol :sword :bottle :hat), :actions 0}}
+                           {:red {:cards '(:bottle :pistol :flag :flag :keys :bottle), :actions 0}}]
+                          :red)))))
+
+(deftest decrease-actions-test
+  (testing "decrease-actions"
+    (is (= [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+            {:green {:cards '(:flag :keys :pistol :sword :bottle :hat), :actions 2}}
+            {:red {:cards '(:bottle :pistol :flag :flag :keys :bottle), :actions 0}}]
+           (decrease-actions [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+                              {:green {:cards '(:flag :keys :pistol :sword :bottle :hat), :actions 3}}
+                              {:red {:cards '(:bottle :pistol :flag :flag :keys :bottle), :actions 0}}]
+                             :green)))))
+
+(deftest player-has-card?-test
+  (testing "player-has-card?"
+    (is (= true
+           (player-has-card? [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+                              {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 3}}
+                              {:red {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]
+                             :green
+                             :bottle)))
+
+    (is (= false
+           (player-has-card? [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+                              {:green {:cards '(:bottle :keys :pistol :bottle :keys :pistol), :actions 3}}
+                              {:red {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]
+                             :green
+                             :sword)))))
+
+(deftest actions-test
+  (testing "actions-test"
+    (binding [*rnd* (java.util.Random. 12345)]
+      (let [players (make-random-players 3 pirate-colors 6 card-types)]
+        (is (= 3
+               (actions players :yellow)))))))
+
+(deftest cards-test
+  (testing "cards-test"
+    (binding [*rnd* (java.util.Random. 12345)]
+      (let [players (make-random-players 3 pirate-colors 6 card-types)]
+        (is (= '(:sword :pistol :keys :flag :flag :sword)
+               (cards players :green)))))))
+
+(deftest player-test
+  (testing "player-test"
+    (binding [*rnd* (java.util.Random. 12345)]
+      (let [players (make-random-players 3 pirate-colors 6 card-types)]
+        (is (= {:yellow {:actions 3, :cards '(:sword :pistol :keys :flag :flag :sword)}}
+               (player players :yellow)))))))
