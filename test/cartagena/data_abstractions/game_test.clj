@@ -6,7 +6,8 @@
              [cartagena.data-abstractions.game :refer :all]))
 
 (def fullGameState {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-                              {:green {:cards '(:keys :bottle :pistol :bottle :keys :sword), :actions 2}}]
+                              {:green {:cards '(:keys :bottle :pistol :bottle :keys :sword), :actions 2}}
+                              {:red {:cards '(:keys :sword :pistol :bottle :keys :sword), :actions 0}}]
                     :turn-order {:green :red, :red :yellow, :yellow :green}
                     :turn :green
                     :board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
@@ -18,7 +19,6 @@
                             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
                             {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
                     :deck [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]})
-
 
 (deftest random-initial-turn-test
   (testing "random-initial-turn"
@@ -35,13 +35,10 @@
 (deftest players-turns-test
   (testing "players-turns-turn"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [res1 (players-turns  (flatten (map keys (random-players 3 pirate-colors 6 card-types))))
-            res2 (players-turns  (flatten (map keys (random-players 3 pirate-colors 6 card-types))))]
-        (is (=  {:green :red, :red :yellow, :yellow :green}
-                res1))
-        (is (=  {:green :red, :red :yellow, :yellow :green}
-                res2))))))
-
+      (is (=  {:green :red, :red :yellow, :yellow :green}
+              (players-turns  (flatten (map keys (random-players 3 pirate-colors 6 card-types))))))
+      (is (=  {:green :red, :red :yellow, :yellow :green}
+              (players-turns  (flatten (map keys (random-players 3 pirate-colors 6 card-types)))))))))
 ;; TODO: make this test work by making the result of make-game deterministic
 ;; (deftest make-game-test
 ;;   (testing "players-turns-turn"
@@ -149,7 +146,8 @@
 (deftest players-test
   (testing "players"
     (is (= [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-            {:green {:cards '(:keys :bottle :pistol :bottle :keys :sword), :actions 2}}]
+            {:green {:cards '(:keys :bottle :pistol :bottle :keys :sword), :actions 2}}
+            {:red {:actions 0, :cards '(:keys :sword :pistol :bottle :keys :sword)}}]
            (players fullGameState)))))
 
 (deftest turn-order-test
@@ -202,6 +200,28 @@
     (is (= [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]
            (deck fullGameState)))))
 
+(deftest winner-test
+  (testing "winner?"
+    (is (= false
+           (winner? {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]
+                     :board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                             {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                             {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                             {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                             {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                             {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                             {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]})))
+    (is (= true
+           (winner? {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]
+                     :board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                             {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                             {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                             {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                             {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                             {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                             {:pieces {:green 6, :red 0, :yellow 0}, :type :boat}]})))))
 
 ;;setters
 (deftest set-players-test
@@ -245,30 +265,6 @@
     (is (= [:pistol :bottle :flag :sword :hat :flag :sword :hat  :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]
            (deck (set-deck fullGameState [:pistol :bottle :flag :sword :hat :flag :sword :hat  :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]))))))
 
-
-(deftest winner-test
-  (testing "winner?"
-    (is (= false
-           (winner? {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]
-                     :board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]})))
-    (is (= true
-           (winner? {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]
-                     :board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                             {:pieces {:green 6, :red 0, :yellow 0}, :type :boat}]})))))
-
 (deftest start-turn-test
   (testing "start-turn"
     (is (=  {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
@@ -278,3 +274,89 @@
                                    {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
                                    {:red {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]}
                         :green)))))
+
+(deftest add-random-card-to-active-player-test
+  (testing "add-random-card-to-active-player"
+    (binding [*rnd* (java.util.Random. 12345)]
+      (is (= {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+                        {:green {:cards '(:keys :keys :bottle :bottle :pistol :sword :sword), :actions 2}}
+                        {:red {:actions 0
+                               :cards '(:keys :sword :pistol :bottle :keys :sword)}}]
+              :turn-order {:green :red, :red :yellow, :yellow :green}
+              :turn :green
+              :board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
+              :deck [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]}
+             (add-random-card-to-active-player fullGameState))))))
+
+(deftest turn-played-test
+  (testing "turn-played"
+    (binding [*rnd* (java.util.Random. 12345)]
+      (is (= {:players [{:yellow {:actions 0
+                                  :cards '(:bottle :keys :pistol :bottle :keys :sword)}}
+                        {:green {:actions 1
+                                 :cards '(:keys :bottle :pistol :bottle :keys :sword)}}
+                        {:red {:actions 0
+                               :cards '(:keys :sword :pistol :bottle :keys :sword)}}]
+              :turn-order {:green :red, :red :yellow, :yellow :green}
+              :turn :green
+              :board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
+              :deck [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]}
+             (turn-played fullGameState))
+          "Only the actions of the active (green) player should change from 2 to 1")
+      (is (= {:players [{:yellow {:actions 0
+                                  :cards '(:bottle :keys :pistol :bottle :keys :sword)}}
+                        {:green {:actions 0
+                                 :cards '(:keys :bottle :pistol :bottle :keys :sword)}}
+                        {:red {:actions 3
+                               :cards '(:keys :sword :pistol :bottle :keys :sword)}}]
+              :turn-order {:green :red, :red :yellow, :yellow :green}
+              :turn :red
+              :board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
+              :deck [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]}
+             (turn-played (turn-played fullGameState)))
+          "The actions of the active (green) player should change from 2 to 0 and the ones from the next (red) player should go from 0 to 3. Also the active player should go to the next one"))))
+
+(deftest play-card-test
+  (testing "play-card"
+    (binding [*rnd* (java.util.Random. 12345)]
+      (is (= {:players [{:yellow {:actions 0
+                                  :cards '(:bottle :keys :pistol :bottle :keys :sword)}}
+                        {:green {:actions 2
+                                 :cards '(:keys :bottle :bottle :pistol :sword)}}
+                        {:red {:actions 0
+                               :cards '(:keys :sword :pistol :bottle :keys :sword)}}]
+              :turn-order {:green :red, :red :yellow, :yellow :green}
+              :turn :green
+              :board [{:pieces {:green 5, :red 6, :yellow 6}, :type :start}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                      {:pieces {:green 1, :red 0, :yellow 0}, :type :keys}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
+              :deck [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]}
+             (play-card fullGameState :keys 0))
+          "Only the actions of the active (green) player should change from 2 to 1")
+      )))

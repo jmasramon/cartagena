@@ -7,6 +7,7 @@
 (def deck-size 50)
 (def def-num-players 3)
 (def starting-actions 3)
+(def starting-pieces 6)
 
 
 ;; Data structures

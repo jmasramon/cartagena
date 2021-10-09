@@ -1,7 +1,7 @@
 (ns cartagena.data-abstractions.square-test
   (:require [clojure.test :refer [deftest is testing]]
             [cartagena.core]
-            [cartagena.data-abstractions.square :refer [dec-square-players inc-square-players make-square make-starting-square make-empty-pieces square-contents-vector square-of-type? square-pieces]]))
+            [cartagena.data-abstractions.square :refer [type-of remove-piece-from add-piece-to make-square square-contents-vector square-of-type? pieces-in num-pieces-in]]))
 
 (def board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
             {:pieces {:green 1, :red 2, :yellow 3}, :type :bottle}
@@ -12,15 +12,24 @@
             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
             {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}])
 
+(deftest make-pieces-test
+  (testing "make-pieces"
+    (let [make-pieces #'cartagena.data-abstractions.square/make-pieces
+          res (make-pieces '(:red :green :blue) 3)]
+      (is (=  {:pieces {:blue 3, :green 3, :red 3}}
+              res)))))
+
 (deftest make-starting-square-test
   (testing "make-starting-square"
-    (let [res (make-starting-square '(:red :green :blue))]
+    (let [make-starting-square  #'cartagena.data-abstractions.square/make-starting-square
+          res (make-starting-square '(:red :green :blue))]
       (is (=  {:pieces {:blue 6, :green 6, :red 6}, :type :start}
               res)))))
 
 (deftest make-empty-pieces-test
   (testing "make-empty-pieces"
-    (let [res (make-empty-pieces '(:red :green :blue))]
+    (let [make-empty-pieces  #'cartagena.data-abstractions.square/make-empty-pieces
+          res (make-empty-pieces '(:red :green :blue))]
       (is (=  {:pieces {:blue 0, :green 0, :red 0}}
               res)))))
 
@@ -52,76 +61,40 @@
               (:type res))
           "type should be :hat"))))
 
-(deftest inc-square-players-test
-  (testing "inc-square-players"
+(deftest add-piece-to-test
+  (testing "add-piece-to"
     (is (= {:pieces {:green 0, :red 1, :yellow 0}, :type :start}
-           (inc-square-players {:pieces {:green 0, :red 0, :yellow 0}, :type :start}
-                               :red)))))
+           (add-piece-to {:pieces {:green 0, :red 0, :yellow 0}, :type :start}
+                         :red)))))
 
-(deftest dec-square-players-test
-  (testing "dec-square-players"
+(deftest remove-piece-from-test
+  (testing "remove-piece-from"
     (is (= {:pieces {:green 1, :red 1, :yellow 0}, :type :start}
-           (dec-square-players {:pieces {:green 2, :red 1, :yellow 0}, :type :start}
-                               :green)))))
+           (remove-piece-from {:pieces {:green 2, :red 1, :yellow 0}, :type :start}
+                              :green)))))
 
-(deftest square-pieces-test
-  (testing "square-pieces 2 params"
+(deftest square-type-test
+  (testing "type-of"
+    (is (= :start
+           (type-of {:pieces {:green 2, :red 1, :yellow 0}, :type :start})))))
+
+
+
+(deftest pieces-in-test
+  (testing "pieces-in"
     (is (=  {:green 6, :red 6, :yellow 6}
-            (square-pieces [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
-                           0)))
+            (pieces-in {:pieces {:green 6, :red 6, :yellow 6}, :type :start})))
 
     (is (=  {:green 2, :red 1, :yellow 2}
-            (square-pieces [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                            {:pieces {:green 2, :red 1, :yellow 2}, :type :hat}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
-                           4)))
+            (pieces-in {:pieces {:green 2, :red 1, :yellow 2}, :type :bottle})))))
 
-    (is (=  {:green 1, :red 2, :yellow 3}
-            (square-pieces [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                            {:pieces {:green 1, :red 2, :yellow 3}, :type :bottle}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                            {:pieces {:green 2, :red 1, :yellow 2}, :type :hat}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
-                           1)))))
-
-(testing "square-pieces 3 params"
+(testing "num-pieces-in "
   (is (=  6
-          (square-pieces [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
-                         0
-                         :red)))
+          (num-pieces-in  {:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                          :red)))
 
   (is (=  0
-          (square-pieces [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
-                         4
+          (num-pieces-in {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}
                          :yellow))))
 
 (deftest square-contents-vector-test
@@ -132,13 +105,14 @@
            (square-contents-vector {:green 1, :red 2, :yellow 3})))
     (is (= []
            (square-contents-vector {:green 0, :red 0, :yellow 0}))))
-  (testing "square-contents-vector two param"
-    (is (= [:green :green :green :green :green :green :red :red :red :red :red :red :yellow :yellow :yellow :yellow :yellow :yellow]
-           (square-contents-vector board 0)))
-    (is (= [:green :red :red :yellow :yellow :yellow]
-           (square-contents-vector board 1)))
-    (is (= []
-           (square-contents-vector board 2)))))
+  ;; (testing "square-contents-vector two param"
+  ;;   (is (= [:green :green :green :green :green :green :red :red :red :red :red :red :yellow :yellow :yellow :yellow :yellow :yellow]
+  ;;          (square-contents-vector board 0)))
+  ;;   (is (= [:green :red :red :yellow :yellow :yellow]
+  ;;          (square-contents-vector board 1)))
+  ;;   (is (= []
+  ;;          (square-contents-vector board 2))))
+  )
 
 (deftest square-of-type?-test
   (testing "square-of-type?"

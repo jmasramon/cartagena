@@ -2,8 +2,8 @@
   (:require [cartagena.core :refer [pirate-colors]]
             ;; improve data abstractions: only game and moves should be needed
             [cartagena.data-abstractions.game :refer [make-game players active-player]]
-            [cartagena.data-abstractions.player :refer [cards player-color]]
-            [cartagena.data-abstractions.cards :refer [playable-cards]]
+            [cartagena.data-abstractions.player :refer [cards color]]
+            [cartagena.data-abstractions.deck :refer [playable-cards]]
             [cartagena.data-abstractions.moves :refer [pass play-card fall-back]]
 
             [cartagena.swingUI.shaping :refer [track-shapes]]
@@ -40,7 +40,7 @@
 
 (defn clicker [parent game]
   (let [click-handler #(when-let [clicked (get-click-index (-> % .getPoint .x) (-> % .getPoint .y))]
-                         (let [color (player-color (active-player @game))]
+                         (let [color (color (active-player @game))]
                            (popup parent %
                                   (cards (players @game) color)
                                   game clicked)))]

@@ -1,27 +1,26 @@
 (ns cartagena.swingUI.drawing
   (:require [clojure.java.io :as io]
-            [cartagena.data-abstractions.square :refer [square-type square-contents-vector]]
-            [cartagena.data-abstractions.player :refer [player-color player-cards]]
-            [cartagena.data-abstractions.cards :refer [cards-amounts]]
-            [cartagena.swingUI.shaping :refer [track-shapes hand-shapes]]
-            )
+            [cartagena.data-abstractions.square :refer [square-contents-vector]]
+            [cartagena.data-abstractions.board :refer [square-type]]
+            [cartagena.data-abstractions.player :refer [color cards]]
+            [cartagena.data-abstractions.deck :refer [cards-amounts]]
+            [cartagena.swingUI.shaping :refer [track-shapes hand-shapes]])
   (:import (java.awt Color Graphics2D)
            (javax.imageio ImageIO)
-           (java.awt.geom Ellipse2D$Double RectangularShape)
-           ))
+           (java.awt.geom Ellipse2D$Double RectangularShape)))
 
 (def color-map
-  { :red Color/RED :green Color/GREEN :blue Color/BLUE :yellow Color/YELLOW :brown (Color. 139 69 19) })
+  {:red Color/RED :green Color/GREEN :blue Color/BLUE :yellow Color/YELLOW :brown (Color. 139 69 19)})
 
 (defn centered-circle [cx cy r]
   (Ellipse2D$Double. (- cx r) (- cy r) (* r 2) (* r 2)))
 
-(defn load-image [s] (-> s 
-            io/input-stream 
-            ImageIO/read))
+(defn load-image [s] (-> s
+                         io/input-stream
+                         ImageIO/read))
 
 (def images
-  { :start (load-image "./resources/cards/hands6.png")
+  {:start (load-image "./resources/cards/hands6.png")
    :boat   (load-image "./resources/cards/sail1.png")
    :keys   (load-image "./resources/cards/old45.png")
    :bottle (load-image "./resources/cards/wine47.png")
@@ -42,8 +41,8 @@
         (.draw shape) ; draw the square
         (draw-image image shape))))) ; draw the image on top 
 
-(defmulti draw-piece 
-  (fn [_ pieces _] 
+(defmulti draw-piece
+  (fn [_ pieces _]
     (count (square-contents-vector pieces))))
 
 (defmethod draw-piece 0 [_ _ _])
@@ -89,17 +88,17 @@
         (.fill graphics shape)))))
 
 (defn draw-pieces
-  ([^Graphics2D graphics pieces boundary] 
-    (draw-piece graphics pieces boundary))
+  ([^Graphics2D graphics pieces boundary]
+   (draw-piece graphics pieces boundary))
   ([^Graphics2D graphics pieces]
    (doseq [i (range (count pieces))]
-    (let [local-pieces (get-in pieces [i :pieces])
-          shape (get track-shapes i)]
+     (let [local-pieces (get-in pieces [i :pieces])
+           shape (get track-shapes i)]
        (draw-pieces graphics local-pieces shape)))))
 
 (defn draw-cards [^Graphics2D graphics player]
-  (let [color (color-map (player-color player))
-        hand (player-cards player)]
+  (let [color (color-map (color player))
+        hand (cards player)]
     (doseq [hand-shape hand-shapes]
       (let [shape (key hand-shape)
             card-type (val hand-shape)

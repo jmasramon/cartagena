@@ -29,7 +29,6 @@
              (make-board-section cartagena.core/card-types
                                  [:yellow :green :red]))))))
 
-
 (deftest make-board-test
   (testing "make-board"
     (binding [*rnd* (java.util.Random. 12345)]
@@ -130,6 +129,29 @@
                             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
                             {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
                            7))
+        "should return boat pieces"))
+  (testing "square-contents-vector"
+    (is (=  [:green :green :green :green :green :green :red :red :red :red :red :red :yellow :yellow :yellow :yellow :yellow :yellow]
+            (square-contents-vector [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
+                                    0))
+        "should return start pieces")
+    (is (=  [:green :red :red :yellow]
+            (square-contents-vector [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                                     {:pieces {:green 1, :red 2, :yellow 1}, :type :boat}]
+                                    7))
         "should return boat pieces"))
   (testing "square-type"
     (is (=  :start
@@ -283,8 +305,8 @@
                               0
                               :red)))))
 
-(deftest add-piece-test
-  (testing "add-piece"
+(deftest add-piece-to-test
+  (testing "add-piece-to"
     (is (= [{:pieces {:green 0, :red 0, :yellow 0}, :type :start}
             {:pieces {:green 0, :red 1, :yellow 0}, :type :bottle}
             {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
@@ -293,19 +315,19 @@
             {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
             {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
-           (add-piece [{:pieces {:green 0, :red 0, :yellow 0}, :type :start}
-                       {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                       {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                       {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                       {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                       {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                       {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                       {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
-                      1
-                      :red)))))
+           (add-piece-to [{:pieces {:green 0, :red 0, :yellow 0}, :type :start}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
+                         1
+                         :red)))))
 
-(deftest remove-piece-test
-  (testing "remove-piece"
+(deftest remove-piece-from-test
+  (testing "remove-piece-from"
     (is (= [{:pieces {:green 0, :red 0, :yellow 0}, :type :start}
             {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
             {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
@@ -314,16 +336,16 @@
             {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
             {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
-           (remove-piece [{:pieces {:green 0, :red 0, :yellow 0}, :type :start}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                          {:pieces {:green 3, :red 2, :yellow 1}, :type :hat}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                          {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
-                         4
-                         :yellow)))))
+           (remove-piece-from [{:pieces {:green 0, :red 0, :yellow 0}, :type :start}
+                               {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                               {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                               {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                               {:pieces {:green 3, :red 2, :yellow 1}, :type :hat}
+                               {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                               {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                               {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
+                              4
+                              :yellow)))))
 
 (def board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
             {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
@@ -386,37 +408,37 @@
             {:pieces {:green 1, :red 2, :yellow 0}, :type :pistol}
             :pistol)))))
 
-(deftest find-empty-slot-test
-  (testing "find-empty-slot"
+(deftest index-next-empty-slot-test
+  (testing "index-next-empty-slot"
     (is (= 5
-           (find-empty-slot board :keys 0 :green)))
+           (index-next-empty-slot board :keys 0 :green)))
     (is (= 1
-           (find-empty-slot board :bottle 0 :red)))
+           (index-next-empty-slot board :bottle 0 :red)))
 
     (is (= 13
-           (find-empty-slot board :keys 6 :yellow)))
+           (index-next-empty-slot board :keys 6 :yellow)))
     (is (= 13
-           (find-empty-slot board :keys 5 :green)))
+           (index-next-empty-slot board :keys 5 :green)))
     (is (= 5
-           (find-empty-slot board :keys 4 :red)))
+           (index-next-empty-slot board :keys 4 :red)))
 
     (is (= 8
-           (find-empty-slot board :flag 2 :yellow))))
-  (testing "find-empty-slot two params"
+           (index-next-empty-slot board :flag 2 :yellow))))
+  (testing "index-next-empty-slot two params"
     (is (= 5
-           (find-empty-slot board :keys 0)))
+           (index-next-empty-slot board :keys 0)))
     (is (= 1
-           (find-empty-slot board :bottle 0)))
+           (index-next-empty-slot board :bottle 0)))
     (is (= 13
-           (find-empty-slot board :keys 6)))
+           (index-next-empty-slot board :keys 6)))
     (is (= 13
-           (find-empty-slot board :keys 5)))
+           (index-next-empty-slot board :keys 5)))
     (is (= 5
-           (find-empty-slot board :keys 4)))
+           (index-next-empty-slot board :keys 4)))
     (is (= 10
-           (find-empty-slot board :flag 2)))
+           (index-next-empty-slot board :flag 2)))
     (is (= 15
-           (find-empty-slot board :flag 10)))))
+           (index-next-empty-slot board :flag 10)))))
 
 (deftest nonempty-slot?-test
   (testing "nonempty-slot?"
@@ -436,44 +458,44 @@
            (nonempty-slot?
             {:pieces {:green 0, :red 0, :yellow 1}, :type :pistol})))))
 
-(deftest find-nonempty-slot-test
-  (testing "find-nonempty-slot"
+(deftest index-closest-nonempty-slot-test
+  (testing "index-closest-nonempty-slot"
     (is (= 0
-           (find-nonempty-slot board 3)))
+           (index-closest-nonempty-slot board 3)))
     (is (= 0
-           (find-nonempty-slot board 4)))
+           (index-closest-nonempty-slot board 4)))
     (is (= 0
-           (find-nonempty-slot board 5)))
+           (index-closest-nonempty-slot board 5)))
     (is (= 0
-           (find-nonempty-slot board 6)))
+           (index-closest-nonempty-slot board 6)))
     (is (= 0
-           (find-nonempty-slot board 7)))
+           (index-closest-nonempty-slot board 7)))
     (is (= 0
-           (find-nonempty-slot board 8)))
+           (index-closest-nonempty-slot board 8)))
     (is (= 8
-           (find-nonempty-slot board 9)))
+           (index-closest-nonempty-slot board 9)))
     (is (= 8
-           (find-nonempty-slot board 10)))
+           (index-closest-nonempty-slot board 10)))
     (is (= 8
-           (find-nonempty-slot board 11)))
+           (index-closest-nonempty-slot board 11)))
     (is (= 0
-           (find-nonempty-slot [{:pieces {:green 0, :red 0, :yellow 0}, :type :start}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}
-                                {:pieces {:green 6, :red 6, :yellow 0}, :type :flag}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                                {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
-                               8)))))
+           (index-closest-nonempty-slot [{:pieces {:green 0, :red 0, :yellow 0}, :type :start}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}
+                                         {:pieces {:green 6, :red 6, :yellow 0}, :type :flag}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                                         {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
+                                        8)))))
 
 (deftest move-piece-test
   (testing "move-piece"
