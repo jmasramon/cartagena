@@ -45,14 +45,5 @@
 (defn play-card
   "For the active player: use card to move piece (from board current-position to next available space -empty slot same typ or board-); loose the card; turn played"
   [game card from]
-  (let [board (board game)
-        players (players game)
-        activePlayer (active-player game)
-        color (color activePlayer)
-        cards (cards activePlayer)
-        newCards (remove-card cards card)
-        updated-player (set-cards activePlayer newCards)
-        updated-players (update-player-in-players players color updated-player)
-        to (index-next-empty-slot board card from)]
     (turn-played
-     (g/play-card game card from))))
+     (g/play-card game card from)))
