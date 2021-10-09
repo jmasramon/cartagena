@@ -265,16 +265,6 @@
     (is (= [:pistol :bottle :flag :sword :hat :flag :sword :hat  :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]
            (deck (set-deck fullGameState [:pistol :bottle :flag :sword :hat :flag :sword :hat  :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]))))))
 
-(deftest start-turn-test
-  (testing "start-turn"
-    (is (=  {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-                       {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 3}}
-                       {:red {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]}
-            (start-turn {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-                                   {:green {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-                                   {:red {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}]}
-                        :green)))))
-
 (deftest add-random-card-to-active-player-test
   (testing "add-random-card-to-active-player"
     (binding [*rnd* (java.util.Random. 12345)]
@@ -337,8 +327,8 @@
              (turn-played (turn-played fullGameState)))
           "The actions of the active (green) player should change from 2 to 0 and the ones from the next (red) player should go from 0 to 3. Also the active player should go to the next one"))))
 
-(deftest play-card-test
-  (testing "play-card"
+(deftest remove-played-card-test
+  (testing "remove-played-card"
     (binding [*rnd* (java.util.Random. 12345)]
       (is (= {:players [{:yellow {:actions 0
                                   :cards '(:bottle :keys :pistol :bottle :keys :sword)}}
@@ -348,15 +338,15 @@
                                :cards '(:keys :sword :pistol :bottle :keys :sword)}}]
               :turn-order {:green :red, :red :yellow, :yellow :green}
               :turn :green
-              :board [{:pieces {:green 5, :red 6, :yellow 6}, :type :start}
+              :board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
                       {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
                       {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
                       {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
                       {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                      {:pieces {:green 1, :red 0, :yellow 0}, :type :keys}
+                      {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
                       {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
                       {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
               :deck [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]}
-             (play-card fullGameState :keys 0))
-          "Only the actions of the active (green) player should change from 2 to 1")
-      )))
+             (remove-played-card fullGameState :keys))
+          "Only the actions of the active (green) player should change from 2 to 1"))))
+

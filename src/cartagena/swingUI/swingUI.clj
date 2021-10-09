@@ -60,12 +60,7 @@
 
 (defn frame [initial-game-state exit-condition]
   (let [frame (JFrame. "Cartagena!")
-        ; first-player (first (keys (:turn-order initial-game-state)))
-        ; started (cartagena.core/start-turn initial-game-state first-player)
-        ;game (atom (almost-win started))
-        ; game (atom started)
-        game (atom initial-game-state)]
-    ; (setup-winner-watch game)
+         game (atom initial-game-state)]
     (doto frame
       (.setSize 600 600)
       (.add ^Component (draw-board game) BorderLayout/CENTER)

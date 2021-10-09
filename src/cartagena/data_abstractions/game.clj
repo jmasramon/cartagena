@@ -1,10 +1,10 @@
 (ns cartagena.data-abstractions.game
   (:require
    [clojure.data.generators :refer [rand-nth shuffle]]
-   [cartagena.core :refer [def-num-players num-cards starting-actions]]
-   [cartagena.data-abstractions.player :refer [random-players color colors player update-player-in-players add-random-card-to-player decrease-actions actions reset-actions cards set-cards]]
+   [cartagena.core :refer [def-num-players num-cards]]
+   [cartagena.data-abstractions.player :refer [random-players color colors update-player-in-players add-random-card-to-player decrease-actions actions reset-actions cards set-cards]]
    [cartagena.data-abstractions.deck :refer [random-deck remove-card]]
-   [cartagena.data-abstractions.board :as b :refer [make-board boat index-next-empty-slot]]))
+   [cartagena.data-abstractions.board :as b :refer [make-board boat]]))
 
 ;; Functions that need to know how game is implemented
 ;; game-state: 
@@ -68,8 +68,6 @@
 (defn active-player-color [game]
   (turn game))
 
-(def player-color active-player) ;; just an alias
-
 (defn next-player [game]
   (next-turn game))
 
@@ -95,60 +93,49 @@
 (defn set-deck [game deck]
   (assoc-in game [:deck] deck))
 
-(defn start-turn [game color]
-  (let [players (players game)
-        player (player players color)
-        modified-player (assoc-in player [color :actions] starting-actions)
-        modified-players (update-player-in-players players color modified-player)]
-    (assoc-in game [:players] modified-players)))
-
 ;; state-changers
 (defn add-random-card-to-active-player
+  "Add a (random) card to the active player"
   [game]
   (let [color (active-player-color game)
         players (players game)
         updated-players (add-random-card-to-player players color)]
     (set-players game updated-players)))
 
-(defn move-piece [game from to]
+(defn move-piece 
+  "Moves a piece from to"
+  [game from to]
   (let [board (board game)
         color (active-player-color game)]
     (set-board game (b/move-piece board from to color))))
 
-(defn turn-played [game]
+(defn turn-played 
+  "Reduces the num of actions from the active user.
+   If zero remaining, set 3 actions to next user"
+  [game]
   (let [color (color (active-player game))
         next-player (next-player game)
       	;; TODO: next four lines require its own abstraction new-players-state-after-turn
         decreased-action-players (decrease-actions (players game) color)
-        remainingActions (actions decreased-action-players color)
-        newPlayers (if (= 0 remainingActions)
+        remaining-actions (actions decreased-action-players color)
+        new-players (if (= 0 remaining-actions)
                      (reset-actions decreased-action-players next-player)
                      decreased-action-players)
-        new-game (set-players game newPlayers)]
-    (if (= 0 remainingActions)
+        new-game (set-players game new-players)]
+    (if (= 0 remaining-actions)
       (set-turn new-game next-player)
       new-game)))
 
 (defn remove-played-card
+  "Removes card played from active user"
   [game card]
-  (let [activePlayer (active-player game)
-        cards (cards activePlayer)
-        newCards (remove-card cards card)
-        updated-player (set-cards activePlayer newCards)
+  (let [players (players game)
+        active-player (active-player game)
+        color (color active-player)
+        cards (cards active-player)
+        new-cards (remove-card cards card)
+        updated-player (set-cards active-player new-cards)
         updated-players (update-player-in-players players color updated-player)]
     (set-players game updated-players)))
 
-(defn play-card [game card from]
-  (let [board (board game)
-        players (players game)
-        activePlayer (active-player game)
-        color (color activePlayer)
-        cards (cards activePlayer)
-        newCards (remove-card cards card)
-        updated-player (set-cards activePlayer newCards)
-        updated-players (update-player-in-players players color updated-player)
-        to (index-next-empty-slot board card from)]
-    (set-players
-     (move-piece game from to)
-     updated-players)))
 

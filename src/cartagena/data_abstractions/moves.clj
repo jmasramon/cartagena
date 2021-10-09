@@ -1,10 +1,7 @@
 (ns cartagena.data-abstractions.moves
   (:require
-   [cartagena.data-abstractions.game :as g :refer [board players active-player  add-random-card-to-active-player move-piece turn-played move-piece]]
-   ;; should not need to import any of these. Only work with the game interface
-   [cartagena.data-abstractions.deck :refer [remove-card]]
-   [cartagena.data-abstractions.player :refer [color cards update-player-in-players set-cards]]
-   [cartagena.data-abstractions.board :as b :refer [index-next-empty-slot index-closest-nonempty-slot]]))
+   [cartagena.data-abstractions.game :refer [board add-random-card-to-active-player move-piece turn-played move-piece remove-played-card]]
+   [cartagena.data-abstractions.board :refer [index-closest-nonempty-slot index-next-empty-slot]]))
 
 ;; moves: actions triggered by the players. Each player has 3 actions while it is her turn
 ;; Each action represents a modification of the state (the "game")
@@ -14,23 +11,22 @@
 ;;   Change of active player. New active player receives 3 turns
 ;;   
 ;; Things to check:
-;;   Active user
-;;   His remaining number of turns
-;;   Her available cards to play
 ;;   Spot where a played car ends
 ;;   Spot where a falled-back card ends
 ;;   How many pieces are there in a fall-back slot
 
-
-
 (defn pass
-  "Player with turn looses an action. If last turn, next's players turn begins. Nothing else is modified in the game"
+  "Player with turn looses an action. 
+   If last turn, next's players turn begins."
   [game]
   (turn-played game))
 
 ;; TODO: should check there is a place to fall-back to
 (defn fall-back
-  "For the active player: move piece back to the first non empty slot; add a random card to the player; turn played"
+  "For the active player: 
+   1-move piece back to the first non empty slot
+   2-add a random card to the player; 
+   3-turn played"
   [game from]
   (let [board (board game)
         to (index-closest-nonempty-slot board from)]
@@ -43,7 +39,17 @@
     ))
 
 (defn play-card
-  "For the active player: use card to move piece (from board current-position to next available space -empty slot same typ or board-); loose the card; turn played"
+  "For the active player: 
+   1-use card to move piece from it's current-position to next available space -empty slot same typ or board-) 
+   2-remove used card
+   2-turn played"
   [game card from]
+  (let [board (board game)
+        to (index-next-empty-slot board card from)]
     (turn-played
-     (g/play-card game card from)))
+     (remove-played-card
+      (move-piece
+       game
+       from
+       to)
+      card))))
