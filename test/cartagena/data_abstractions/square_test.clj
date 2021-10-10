@@ -1,7 +1,7 @@
 (ns cartagena.data-abstractions.square-test
   (:require [clojure.test :refer [deftest is testing]]
             [cartagena.core]
-            [cartagena.data-abstractions.square :refer [type-of remove-piece-from add-piece-to make-square square-contents-vector square-of-type? pieces-in num-pieces-in]]))
+            [cartagena.data-abstractions.square :refer [type-of remove-piece-from add-piece-to make-square square-pieces-as-vector square-of-type? pieces-in num-pieces-in]]))
 
 (def board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
             {:pieces {:green 1, :red 2, :yellow 3}, :type :bottle}
@@ -14,10 +14,9 @@
 
 (deftest make-pieces-test
   (testing "make-pieces"
-    (let [make-pieces #'cartagena.data-abstractions.square/make-pieces
-          res (make-pieces '(:red :green :blue) 3)]
+    (let [make-pieces #'cartagena.data-abstractions.square/make-pieces]
       (is (=  {:pieces {:blue 3, :green 3, :red 3}}
-              res)))))
+              (make-pieces '(:red :green :blue) 3))))))
 
 (deftest make-starting-square-test
   (testing "make-starting-square"
@@ -88,38 +87,45 @@
     (is (=  {:green 2, :red 1, :yellow 2}
             (pieces-in {:pieces {:green 2, :red 1, :yellow 2}, :type :bottle})))))
 
-(testing "num-pieces-in "
-  (is (=  6
-          (num-pieces-in  {:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                          :red)))
+(deftest num-pieces-in-test
+  (testing "num-pieces-in 1 param"
+    (is (=  18
+            (num-pieces-in  {:pieces {:green 6, :red 6, :yellow 6}, :type :start})))
 
-  (is (=  0
-          (num-pieces-in {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}
-                         :yellow))))
+    (is (=  2
+            (num-pieces-in {:pieces {:green 0, :red 2, :yellow 0}, :type :boat}))))
+  (testing "num-pieces-in 2 params"
+    (is (=  6
+            (num-pieces-in  {:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                            :red)))
 
-(deftest square-contents-vector-test
-  (testing "square-contents-vector one param"
+    (is (=  0
+            (num-pieces-in {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}
+                           :yellow)))))
+
+(deftest square-pieces-as-vector-test
+  (testing "square-pieces-as-vector one param"
     (is (= [:green :green :green :green :green :green :red :red :red :red :red :red :yellow :yellow :yellow :yellow :yellow :yellow]
-           (square-contents-vector {:green 6, :red 6, :yellow 6})))
+           (square-pieces-as-vector {:pieces {:green 6, :red 6, :yellow 6}, :type :start})))
     (is (= [:green :red :red :yellow :yellow :yellow]
-           (square-contents-vector {:green 1, :red 2, :yellow 3})))
+           (square-pieces-as-vector {:pieces {:green 1, :red 2, :yellow 3}, :type :start})))
     (is (= []
-           (square-contents-vector {:green 0, :red 0, :yellow 0}))))
-  ;; (testing "square-contents-vector two param"
+           (square-pieces-as-vector {:pieces {:green 0, :red 0, :yellow 0}, :type :start}))))
+  ;; (testing "square-pieces-as-vector two param"
   ;;   (is (= [:green :green :green :green :green :green :red :red :red :red :red :red :yellow :yellow :yellow :yellow :yellow :yellow]
-  ;;          (square-contents-vector board 0)))
+  ;;          (square-pieces-as-vector board 0)))
   ;;   (is (= [:green :red :red :yellow :yellow :yellow]
-  ;;          (square-contents-vector board 1)))
+  ;;          (square-pieces-as-vector board 1)))
   ;;   (is (= []
-  ;;          (square-contents-vector board 2))))
+  ;;          (square-pieces-as-vector board 2))))
   )
 
 (deftest square-of-type?-test
   (testing "square-of-type?"
     (is (= false
-           (square-of-type? {:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                            :flag)))
+           (square-of-type? :flag {:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                            )))
     (is (= true
-           (square-of-type? {:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                            :start)))))
+           (square-of-type? :start {:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                            )))))
 

@@ -1,7 +1,7 @@
 (ns cartagena.data-abstractions.moves
   (:require
    [cartagena.data-abstractions.game :refer [board add-random-card-to-active-player move-piece turn-played move-piece remove-played-card]]
-   [cartagena.data-abstractions.board :refer [index-closest-nonempty-slot index-next-empty-slot]]))
+   [cartagena.data-abstractions.board :refer [index-closest-nonempty-slot next-empty-slot-index]]))
 
 ;; moves: actions triggered by the players. Each player has 3 actions while it is her turn
 ;; Each action represents a modification of the state (the "game")
@@ -45,7 +45,7 @@
    2-turn played"
   [game card from]
   (let [board (board game)
-        to (index-next-empty-slot board card from)]
+        to (next-empty-slot-index board card from)]
     (turn-played
      (remove-played-card
       (move-piece

@@ -5,10 +5,7 @@
 
 ;; Functions that need to know how player is implemented
 ;; player:
-;;  {color cards actions} ex: {:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-;; players:
-;;  [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-;;   {:green {:cards '(:keys :bottle :pistol :bottle :keys :sword), :actions 2}}]
+;;  {color {cards actions}} ex: {:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
 ;; Internal entities (concepts) are:
 ;;   color  (constant; unchangeable)
 ;;   actions 
@@ -16,7 +13,9 @@
 
 ;; TODO: change player data structure implementation so color is not so problematic
 ;; right now we need to know the color of a player in order to interact with it
-;; Better implementation: {:color :yellow, :cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}
+;; Better implementation alternatives: 
+;;   {:color :yellow, :cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}
+;;   '(:yellow '(:bottle :keys :pistol :bottle :keys :sword) 0)
 ;; Good test of data abstraction barriers -> nothing else should need changing
 
 (defn make-player
@@ -47,7 +46,8 @@
   "Does the player have a card?"
   [player card]
   (let [color (color player)]
-    (= card (some #{card} (:cards (color player))))))
+    (= card 
+       (some #{card} (:cards (color player))))))
 
 ;; setters
 (defn set-cards 

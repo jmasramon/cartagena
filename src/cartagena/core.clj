@@ -7,7 +7,7 @@
 (def deck-size 50)
 (def def-num-players 3)
 (def starting-actions 3)
-(def starting-pieces 6)
+(def num-starting-pieces 6)
 
 
 ;; DATA ABSTRACTIONS

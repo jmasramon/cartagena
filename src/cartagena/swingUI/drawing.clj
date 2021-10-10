@@ -1,6 +1,6 @@
 (ns cartagena.swingUI.drawing
   (:require [clojure.java.io :as io]
-            [cartagena.data-abstractions.square :refer [square-contents-vector]]
+            [cartagena.data-abstractions.square :refer [pieces-to-vector]]
             [cartagena.data-abstractions.board :refer [square-type]]
             [cartagena.data-abstractions.player :refer [color cards]]
             [cartagena.data-abstractions.deck :refer [cards-amounts]]
@@ -43,12 +43,12 @@
 
 (defmulti draw-piece
   (fn [_ pieces _]
-    (count (square-contents-vector pieces))))
+    (count (pieces-to-vector pieces))))
 
 (defmethod draw-piece 0 [_ _ _])
 
 (defmethod draw-piece 1 [^Graphics2D graphics pieces boundary]
-  (let [piece (first (square-contents-vector pieces))
+  (let [piece (first (pieces-to-vector pieces))
         color (piece color-map)
         cx (.getCenterX boundary)
         cy (.getCenterY boundary)
@@ -58,9 +58,9 @@
     (.fill graphics shape)))
 
 (defmethod draw-piece 2 [^Graphics2D graphics pieces boundary]
-  (let [piece1 (first (square-contents-vector pieces))
+  (let [piece1 (first (pieces-to-vector pieces))
         color1 (piece1 color-map)
-        piece2 (second (square-contents-vector pieces))
+        piece2 (second (pieces-to-vector pieces))
         color2 (piece2 color-map)
         cx (.getCenterX boundary)
         cy (.getCenterY boundary)
@@ -71,7 +71,7 @@
     (.fill graphics (Ellipse2D$Double. (- cx (* r 0.5)) (- (- cy (* r 0.5)) (/ r 2.0)) r r))))
 
 (defmethod draw-piece :default [^Graphics2D graphics pieces boundary]
-  (let [p (square-contents-vector pieces)
+  (let [p (pieces-to-vector pieces)
         n (count p)
         cx (.getCenterX boundary)
         cy (.getCenterY boundary)

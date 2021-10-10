@@ -1,33 +1,33 @@
 (ns cartagena.data-abstractions.board-test
   (:require [clojure.test :refer [deftest is testing]]
             [clojure.data.generators :refer [*rnd*]]
-            [cartagena.core]
             [cartagena.data-abstractions.board :refer :all]))
 
 (deftest make-board-section-test
   (testing "make-board-section"
-    (is (= true
-           (vector? (make-board-section cartagena.core/card-types
+    (let [make-board-section #'cartagena.data-abstractions.board/make-board-section]
+      (is (= true
+             (vector? (make-board-section cartagena.core/card-types
+                                          [:yellow :green :red])))
+          "should return a vector")
+      (is (= 6
+             (count (make-board-section cartagena.core/card-types
                                         [:yellow :green :red])))
-        "should return a vector")
-    (is (= 6
-           (count (make-board-section cartagena.core/card-types
-                                      [:yellow :green :red])))
-        "should return 6 squares")
-    (is (= 6
-           (count (into (make-board-section cartagena.core/card-types
-                                            [:yellow :green :red])
-                        #{})))
-        "should not have repeated types of squares")
-    (binding [*rnd* (java.util.Random. 12345)]
-      (is (= [{:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-              {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-              {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-              {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-              {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-              {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}]
-             (make-board-section cartagena.core/card-types
-                                 [:yellow :green :red]))))))
+          "should return 6 squares")
+      (is (= 6
+             (count (into (make-board-section cartagena.core/card-types
+                                              [:yellow :green :red])
+                          #{})))
+          "should not have repeated types of squares")
+      (binding [*rnd* (java.util.Random. 12345)]
+        (is (= [{:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}]
+               (make-board-section cartagena.core/card-types
+                                   [:yellow :green :red])))))))
 
 (deftest make-board-test
   (testing "make-board"
@@ -108,7 +108,7 @@
                      {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
                     4))))
   (testing "square-pieces"
-    (is (=  {:green 6, :red 6, :yellow 6}
+    (is (=  18
             (square-pieces [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
                             {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
                             {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
@@ -119,39 +119,63 @@
                             {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
                            0))
         "should return start pieces")
-    (is (=  {:green 0, :red 0, :yellow 0}
+    (is (=  6
             (square-pieces [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
                             {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                            {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                            {:pieces {:green 3, :red 2, :yellow 1}, :type :flag}
                             {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
                             {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
                             {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
                             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
                             {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
-                           7))
-        "should return boat pieces"))
-  (testing "square-contents-vector"
+                           2))
+        "should return boat pieces")
+    (is (=  3
+            (square-pieces [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                            {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                            {:pieces {:green 3, :red 2, :yellow 1}, :type :flag}
+                            {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                            {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                            {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                            {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                            {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
+                           2
+                           :green))
+        "should only green pieces")
+    (is (=  2
+            (square-pieces [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                            {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                            {:pieces {:green 3, :red 2, :yellow 1}, :type :flag}
+                            {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                            {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                            {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                            {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                            {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
+                           2
+                           :red))
+        "should only red pieces"))
+  (testing "square-pieces-as-vector"
     (is (=  [:green :green :green :green :green :green :red :red :red :red :red :red :yellow :yellow :yellow :yellow :yellow :yellow]
-            (square-contents-vector [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
-                                    0))
+            (square-pieces-as-vector [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                                      {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                                      {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                                      {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                                      {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                                      {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                                      {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                                      {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
+                                     0))
         "should return start pieces")
     (is (=  [:green :red :red :yellow]
-            (square-contents-vector [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                                     {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                                     {:pieces {:green 1, :red 2, :yellow 1}, :type :boat}]
-                                    7))
+            (square-pieces-as-vector [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                                      {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                                      {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                                      {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                                      {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                                      {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                                      {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                                      {:pieces {:green 1, :red 2, :yellow 1}, :type :boat}]
+                                     7))
         "should return boat pieces"))
   (testing "square-type"
     (is (=  :start
@@ -257,28 +281,28 @@
                               {:pieces {:green 6, :red 0, :yellow 0}, :type :boat}]
                              1)))))
 
-(deftest space-occupied?-test
-  (testing "space-occupied?"
+(deftest square-full?-test
+  (testing "square-full?"
     (is (= true
-           (space-occupied? [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                             {:pieces {:green 6, :red 0, :yellow 0}, :type :boat}]
-                            0)))
+           (square-full? [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                          {:pieces {:green 6, :red 0, :yellow 0}, :type :boat}]
+                         0)))
     (is (= false
-           (space-occupied? [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                             {:pieces {:green 6, :red 0, :yellow 0}, :type :boat}]
-                            1)))))
+           (square-full? [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
+                          {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+                          {:pieces {:green 6, :red 0, :yellow 0}, :type :boat}]
+                         1)))))
 
 (deftest square-has-color?-test
   (testing "square-has-color?"
@@ -408,37 +432,37 @@
             {:pieces {:green 1, :red 2, :yellow 0}, :type :pistol}
             :pistol)))))
 
-(deftest index-next-empty-slot-test
-  (testing "index-next-empty-slot"
+(deftest next-empty-slot-index-test
+  (testing "next-empty-slot-index"
     (is (= 5
-           (index-next-empty-slot board :keys 0 :green)))
+           (next-empty-slot-index board :keys 0 :green)))
     (is (= 1
-           (index-next-empty-slot board :bottle 0 :red)))
+           (next-empty-slot-index board :bottle 0 :red)))
 
     (is (= 13
-           (index-next-empty-slot board :keys 6 :yellow)))
+           (next-empty-slot-index board :keys 6 :yellow)))
     (is (= 13
-           (index-next-empty-slot board :keys 5 :green)))
+           (next-empty-slot-index board :keys 5 :green)))
     (is (= 5
-           (index-next-empty-slot board :keys 4 :red)))
+           (next-empty-slot-index board :keys 4 :red)))
 
     (is (= 8
-           (index-next-empty-slot board :flag 2 :yellow))))
-  (testing "index-next-empty-slot two params"
+           (next-empty-slot-index board :flag 2 :yellow))))
+  (testing "next-empty-slot-index two params"
     (is (= 5
-           (index-next-empty-slot board :keys 0)))
+           (next-empty-slot-index board :keys 0)))
     (is (= 1
-           (index-next-empty-slot board :bottle 0)))
+           (next-empty-slot-index board :bottle 0)))
     (is (= 13
-           (index-next-empty-slot board :keys 6)))
+           (next-empty-slot-index board :keys 6)))
     (is (= 13
-           (index-next-empty-slot board :keys 5)))
+           (next-empty-slot-index board :keys 5)))
     (is (= 5
-           (index-next-empty-slot board :keys 4)))
+           (next-empty-slot-index board :keys 4)))
     (is (= 10
-           (index-next-empty-slot board :flag 2)))
+           (next-empty-slot-index board :flag 2)))
     (is (= 15
-           (index-next-empty-slot board :flag 10)))))
+           (next-empty-slot-index board :flag 10)))))
 
 (deftest nonempty-slot?-test
   (testing "nonempty-slot?"
@@ -478,7 +502,7 @@
            (index-closest-nonempty-slot board 10)))
     (is (= 8
            (index-closest-nonempty-slot board 11)))
-    (is (= 0
+    (is (= nil
            (index-closest-nonempty-slot [{:pieces {:green 0, :red 0, :yellow 0}, :type :start}
                                          {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
                                          {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}

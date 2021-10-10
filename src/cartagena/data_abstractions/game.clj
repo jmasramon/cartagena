@@ -3,7 +3,7 @@
    [clojure.data.generators :refer [rand-nth shuffle]]
    [cartagena.core :refer [def-num-players num-cards card-types pirate-colors]]
    [cartagena.data-abstractions.player :as p :refer [make-player color set-cards]]
-   [cartagena.data-abstractions.deck :refer [random-deck remove-card]]
+   [cartagena.data-abstractions.deck :refer [random-deck remove-card-from]]
    [cartagena.data-abstractions.board :as b :refer [make-board boat]]))
 
 ;; Data structures
@@ -14,27 +14,12 @@
 ;;  :turn :green
 ;;  :board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
 ;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}
-;;          {:pieces {:green 6, :red 6, :yellow 0}, :type :flag}
-;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
+;;          ...
 ;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
 ;;  :deck [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]}
 
-
-
 ;; Functions that need to know how game is implemented
-;; game-state: 
-;; {players turn board deck}
+;; game-state: {players turn-order turn board deck}
 (defn random-initial-turn
   "Choose a new random color out of the players colors"
   [turns-reservoir]
@@ -44,34 +29,29 @@
   "Define the random order in which the players will play"
   [players-colors]
   (let [random-ordered-players-colors (shuffle players-colors)]
-    (zipmap random-ordered-players-colors (rest (cycle random-ordered-players-colors)))))
+    (zipmap random-ordered-players-colors
+            (rest (cycle random-ordered-players-colors)))))
 
+;; TODO: do not repeat the algorith make one by using the other
 (defn make-random-players
   "Make a list of num players"
   ([num]
-   (let [cards (random-deck num-cards card-types)]
-     (vec (for [color (take num pirate-colors)]
-            (make-player color cards)))))
+   (make-random-players num pirate-colors num-cards card-types))
   ([num players-reservoir cardNum cards-reservoir]
-   (let [cards (random-deck cardNum cards-reservoir)]
-     (vec (for [color (take num players-reservoir)]
-            (make-player color cards))))))
+   (vec (for [a-color (take num players-reservoir)]
+          (make-player a-color
+                       (random-deck cardNum 
+                                    cards-reservoir))))))
 
 (defn colors
   "Get list of colors from list of players"
   [players]
-  (flatten (map keys players)))
+  (map color players))
 
 (defn make-game
   "Create a new game"
   ([]
-   (let [players (make-random-players def-num-players)
-         players-colors (colors players)]
-     {:players players
-      :turn-order (make-turn-order players-colors)
-      :turn (random-initial-turn players-colors)
-      :deck (random-deck)
-      :board (make-board players)}))
+   (make-game def-num-players))
   ([num-players]
    (let [players (make-random-players num-players)
          players-colors (colors players)]
@@ -211,7 +191,7 @@
   "Reduces the num of actions from the active user.
    If zero remaining, set 3 actions to next user"
   [game]
-  (let [color (color (active-player game))
+  (let [color (active-player-color game)
         next-player (next-player game)
       	;; TODO: next four lines require its own abstraction new-players-state-after-turn
         decreased-action-players (decrease-actions (players game) color)
@@ -231,7 +211,7 @@
         active-player (active-player game)
         color (color active-player)
         cards (p/cards active-player)
-        new-cards (remove-card cards card)
+        new-cards (remove-card-from cards card)
         updated-player (set-cards active-player new-cards)
         updated-players (update-player-in-players players color updated-player)]
     (set-players game updated-players)))

@@ -37,9 +37,8 @@
 
 (deftest playable-cards-test
   (testing "playable-cards"
-    (let [res (playable-cards [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat])]
-      (is (=  '([:flag 4] [:sword 4] [:hat 4] [:pistol 2] [:bottle 2] [:keys 1] [:pistolhat 1])
-              res)))))
+    (is (=  '([:flag 4] [:sword 4] [:hat 4] [:pistol 2] [:bottle 2] [:keys 1] [:pistolhat 1])
+            (playable-cards [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat])))))
 
 (deftest from-freqs-to-seq-test
   (testing "from-freqs-to-seq"
@@ -47,9 +46,9 @@
       (is (=  '(:bottle :bottle :flag :flag :flag :flag :hat :hat :hat :hat :keys :pistol :pistol :pistolhat :sword :sword :sword :sword)
               res)))))
 
-(deftest remove-card-test
-  (testing "remove-card"
-    (let [res (remove-card [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat] :hat)]
+(deftest remove-card-from-test
+  (testing "remove-card-from"
+    (let [res (remove-card-from [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat] :hat)]
       (is (=  [:flag :flag :flag :flag :sword :sword :sword :sword :hat :hat :hat :pistol :pistol :bottle :bottle :keys :pistolhat]
               res)))))
 

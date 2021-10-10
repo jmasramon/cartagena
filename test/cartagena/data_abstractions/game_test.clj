@@ -1,5 +1,5 @@
 (ns cartagena.data-abstractions.game-test
-  (:require  [clojure.test :refer :all]
+  (:require  [clojure.test :refer [deftest is testing]]
              [clojure.data.generators :refer [*rnd*]]
              [cartagena.core :refer [pirate-colors card-types]]
              [cartagena.data-abstractions.game :refer :all]))
@@ -45,16 +45,17 @@
       (let [[a b c] (make-random-players 3)]
         (is (=  {:yellow {:actions 3, :cards '(:sword :pistol :keys :flag :flag :sword)}}
                 a))
-        (is (=  {:green {:actions 3, :cards '(:sword :pistol :keys :flag :flag :sword)}}
-                b))
-        (is (=  {:red {:actions 3, :cards '(:sword :pistol :keys :flag :flag :sword)}}
-                c)))
-      (let [[a b c] (make-random-players 3 pirate-colors 6 card-types)]
-        (is (=  {:yellow {:actions 3, :cards '(:sword :hat :bottle :keys :pistol :bottle)}}
-                a))
         (is (=  {:green {:actions 3, :cards '(:sword :hat :bottle :keys :pistol :bottle)}}
                 b))
-        (is (=  {:red {:actions 3, :cards '(:sword :hat :bottle :keys :pistol :bottle)}}
+        (is (=  {:red {:actions 3, :cards '(:keys :sword :flag :keys :pistol :sword)}}
+                c)))
+      (let [[a b c] (make-random-players 3 pirate-colors 6 card-types)]
+        (is (=  {:yellow {:actions 3, :cards '(:bottle :hat :bottle :pistol :flag :flag)}}
+                a))
+        (is (=  {:green {:actions 3, :cards '(:keys :bottle :flag :pistol :sword :flag)}}
+
+                b))
+        (is (=  {:red {:actions 3, :cards '(:bottle :bottle :bottle :hat :sword :sword)}}
                 c))))))
 
 (deftest colors-test
@@ -107,63 +108,63 @@
                          {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
                          {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
                  :deck '(:hat
-                        :sword
-                        :sword
-                        :hat
-                        :pistol
-                        :bottle
-                        :flag
-                        :hat
-                        :pistol
-                        :sword
-                        :hat
-                        :keys
-                        :sword
-                        :bottle
-                        :hat
-                        :hat
-                        :keys
-                        :hat
-                        :bottle
-                        :bottle
-                        :keys
-                        :sword
-                        :flag
-                        :sword
-                        :flag
-                        :keys
-                        :keys
-                        :flag
-                        :hat
-                        :sword
-                        :bottle
-                        :hat
-                        :keys
-                        :hat
-                        :hat
-                        :hat
-                        :pistol
-                        :keys
-                        :hat
-                        :sword
-                        :pistol
-                        :hat
-                        :pistol
-                        :hat
-                        :hat
-                        :sword
-                        :sword
-                        :sword
-                        :flag
-                        :sword)
+                         :sword
+                         :sword
+                         :hat
+                         :pistol
+                         :bottle
+                         :flag
+                         :hat
+                         :pistol
+                         :sword
+                         :hat
+                         :keys
+                         :sword
+                         :bottle
+                         :hat
+                         :hat
+                         :keys
+                         :hat
+                         :bottle
+                         :bottle
+                         :keys
+                         :sword
+                         :flag
+                         :sword
+                         :flag
+                         :keys
+                         :keys
+                         :flag
+                         :hat
+                         :sword
+                         :bottle
+                         :hat
+                         :keys
+                         :hat
+                         :hat
+                         :hat
+                         :pistol
+                         :keys
+                         :hat
+                         :sword
+                         :pistol
+                         :hat
+                         :pistol
+                         :hat
+                         :hat
+                         :sword
+                         :sword
+                         :sword
+                         :flag
+                         :sword)
                  :players [{:yellow {:actions 3
                                      :cards '(:bottle :pistol :hat :sword :keys :bottle)}}
                            {:green {:actions 3
-                                    :cards '(:bottle :pistol :hat :sword :keys :bottle)}}
-                           {:red {:actions 3
-                                  :cards '(:bottle :pistol :hat :sword :keys :bottle)}}]
+                                    :cards '(:bottle :bottle :hat :sword :bottle :sword)}}
+                           {:red {:actions 3, :cards '(:pistol :sword :sword :flag :pistol :hat)}}]
                  :turn :red
                  :turn-order {:green :red, :red :yellow, :yellow :green}}
+
                 res))))))
 
 ;; getters

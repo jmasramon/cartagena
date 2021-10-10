@@ -2,8 +2,9 @@
   (:require
    [clojure.data.generators :refer [shuffle]]
    [cartagena.core :refer [card-types]]
+   [cartagena.data-abstractions.player :refer [color]]
    [cartagena.data-abstractions.square :as sq
-    :refer [make-square square-of-type?]]))
+    :refer [make-square type-of pieces-in num-pieces-in square-of-type?]]))
 
 ;; Functions that need to know how board is implemented
 
@@ -12,14 +13,6 @@
 ;; ex: 
 ;; [{:pieces {:green 6, :yellow 6}, :type :start}
 ;;  {:pieces {:green 0, :yellow 0}, :type :flag}
-;;  {:pieces {:green 0, :yellow 0}, :type :pistol}
-;;  {:pieces {:green 0, :yellow 0}, :type :bottle}
-;;  {:pieces {:green 0, :yellow 0}, :type :hat}
-;;  {:pieces {:green 0, :yellow 0}, :type :keys}
-;;  {:pieces {:green 0, :yellow 0}, :type :sword}
-;;  {:pieces {:green 0, :yellow 0}, :type :hat}
-;;  {:pieces {:green 0, :yellow 0}, :type :flag}
-;;  {:pieces {:green 0, :yellow 0}, :type :bottle}
 ;; .....
 ;;  {:pieces {:green 0, :yellow 0}, :type :boat}]
 
@@ -33,12 +26,10 @@
 ;;   empty square to move a piece to
 
 ;; builders
-(defn make-board-section
-  "creates a board section"
+(defn- make-board-section
+  "Creates a board section (6 squares)"
   ([used-colors]
-   (let [shuffled-types (shuffle (vec card-types))]
-     (vec (for [type shuffled-types]
-            (make-square type used-colors)))))
+   (make-board-section card-types used-colors))
   ([types used-colors]
    (let [shuffled-types (shuffle (vec types))]
      (vec (for [type shuffled-types]
@@ -47,17 +38,9 @@
 (defn make-board
   "Creates an initial board"
   ([players]
-   (let [used-colors (flatten (map keys players))]
-     (vec (flatten [(make-square :start used-colors)
-                    (make-board-section card-types used-colors)
-                    (make-board-section card-types used-colors)
-                    (make-board-section card-types used-colors)
-                    (make-board-section card-types used-colors)
-                    (make-board-section card-types used-colors)
-                    (make-board-section card-types used-colors)
-                    (make-square :boat used-colors)]))))
+   (make-board card-types players))
   ([types players]
-   (let [used-colors (flatten (map keys players))]
+   (let [used-colors (map color players)]
      (vec (flatten [(make-square :start used-colors)
                     (make-board-section types used-colors)
                     (make-board-section types used-colors)
@@ -75,48 +58,59 @@
   (board index))
 
 (defn square-pieces
+  "Number of pieces in a square. Global or one color only"
   ([board index]
-   (get-in board [index :pieces]))
+   (num-pieces-in (square board index)))
   ([board index color]
-   (get-in board [index :pieces color])))
+   (num-pieces-in (square board index) color)))
 
-(defn square-contents-vector
-  "Convert the pieces on the given square to a vector of pieces"
+(defn square-pieces-as-vector
+  "Convert the pieces on the square at board's index to a vector of pieces"
   [board index]
-  (sq/square-contents-vector (square-pieces board index)))
+  (sq/square-pieces-as-vector (square board index)))
 
-(defn square-type [board index]
-  (get-in board [index :type]))
+(defn square-type
+  "Return the type of the square"
+  [board index]
+  (type-of (square board index)))
 
-(defn squares-of-type [board type]
-  (filterv #(= (% :type) type) board))
+(defn squares-of-type
+  "Returns vector of all squares of a type"
+  [board type]
+  (filter (partial square-of-type? type) board))
 
-(defn indexes-squares-of-type [board type]
-  (keep-indexed #(when (square-of-type? %2 type) %1) board))
+(defn indexes-squares-of-type
+  "Returns ordered list of all squares of type"
+  [board type]
+  (keep-indexed #(when (square-of-type? type %2) %1) board))
 
 ;; setters
-(defn add-piece-to [board index color]
+(defn add-piece-to
+  "Add a piece of certain color to a certain square"
+  [board index color]
   (let [square (square board index)]
     (assoc-in board [index]
               (sq/add-piece-to square color))))
 
-(defn remove-piece-from [board index color]
+(defn remove-piece-from
+  "Remove a piece of certain color from a certain square"
+  [board index color]
   (let [square (square board index)]
     (assoc-in board [index]
               (sq/remove-piece-from square color))))
 
-(defn move-piece [board from to color]
-	; (println "move-piece with from:" from "to:" to "color:" color)
+(defn move-piece
+  "Move a piece of color from to"
+  [board from to color]
   (let [board' (remove-piece-from board from color)]
     (add-piece-to board' to color)))
 
-;; testers
 (defn space-available?
-  "Does the square have space available for another piece?"
+  "Does the square have space available for another piece? (max 3)"
   [board index]
-  (< (reduce + (vals ((board index) :pieces))) 2))
+  (< (num-pieces-in (square board index)) 2))
 
-(def space-occupied?
+(def square-full?
   "Is the square full?"
   (complement space-available?))
 
@@ -125,47 +119,48 @@
   [board index color]
   (> (square-pieces board index color) 0))
 
-(defn isOfType?
-  "Is the square of certain type?"
-  [type square]
-  (= (square :type) type))
-
+;; TODO: does it make sense that type is a param?
 (defn empty-slot?
-  "Is the square empty of pieces (of certain color)?"
+  "Is the square of certain type and empty of pieces (of certain color)?"
   ([square type color]
    (and
-    (isOfType? type square)
-    (= 0 ((square :pieces) color))))
+    (square-of-type? type square)
+    (= 0 (num-pieces-in square color))))
   ([square type]
    (and
-    (isOfType? type square)
-    (= 0 (count (filter #(not= 0 (val %)) (square :pieces)))))))
+    (square-of-type? type square)
+    (= 0 (num-pieces-in square)))))
 
 (defn nonempty-slot?
   "Has the square any piece?"
   [square]
-  (not= 0 (count (filter #(not= 0 (val %)) (square :pieces)))))
+  (not= 0 (num-pieces-in square)))
 
 ;; finders
-(defn index-next-empty-slot
-  "Index of first slot after origin, of same type as card and with nobody(of same color) there"
+(defn next-empty-slot-index
+  "Index of first slot after origin, of same type as card and with nobody (of same color) there"
   ([board card origin color]
-   (let [subBoard (subvec board (inc origin))]
-     (+ (inc origin) (first (keep-indexed #(if (empty-slot? %2 card color) %1) subBoard)))))
+   (let [sub-board (subvec board (inc origin))
+         same-card-indexes (keep-indexed #(if (empty-slot? %2 card color) %1) sub-board)]
+     (+ (inc origin) 
+        (first same-card-indexes))))
   ([board card origin]
-   (let [subBoard (subvec board (inc origin))
-         sameCardIndexes (keep-indexed #(if (empty-slot? %2 card) %1) subBoard)]
-     (if (> (count sameCardIndexes) 0)
-       (+ (inc origin) (first sameCardIndexes))
+   (let [sub-board (subvec board (inc origin))
+         same-card-indexes (keep-indexed #(if (empty-slot? %2 card) %1) sub-board)]
+     (if (> (count same-card-indexes) 0)
+       (+ (inc origin) 
+          (first same-card-indexes))
        (dec (count board))))))
 
+;; TODO: check that returning nil is well managed by the rest of the system
+;; also we should not consider the :start square as a potential answer
 (defn index-closest-nonempty-slot
-  "Index of first slot after origin with somebody already there"
+  "Index of closest slot before origin with somebody already there"
   [board origin]
-  (let [subBoard (subvec board 0 origin)
-        nonemptySlotsIndexes (keep-indexed #(if (nonempty-slot? %2) %1) subBoard)]
-    (if (> (count nonemptySlotsIndexes) 0)
-      (last nonemptySlotsIndexes)
-      0)))
+  (let [sub-board (subvec board 0 origin)
+        non-empty-slots-indexes (keep-indexed #(if (nonempty-slot? %2) %1) sub-board)]
+    (if (> (count non-empty-slots-indexes) 0)
+      (last non-empty-slots-indexes)
+      nil)))
 
 
