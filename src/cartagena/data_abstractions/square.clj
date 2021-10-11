@@ -61,7 +61,7 @@
   (square :pieces))
 
 (defn num-pieces-in
-  "Number of pieces of a certain color"
+  "Number of pieces (of a certain color)"
   ([square]
    (reduce + (vals (pieces-in square))))
   ([square color]
@@ -72,6 +72,14 @@
   "Is the square of a certain type?"
   [type square]
   (= (type-of square) type))
+
+(defn is-square?
+  "Is the data structure a square?"
+  [data-structure]
+  (and (map? data-structure)
+       (= 2 (count data-structure))
+       (instance? clojure.lang.Keyword (data-structure :type))
+       (map? (data-structure :pieces))))
 
 ;; helpers
 (defn pieces-to-vector

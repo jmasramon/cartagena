@@ -76,6 +76,14 @@
   [type square]
   (= (type-of square) type))
 
+(defn is-square?
+  "Is the data structure a square?"
+  [data-structure]
+  (and (vector? data-structure)
+       (= 2 (count data-structure))
+       (instance? clojure.lang.Keyword (first data-structure))
+       (map? (second data-structure))))
+
 ;; helpers
 (defn pieces-to-vector
   "Convert the given pieces hashmap to a vector"

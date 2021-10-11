@@ -11,10 +11,11 @@
 ;; a board is a set of squares
 ;; it is made of six board-section's: sets of six squares each of one random type of card
 ;; ex: 
-;; [{:pieces {:green 6, :yellow 6}, :type :start}
-;;  {:pieces {:green 0, :yellow 0}, :type :flag}
-;; .....
-;;  {:pieces {:green 0, :yellow 0}, :type :boat}]
+;; [start-square
+;;  square
+;; ..... (6*6 = 36 squares)
+;;  square
+;;  boat-square]
 
 ;; So functions of its api should be:
 ;; constructor board-section (needs types of cards and colors of players) board
@@ -108,7 +109,7 @@
 (defn space-available?
   "Does the square have space available for another piece? (max 3)"
   [board index]
-  (< (num-pieces-in (square board index)) 2))
+  (<= (num-pieces-in (square board index)) 2))
 
 (def square-full?
   "Is the square full?"
