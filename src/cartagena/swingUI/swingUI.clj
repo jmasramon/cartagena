@@ -1,7 +1,7 @@
 (ns cartagena.swingUI.swingUI
   (:require [cartagena.core :refer [pirate-colors]]
             [cartagena.data-abstractions.moves :refer [pass play-card fall-back]]
-            [cartagena.data-abstractions.game :refer [make-game players cards active-player]]
+            [cartagena.data-abstractions.game :refer [make-game players cards active-player board]]
             ;; improve data abstractions: only game and moves should be needed
             [cartagena.data-abstractions.player :refer [color]]
             [cartagena.data-abstractions.deck :refer [playable-cards]]
@@ -52,9 +52,9 @@
   (let [component (proxy [Component] []
                     (paint [graphics]
                       (doto graphics
-                        (draw-squares (:board @game))
+                        (draw-squares (board @game)) ;; TODO: refactor dependency on implementation out
                         (draw-cards (active-player @game))
-                        (draw-pieces (:board @game)))))]
+                        (draw-pieces (board @game)))))]
     (.addMouseListener component (clicker component game))
     component))
 

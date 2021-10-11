@@ -2,7 +2,7 @@
   (:require [clojure.test :refer [deftest is testing]]
             [clojure.data.generators :refer [*rnd*]]
             [cartagena.core :refer [card-types]]
-            [cartagena.data-abstractions.square :refer [num-pieces-in type-of is-square?]]
+            [cartagena.data-abstractions.square-bis :refer [pieces-in num-pieces-in type-of is-square?]]
             [cartagena.data-abstractions.board :refer :all]))
 
 (deftest make-board-section-test
@@ -16,26 +16,23 @@
       (is (= 6
              (count a-section))
           "should return 6 squares")
+      (is (= true
+             (reduce (fn [acc element] (and acc element)) true (map is-square? a-section)))
+          "all elements should be squares")
       (is (= 6
-             (count (into a-section
-                          #{})))
+             (count (into #{} (map type-of a-section))))
           "should not have repeated types of squares")
       (is (= false
-             (contains? (into a-section
-                              #{})
+             (contains? (into #{} (map type-of a-section))
                         :start))
           "should not have :start")
       (is (= false
-             (contains? (into a-section
-                              #{})
+             (contains? (into  #{} (map type-of a-section))
                         :boat))
           "should not have :boat")
       (is (= 0
              (reduce + (map num-pieces-in a-section)))
-          "all sections should be empty")
-      (is (= true
-             (reduce (fn [acc element] (and acc element)) true (map is-square? a-section)))
-          "all elements should be squares"))))
+          "all sections should be empty"))))
 
 (deftest make-board-test
   (testing "make-board"
@@ -44,8 +41,8 @@
                                 [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
                                  {:green {:cards '(:keys :bottle :pistol :bottle :keys :sword), :actions 2}}])]
         (is (= 38 (count board)))
-        (is (= :start (type-of (first board))))
-        (is (= 2 (count ((first board) :pieces))))
+        (is (= :start (square-type board 0)))
+        (is (= 2 (count (pieces-in (first board)))))
         (is (= 12 (num-pieces-in (first board))))
         (let [subsections (subvec board 1 (count board))]
           (is (= false (contains? (into subsections
@@ -56,23 +53,6 @@
                                   :boat))))
         (is (= :boat (type-of (last board))))
         (is (= 12 (reduce + (map num-pieces-in board))))))))
-
-;; (def board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}
-;;             {:pieces {:green 1, :red 1, :yellow 0}, :type :flag} ;; 8th elem
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-;;             {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}])
 
 (def board
   (binding [*rnd* (java.util.Random. 12345)]
@@ -86,7 +66,6 @@
       :green)
      8
      :red)))
-
 
 (deftest getters-tests
   (testing "boat"

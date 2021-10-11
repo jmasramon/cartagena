@@ -63,12 +63,10 @@
            (remove-piece-from {:pieces {:green 2, :red 1, :yellow 0}, :type :start}
                               :green)))))
 
-(deftest square-type-test
+(deftest type-of-test
   (testing "type-of"
     (is (= :start
            (type-of {:pieces {:green 2, :red 1, :yellow 0}, :type :start})))))
-
-
 
 (deftest pieces-in-test
   (testing "pieces-in"

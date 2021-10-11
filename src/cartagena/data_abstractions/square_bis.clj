@@ -31,7 +31,6 @@
   (let [empty-pieces (make-empty-pieces used-colors)]
     (case type
       :start (make-starting-square used-colors)
-      :end (conj [:boat] empty-pieces)
       (conj [type] empty-pieces))))
 
 ;; setters

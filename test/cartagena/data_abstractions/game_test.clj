@@ -68,104 +68,23 @@
 (deftest make-game-test
   (testing "make-turn-order-turn"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [res (make-game)]
-        (is (=  {:board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :bottle}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-                         {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
-                 :deck '(:hat
-                         :sword
-                         :sword
-                         :hat
-                         :pistol
-                         :bottle
-                         :flag
-                         :hat
-                         :pistol
-                         :sword
-                         :hat
-                         :keys
-                         :sword
-                         :bottle
-                         :hat
-                         :hat
-                         :keys
-                         :hat
-                         :bottle
-                         :bottle
-                         :keys
-                         :sword
-                         :flag
-                         :sword
-                         :flag
-                         :keys
-                         :keys
-                         :flag
-                         :hat
-                         :sword
-                         :bottle
-                         :hat
-                         :keys
-                         :hat
-                         :hat
-                         :hat
-                         :pistol
-                         :keys
-                         :hat
-                         :sword
-                         :pistol
-                         :hat
-                         :pistol
-                         :hat
-                         :hat
-                         :sword
-                         :sword
-                         :sword
-                         :flag
-                         :sword)
-                 :players [{:yellow {:actions 3
-                                     :cards '(:bottle :pistol :hat :sword :keys :bottle)}}
-                           {:green {:actions 3
-                                    :cards '(:bottle :bottle :hat :sword :bottle :sword)}}
-                           {:red {:actions 3, :cards '(:pistol :sword :sword :flag :pistol :hat)}}]
-                 :turn :red
-                 :turn-order {:green :red, :red :yellow, :yellow :green}}
-
-                res))))))
+      (let [game (make-game)]
+        (is (= 3
+               (count (players game))))
+        (is (= '(:yellow :green :red)
+               (colors (players game))))
+        (is (= 3
+               (count (turn-order game))))
+        (is (= :red
+               (turn game)))
+        (is (= :yellow
+               (next-turn game)))
+        (is (= 50
+               (count (deck game))))
+        (is (= 38
+               (count (board game))))
+        (is (= false
+               (winner? game)))))))
 
 ;; getters
 (deftest players-test

@@ -5,6 +5,7 @@
 ;; square is implemented as a map {:pieces pieces_map, :type type_set_instance}
 ;; where pieces_map is {:green green_num, :red red_num, :yellow yellow_num} with all colors of players in game
 ;; and type_set_instance is one of #{:hat :flag :pistol :sword :bottle :keys} plus :start and :boat
+;; ex: {:pieces {:green 1, :red 2, :yellow 1}, :type :hat}
 ;; So functions of its api should be:
 ;;   constructor piece (needs type and colors of players)
 ;;   get/add/remove pieces
@@ -32,21 +33,24 @@
   (let [empty-pieces (make-empty-pieces used-colors)]
     (case type
       :start (make-starting-square used-colors)
-      :end (merge empty-pieces {:type :boat})
       (merge empty-pieces {:type type}))))
 
 ;; setters
+(defn- change-piece-quantity
+  [square color f]
+  (update-in square [:pieces color] f))
+
 (defn add-piece-to
   "Add a piece of a certain color;
    actually returns new square with one more piece"
   [square color]
-  (update-in square [:pieces color] inc))
+  (change-piece-quantity square color inc))
 
 (defn remove-piece-from
   "Remove a piece of a certain color; 
    actually returns new square with one less piece"
   [square color]
-  (update-in square [:pieces color] dec))
+  (change-piece-quantity square color dec))
 
 ;; getters
 ;; TODO: Should not be using get-in using board. Should not know anything about board at this data abstraction level

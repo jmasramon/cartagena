@@ -3,7 +3,7 @@
    [clojure.data.generators :refer [shuffle]]
    [cartagena.core :refer [card-types]]
    [cartagena.data-abstractions.player :refer [color]]
-   [cartagena.data-abstractions.square :as sq
+   [cartagena.data-abstractions.square-bis :as sq
     :refer [make-square type-of num-pieces-in square-of-type?]]))
 
 ;; Functions that need to know how board is implemented
@@ -42,14 +42,17 @@
    (make-board card-types players))
   ([types players]
    (let [used-colors (map color players)]
-     (vec (flatten [(make-square :start used-colors)
-                    (make-board-section types used-colors)
-                    (make-board-section types used-colors)
-                    (make-board-section types used-colors)
-                    (make-board-section types used-colors)
-                    (make-board-section types used-colors)
-                    (make-board-section types used-colors)
-                    (make-square :boat used-colors)])))))
+     (conj
+      (into []
+            (concat
+             [(make-square :start used-colors)]
+             (make-board-section types used-colors)
+             (make-board-section types used-colors)
+             (make-board-section types used-colors)
+             (make-board-section types used-colors)
+             (make-board-section types used-colors)
+             (make-board-section types used-colors)))
+      (make-square :boat used-colors)))))
 
 ;; getters
 (defn boat [board]
@@ -143,13 +146,13 @@
   ([board card origin color]
    (let [sub-board (subvec board (inc origin))
          same-card-indexes (keep-indexed #(if (empty-slot? %2 card color) %1) sub-board)]
-     (+ (inc origin) 
+     (+ (inc origin)
         (first same-card-indexes))))
   ([board card origin]
    (let [sub-board (subvec board (inc origin))
          same-card-indexes (keep-indexed #(if (empty-slot? %2 card) %1) sub-board)]
      (if (> (count same-card-indexes) 0)
-       (+ (inc origin) 
+       (+ (inc origin)
           (first same-card-indexes))
        (dec (count board))))))
 

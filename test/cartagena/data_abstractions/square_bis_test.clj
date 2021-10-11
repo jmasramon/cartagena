@@ -1,7 +1,10 @@
 (ns cartagena.data-abstractions.square-bis-test
   (:require [clojure.test :refer [deftest is testing]]
             [cartagena.core]
-            [cartagena.data-abstractions.square-bis :refer [type-of remove-piece-from add-piece-to make-square square-pieces-as-vector square-of-type? pieces-in num-pieces-in]]))
+            [cartagena.data-abstractions.square-bis 
+             :refer [type-of remove-piece-from add-piece-to make-square square-pieces-as-vector square-of-type? pieces-in num-pieces-in]]))
+
+;; TODO: it makes the pieces to disaapear from the ui. Find solution implement test
 
 (deftest make-pieces-test
   (testing "make-pieces"
@@ -62,7 +65,7 @@
            (remove-piece-from [:start {:green 2, :red 1, :yellow 0}]
                               :green)))))
 
-(deftest square-type-test
+(deftest type-of-test
   (testing "type-of"
     (is (= :start
            (type-of [:start {:green 2, :red 1, :yellow 0}])))))

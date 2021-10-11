@@ -1,7 +1,7 @@
 (ns cartagena.swingUI.drawing
   (:require [clojure.java.io :as io]
-            [cartagena.data-abstractions.square :refer [pieces-to-vector]]
-            [cartagena.data-abstractions.board :refer [square-type]]
+            [cartagena.data-abstractions.square-bis :refer [pieces-in pieces-to-vector]]
+            [cartagena.data-abstractions.board :refer [square square-type]]
             [cartagena.data-abstractions.player :refer [color cards]]
             [cartagena.data-abstractions.deck :refer [cards-amounts]]
             [cartagena.swingUI.shaping :refer [track-shapes hand-shapes]])
@@ -34,9 +34,9 @@
               0 0 (.getWidth image) (.getHeight image) nil))
 
 (defn draw-squares [^Graphics2D graphics board]
-  (doseq [i (range (count board))]
-    (let [image ((square-type board i) images)
-          ^RectangularShape shape (get track-shapes i)]
+  (doseq [square-index (range (count board))]
+    (let [image ((square-type board square-index) images)
+          ^RectangularShape shape (get track-shapes square-index)]
       (doto graphics
         (.draw shape) ; draw the square
         (draw-image image shape))))) ; draw the image on top 
@@ -90,10 +90,10 @@
 (defn draw-pieces
   ([^Graphics2D graphics pieces boundary]
    (draw-piece graphics pieces boundary))
-  ([^Graphics2D graphics pieces]
-   (doseq [i (range (count pieces))]
-     (let [local-pieces (get-in pieces [i :pieces])
-           shape (get track-shapes i)]
+  ([^Graphics2D graphics board]
+   (doseq [square-index (range (count board))]
+     (let [local-pieces (pieces-in (square board square-index))
+           shape (get track-shapes square-index)]
        (draw-pieces graphics local-pieces shape)))))
 
 (defn draw-cards [^Graphics2D graphics player]

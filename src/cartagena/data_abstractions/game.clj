@@ -77,8 +77,6 @@
 (defn turn [game]
   (game :turn))
 
-(def cur-player turn) ;; just an alias
-
 (defn next-turn [game]
   ((turn game) (turn-order game)))
 
