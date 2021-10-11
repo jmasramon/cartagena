@@ -3,15 +3,6 @@
             [cartagena.core]
             [cartagena.data-abstractions.square :refer [type-of remove-piece-from add-piece-to make-square square-pieces-as-vector square-of-type? pieces-in num-pieces-in]]))
 
-(def board [{:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-            {:pieces {:green 1, :red 2, :yellow 3}, :type :bottle}
-            {:pieces {:green 0, :red 0, :yellow 0}, :type :flag}
-            {:pieces {:green 0, :red 0, :yellow 0}, :type :sword}
-            {:pieces {:green 0, :red 0, :yellow 0}, :type :hat}
-            {:pieces {:green 0, :red 0, :yellow 0}, :type :keys}
-            {:pieces {:green 0, :red 0, :yellow 0}, :type :pistol}
-            {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}])
-
 (deftest make-pieces-test
   (testing "make-pieces"
     (let [make-pieces #'cartagena.data-abstractions.square/make-pieces]
@@ -36,28 +27,28 @@
   (testing "make-square for start"
     (let [res (make-square :start '(:red :green :blue))]
       (is (=  {:blue 6, :green 6, :red 6}
-              (:pieces res))
+              (pieces-in res))
           "all pieces should be 6")
       (is (=  :start
-              (:type res))
+              (type-of res))
           "type should be :start")))
 
   (testing "make-square for :boat"
     (let [res (make-square :boat '(:red :green :blue))]
       (is (=  {:blue 0, :green 0, :red 0}
-              (:pieces res))
+              (pieces-in res))
           "all pieces should be 0")
       (is (=  :boat
-              (:type res))
+              (type-of res))
           "type should be :boat")))
 
   (testing "make-square for intern square"
     (let [res (make-square :hat '(:red :green :blue))]
       (is (=  {:blue 0, :green 0, :red 0}
-              (:pieces res))
+              (pieces-in res))
           "all pieces should be 0")
       (is (=  :hat
-              (:type res))
+              (type-of res))
           "type should be :hat"))))
 
 (deftest add-piece-to-test
@@ -111,14 +102,7 @@
            (square-pieces-as-vector {:pieces {:green 1, :red 2, :yellow 3}, :type :start})))
     (is (= []
            (square-pieces-as-vector {:pieces {:green 0, :red 0, :yellow 0}, :type :start}))))
-  ;; (testing "square-pieces-as-vector two param"
-  ;;   (is (= [:green :green :green :green :green :green :red :red :red :red :red :red :yellow :yellow :yellow :yellow :yellow :yellow]
-  ;;          (square-pieces-as-vector board 0)))
-  ;;   (is (= [:green :red :red :yellow :yellow :yellow]
-  ;;          (square-pieces-as-vector board 1)))
-  ;;   (is (= []
-  ;;          (square-pieces-as-vector board 2))))
-  )
+    )
 
 (deftest square-of-type?-test
   (testing "square-of-type?"

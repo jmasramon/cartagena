@@ -4,7 +4,7 @@
    [cartagena.core :refer [card-types]]
    [cartagena.data-abstractions.player :refer [color]]
    [cartagena.data-abstractions.square :as sq
-    :refer [make-square type-of pieces-in num-pieces-in square-of-type?]]))
+    :refer [make-square type-of num-pieces-in square-of-type?]]))
 
 ;; Functions that need to know how board is implemented
 
