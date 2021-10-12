@@ -3,12 +3,26 @@
    [cartagena.core :refer [deck-size card-types]]
    [clojure.data.generators :refer [rand-nth]]))
 
+;; A deck is just a list ofc cards. Order is not needed
+
 ;; Functions that need to know how deck is implemented
+;; builders
 (defn random-card
   "Returns a random valid card"
   [cards-reservoir]
   (rand-nth (seq cards-reservoir)))
 
+(defn random-deck
+  "Creates a random deck"
+  ([]
+   (random-deck deck-size card-types))
+  ([num]
+   (random-deck num card-types))
+  ([num cards-reservoir]
+   (for [x (take num (range))]
+     (rand-nth (seq cards-reservoir)))))
+
+;; getters
 (defn cards-amounts
   "Returns a map with how many cards of each type we have in deck"
   [deck]
@@ -22,6 +36,7 @@
 
 (declare from-freqs-to-seq)
 
+;; modifiers
 (defn remove-card-from
   "Removes card from deck"
   [deck card]
@@ -37,14 +52,6 @@
                             (update-in cards-amounts [card] inc)
                             (merge cards-amounts {card 1}))]
     (from-freqs-to-seq new-cards-amounts)))
-
-(defn random-deck
-  "Creates a random deck"
-  ([]
-   (random-deck deck-size card-types))
-  ([num cards-reservoir]
-   (for [x (take num (range))]
-     (rand-nth (seq cards-reservoir)))))
 
 (defn draw-one-from
   "Returns the first card from a deck and the deck without the removed card: [card deck']"

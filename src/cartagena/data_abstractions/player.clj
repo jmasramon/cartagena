@@ -20,8 +20,10 @@
 
 (defn make-player
   "Make a player with a color and a list of cards. It has 3 actions"
-  [color cards]
-  {color {:actions starting-actions, :cards cards}})
+  ([color cards]
+   {color {:actions starting-actions, :cards cards}})
+  ([color cards actions]
+   {color {:actions actions, :cards cards}}))
 
 ;; getters
 ;; TODO: this one belongs to the game?
@@ -46,22 +48,22 @@
   "Does the player have a card?"
   [player card]
   (let [color (color player)]
-    (= card 
+    (= card
        (some #{card} (:cards (color player))))))
 
 ;; setters
-(defn set-cards 
+(defn set-cards
   ""
   [player cards]
   (let [color (first (keys player))]
     (assoc-in player [color :cards] cards)))
 
-(defn set-actions 
+(defn set-actions
   ""
   [player actions]
   (assoc-in player [(color player) :actions] actions))
 
-(defn add-random-card-to-player
+(defn add-random-card-to-player-in-players
   ""
   [player]
   (let [cards (cards player)

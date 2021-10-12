@@ -62,6 +62,11 @@
   [square]
   (second square))
 
+(defn pieces-numbers
+  "A list with the number of pieces"
+  [square]
+  (vals (pieces-in square)))
+
 (defn num-pieces-in
   "Number of pieces of a certain color"
   ([square]

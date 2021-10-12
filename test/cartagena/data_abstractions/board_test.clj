@@ -2,6 +2,8 @@
   (:require [clojure.test :refer [deftest is testing]]
             [clojure.data.generators :refer [*rnd*]]
             [cartagena.core :refer [card-types]]
+            [cartagena.data-abstractions.player :refer [make-player]]
+            [cartagena.data-abstractions.deck :refer [random-deck]]
             [cartagena.data-abstractions.square-bis :refer [pieces-in num-pieces-in type-of is-square?]]
             [cartagena.data-abstractions.board :refer :all]))
 
@@ -38,31 +40,31 @@
   (testing "make-board"
     (binding [*rnd* (java.util.Random. 12345)]
       (let [board (make-board   card-types
-                                [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-                                 {:green {:cards '(:keys :bottle :pistol :bottle :keys :sword), :actions 2}}])]
-        (is (= 38 (count board)))
-        (is (= :start (square-type board 0)))
-        (is (= 2 (count (pieces-in (first board)))))
-        (is (= 12 (num-pieces-in (first board))))
-        (let [subsections (subvec board 1 (count board))]
-          (is (= false (contains? (into subsections
-                                        #{})
-                                  :start)))
-          (is (= false (contains? (into subsections
-                                        #{})
-                                  :boat))))
-        (is (= :boat (type-of (last board))))
-        (is (= 12 (reduce + (map num-pieces-in board))))))))
+                                [(make-player :yellow (random-deck 6) 0)
+                                 (make-player :green (random-deck 6) 2)])]
+                                (is (= 38 (count board)))
+                                (is (= :start (square-type board 0)))
+                                (is (= 2 (count (pieces-in (first board)))))
+                                (is (= 12 (num-pieces-in (first board))))
+                                (let [subsections (subvec board 1 (count board))]
+                                  (is (= false (contains? (into subsections
+                                                                #{})
+                                                          :start)))
+                                  (is (= false (contains? (into subsections
+                                                                #{})
+                                                          :boat))))
+                                (is (= :boat (type-of (last board))))
+                                (is (= 12 (reduce + (map num-pieces-in board))))))))
 
 (def board
   (binding [*rnd* (java.util.Random. 12345)]
     (add-piece-to
      (add-piece-to
       (make-board   card-types
-                    [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-                     {:green {:cards '(:keys :bottle :pistol :bottle :keys :sword), :actions 2}}
-                     {:red {:cards '(:keys :bottle :pistol :bottle :keys :sword), :actions 2}}])
-      8
+                    [(make-player :yellow (random-deck 6) 0)
+                     (make-player :green (random-deck 6) 2)
+                     (make-player :red (random-deck 6) 2)])
+       8
       :green)
      8
      :red)))

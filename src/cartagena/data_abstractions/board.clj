@@ -8,7 +8,7 @@
 
 ;; Functions that need to know how board is implemented
 
-;; a board is a set of squares
+;; A board is a vector of squares. Order is important
 ;; it is made of six board-section's: sets of six squares each of one random type of card
 ;; ex: 
 ;; [start-square

@@ -2,6 +2,7 @@
   (:require
    [clojure.data.generators :refer [rand-nth shuffle]]
    [cartagena.core :refer [def-num-players num-cards card-types pirate-colors]]
+   [cartagena.data-abstractions.square-bis :refer [pieces-numbers]]
    [cartagena.data-abstractions.player :as p :refer [make-player color set-cards]]
    [cartagena.data-abstractions.deck :refer [random-deck remove-card-from]]
    [cartagena.data-abstractions.board :as b :refer [make-board boat]]))
@@ -40,7 +41,7 @@
   ([num players-reservoir cardNum cards-reservoir]
    (vec (for [a-color (take num players-reservoir)]
           (make-player a-color
-                       (random-deck cardNum 
+                       (random-deck cardNum
                                     cards-reservoir))))))
 
 (defn colors
@@ -86,12 +87,16 @@
 (defn board [game]
   (game :board))
 
-(defn active-player [game]
+(defn active-player
+  "Returns the active player from the game"
+  [game]
   (let [turn (turn game)
         players (players game)]
     (first (filter #(= turn (first (keys %))) players))))
 
-(defn active-player-color [game]
+(defn active-player-color
+  "Returns the color of the active play from the game"
+  [game]
   (turn game))
 
 (defn next-player [game]
@@ -100,7 +105,7 @@
 (defn winner? [game]
   (let [board (board game)
         boat (boat board)
-        pieces (vals (get-in boat [:pieces]))]
+        pieces (pieces-numbers boat)]
     (> (count (filter #(= % num-cards) pieces)) 0)))
 
 (defn actions
@@ -150,10 +155,10 @@
   [players color newPlayer]
   (map (partial update-player color newPlayer) players))
 
-(defn add-random-card-to-player
+(defn add-random-card-to-player-in-players
   [players color]
   (let [player (player players color)
-        new-player (p/add-random-card-to-player player)]
+        new-player (p/add-random-card-to-player-in-players player)]
     (update-player-in-players players color new-player)))
 
 (defn reset-actions
@@ -175,7 +180,7 @@
   [game]
   (let [color (active-player-color game)
         players (players game)
-        updated-players (add-random-card-to-player players color)]
+        updated-players (add-random-card-to-player-in-players players color)]
     (set-players game updated-players)))
 
 (defn move-piece
