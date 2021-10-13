@@ -3,7 +3,7 @@
             [cartagena.data-abstractions.moves :refer [pass play-card fall-back]]
             [cartagena.data-abstractions.game :refer [make-game players cards active-player board]]
             ;; improve data abstractions: only game and moves should be needed
-            [cartagena.data-abstractions.player :refer [color]]
+            [cartagena.data-abstractions.player-bis :refer [color]]
             [cartagena.data-abstractions.deck :refer [playable-cards]]
 
             [cartagena.swingUI.shaping :refer [track-shapes]]

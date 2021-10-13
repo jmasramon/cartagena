@@ -2,7 +2,7 @@
   (:require [clojure.java.io :as io]
             [cartagena.data-abstractions.square-bis :refer [pieces-in pieces-to-vector]]
             [cartagena.data-abstractions.board :refer [square square-type]]
-            [cartagena.data-abstractions.player :refer [color cards]]
+            [cartagena.data-abstractions.player-bis :refer [color cards]]
             [cartagena.data-abstractions.deck :refer [cards-amounts]]
             [cartagena.swingUI.shaping :refer [track-shapes hand-shapes]])
   (:import (java.awt Color Graphics2D)
