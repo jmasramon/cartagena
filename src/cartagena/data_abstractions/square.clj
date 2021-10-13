@@ -11,6 +11,7 @@
 ;;   get/add/remove pieces
 ;;   get type (never changes)
 
+;; builders
 (defn- make-pieces
   "Creates the empty-pieces hashmap for a square"
   [used-colors num-pieces]
@@ -53,7 +54,6 @@
   (change-piece-quantity square color dec))
 
 ;; getters
-;; TODO: Should not be using get-in using board. Should not know anything about board at this data abstraction level
 (defn type-of
   "Get type of square"
   [square]
@@ -64,7 +64,7 @@
   [square]
   (square :pieces))
 
-(defn pieces-numbers 
+(defn pieces-numbers-list-in
   "A list with the number of pieces"
   [square]
   (vals (pieces-in square)))

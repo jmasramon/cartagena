@@ -1,9 +1,9 @@
 (ns cartagena.data-abstractions.player-bis-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest is testing]]
             [clojure.data.generators :refer [*rnd*]]
             [cartagena.core :refer [pirate-colors card-types]]
-            [cartagena.data-abstractions.player-bis :refer :all]
-            [cartagena.data-abstractions.game :refer [make-random-players]]))
+            [cartagena.data-abstractions.game :refer [make-random-players]]
+            [cartagena.data-abstractions.player-bis :refer [actions add-random-card-to-player-in-players cards color decrease-actions make-player player-has-card? reset-actions set-actions set-cards]]))
 
 (deftest make-player-test
   (testing "make-player"

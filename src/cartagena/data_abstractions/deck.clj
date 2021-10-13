@@ -19,8 +19,8 @@
   ([num]
    (random-deck num card-types))
   ([num cards-reservoir]
-   (for [x (take num (range))]
-     (rand-nth (seq cards-reservoir)))))
+   (repeatedly num 
+               #(rand-nth (seq cards-reservoir)))))
 
 ;; getters
 (defn cards-amounts

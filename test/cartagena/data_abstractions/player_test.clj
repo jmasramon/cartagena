@@ -1,5 +1,5 @@
 (ns cartagena.data-abstractions.player-test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest is testing]]
             [clojure.data.generators :refer [*rnd*]]
             [cartagena.data-abstractions.player :refer :all]))
 

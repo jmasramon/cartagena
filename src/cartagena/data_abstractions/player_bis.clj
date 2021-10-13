@@ -12,6 +12,7 @@
 ;;   actions 
 ;;   cards
 
+;; builders
 (defn make-player
   "Make a player with a color and a list of cards. It has 3 actions"
   ([color cards]

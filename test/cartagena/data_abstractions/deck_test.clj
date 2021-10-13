@@ -1,5 +1,5 @@
 (ns cartagena.data-abstractions.deck-test
-  (:require  [clojure.test :refer :all]
+  (:require  [clojure.test :refer [deftest is testing]]
              [clojure.data.generators :refer [*rnd*]]
              [cartagena.core :refer [card-types]]
              [cartagena.data-abstractions.deck :refer :all]))

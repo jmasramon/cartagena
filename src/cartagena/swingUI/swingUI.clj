@@ -33,7 +33,8 @@
                f
                (.add (doto (JMenuItem. "Fall Back") (.addActionListener (create-action parent #(swap! game fall-back square-index)))))
                (.add (doto (JMenuItem. "Pass") (.addActionListener (create-action parent #(swap! game pass))))))
-             (.getComponent event) (.x (.getPoint event)) (.y (.getPoint event))))))
+             (.getComponent event) (.x (.getPoint event)) (.y (.getPoint event)))
+      nil)))
 
 (defn get-click-index [x y]
   (first (filter #(.contains ^Shape (get track-shapes %) x y) (range (count track-shapes)))))

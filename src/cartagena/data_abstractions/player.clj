@@ -19,6 +19,7 @@
 ;;   '(:yellow '(:bottle :keys :pistol :bottle :keys :sword) 0)
 ;; Good test of data abstraction barriers -> nothing else should need changing
 
+;; builders
 (defn make-player
   "Make a player with a color and a list of cards. It has 3 actions"
   ([color cards]

@@ -2,7 +2,7 @@
   (:require
    [clojure.data.generators :refer [rand-nth shuffle]]
    [cartagena.core :refer [def-num-players num-cards card-types pirate-colors]]
-   [cartagena.data-abstractions.square-bis :refer [pieces-numbers]]
+   [cartagena.data-abstractions.square-bis :refer [pieces-numbers-list-in]]
    [cartagena.data-abstractions.player-bis :as p :refer [make-player color set-cards]]
    [cartagena.data-abstractions.deck :refer [random-deck remove-card-from]]
    [cartagena.data-abstractions.board :as b :refer [make-board boat]]))
@@ -105,7 +105,7 @@
 (defn winner? [game]
   (let [board (board game)
         boat (boat board)
-        pieces (pieces-numbers boat)]
+        pieces (pieces-numbers-list-in boat)]
     (> (count (filter #(= % num-cards) pieces)) 0)))
 
 (defn actions
@@ -122,10 +122,9 @@
 (defn player-has-card?
   "Does the player have a card?"
   [players color card]
-  (let [player (player players color)
-        ]
-    (= card 
-       (some #{card} 
+  (let [player (player players color)]
+    (= card
+       (some #{card}
              (p/cards player)))))
 
 ;; setters

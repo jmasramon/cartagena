@@ -145,12 +145,12 @@
   "Index of first slot after origin, of same type as card and with nobody (of same color) there"
   ([board card origin color]
    (let [sub-board (subvec board (inc origin))
-         same-card-indexes (keep-indexed #(if (empty-slot? %2 card color) %1) sub-board)]
+         same-card-indexes (keep-indexed #(if (empty-slot? %2 card color) %1  nil) sub-board)]
      (+ (inc origin)
         (first same-card-indexes))))
   ([board card origin]
    (let [sub-board (subvec board (inc origin))
-         same-card-indexes (keep-indexed #(if (empty-slot? %2 card) %1) sub-board)]
+         same-card-indexes (keep-indexed #(if (empty-slot? %2 card) %1  nil) sub-board)]
      (if (> (count same-card-indexes) 0)
        (+ (inc origin)
           (first same-card-indexes))
@@ -162,7 +162,7 @@
   "Index of closest slot before origin with somebody already there"
   [board origin]
   (let [sub-board (subvec board 0 origin)
-        non-empty-slots-indexes (keep-indexed #(if (nonempty-slot? %2) %1) sub-board)]
+        non-empty-slots-indexes (keep-indexed #(if (nonempty-slot? %2) %1  nil) sub-board)]
     (if (> (count non-empty-slots-indexes) 0)
       (last non-empty-slots-indexes)
       nil)))

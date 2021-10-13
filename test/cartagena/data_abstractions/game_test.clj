@@ -287,16 +287,6 @@
         (is (=  (count new-cards)
                 (+ 1 (count original-cards))))))))
 
-(deftest add-random-card-to-active-player-test
-  (testing "add-random-card-to-active-player"
-    (binding [*rnd* (java.util.Random. 12345)]
-      (let [new-game (add-random-card-to-active-player the-game)
-            new-players (players new-game)
-            new-cards (p/cards (player new-players :green))
-            original-cards (p/cards (player the-players :green))]
-        (is (=  (count new-cards)
-                (+ 1 (count original-cards))))))))
-
 (deftest reset-actions-test
   (testing "reset-actions"
     (let [new-players  (reset-actions (decrease-actions the-players :red) :red)

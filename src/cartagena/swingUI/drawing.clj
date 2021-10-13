@@ -110,5 +110,9 @@
           (.draw shape)
           (draw-image image shape)
           (.setPaint Color/BLACK)
-          ; (println "Card type:" (str (card-type (cards-amounts hand))))
-          (.drawString (str (card-type (cards-amounts hand))) (float (+ dx1 (.getWidth shape))) (float (+ dy1 (.getHeight shape)))))))))
+          (.drawString (str (card-type (cards-amounts hand))) 
+                       (float (+ dx1 
+                                 (.getWidth shape))) 
+                       (float (+ dy1 
+                                 (.getHeight shape)))))))))
+

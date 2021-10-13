@@ -22,6 +22,7 @@
   (turn-played game))
 
 ;; TODO: should check there is a place to fall-back to
+;; TODO: should check that there is a player's piece in the card
 (defn fall-back
   "For the active player: 
    1-move piece back to the first non empty slot
@@ -29,14 +30,11 @@
    3-turn played"
   [game from]
   (let [board (board game)
-        to (index-closest-nonempty-slot board from)]
-    (turn-played
-     (add-random-card-to-active-player
-      (move-piece
-       game
-       from
-       to))) ;; TODO: should check that there is a player's piece in the card
-    ))
+        to (index-closest-nonempty-slot board 
+                                        from)]
+    (-> (move-piece game from to) 
+        add-random-card-to-active-player 
+        turn-played)))
 
 (defn play-card
   "For the active player: 
@@ -45,11 +43,9 @@
    2-turn played"
   [game card from]
   (let [board (board game)
-        to (next-empty-slot-index board card from)]
-    (turn-played
-     (remove-played-card
-      (move-piece
-       game
-       from
-       to)
-      card))))
+        to (next-empty-slot-index board 
+                                  card 
+                                  from)]
+    (-> (move-piece game from to) 
+        (remove-played-card card) 
+        turn-played)))

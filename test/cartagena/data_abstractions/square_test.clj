@@ -1,7 +1,7 @@
 (ns cartagena.data-abstractions.square-test
   (:require [clojure.test :refer [deftest is testing]]
             [cartagena.core]
-            [cartagena.data-abstractions.square :refer [type-of remove-piece-from add-piece-to make-square square-pieces-as-vector square-of-type? pieces-in num-pieces-in]]))
+            [cartagena.data-abstractions.square :refer [type-of remove-piece-from add-piece-to make-square square-pieces-as-vector square-of-type? pieces-in num-pieces-in pieces-numbers-list-in is-square?]]))
 
 (deftest make-pieces-test
   (testing "make-pieces"
@@ -76,6 +76,15 @@
     (is (=  {:green 2, :red 1, :yellow 2}
             (pieces-in {:pieces {:green 2, :red 1, :yellow 2}, :type :bottle})))))
 
+(deftest pieces-numbers-list-in-test
+  (testing "pieces-numbers-list-in"
+    (is (=   '(6 6 6)
+             (pieces-numbers-list-in {:pieces {:green 6, :red 6, :yellow 6}, :type :start})))
+
+    (is (=  '(2 1 2)
+            (pieces-numbers-list-in {:pieces {:green 2, :red 1, :yellow 2}, :type :bottle})))))
+
+
 (deftest num-pieces-in-test
   (testing "num-pieces-in 1 param"
     (is (=  18
@@ -99,15 +108,22 @@
     (is (= [:green :red :red :yellow :yellow :yellow]
            (square-pieces-as-vector {:pieces {:green 1, :red 2, :yellow 3}, :type :start})))
     (is (= []
-           (square-pieces-as-vector {:pieces {:green 0, :red 0, :yellow 0}, :type :start}))))
-    )
+           (square-pieces-as-vector {:pieces {:green 0, :red 0, :yellow 0}, :type :start})))))
 
 (deftest square-of-type?-test
   (testing "square-of-type?"
     (is (= false
-           (square-of-type? :flag {:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                            )))
+           (square-of-type? :flag {:pieces {:green 6, :red 6, :yellow 6}, :type :start})))
     (is (= true
-           (square-of-type? :start {:pieces {:green 6, :red 6, :yellow 6}, :type :start}
-                            )))))
+           (square-of-type? :start {:pieces {:green 6, :red 6, :yellow 6}, :type :start})))))
+
+(deftest is-square?-test
+  (testing "is-square?"
+    (is (= false
+           (is-square?  '({:green 6, :red 6, :yellow 6}, :type :start))))
+    (is (= true
+           (is-square? {:pieces {:green 6, :red 6, :yellow 6}, :type :start})))))
+
+
+
 
