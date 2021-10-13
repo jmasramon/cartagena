@@ -1,7 +1,8 @@
 (ns cartagena.data-abstractions.moves
   (:require
-   [cartagena.data-abstractions.game :refer [board add-random-card-to-active-player move-piece turn-played move-piece remove-played-card]]
-   [cartagena.data-abstractions.board :refer [index-closest-nonempty-slot next-empty-slot-index]]))
+   [cartagena.data-abstractions.game :refer [board active-player active-player-color add-random-card-to-active-player move-piece turn-played move-piece remove-played-card]]
+   [cartagena.data-abstractions.board :refer [square index-closest-nonempty-slot next-empty-slot-index]]
+   [cartagena.data-abstractions.square-bis :refer [num-pieces-in]]))
 
 ;; moves: actions triggered by the players. Each player has 3 actions while it is her turn
 ;; Each action represents a modification of the state (the "game")
@@ -21,8 +22,6 @@
   [game]
   (turn-played game))
 
-;; TODO: should check there is a place to fall-back to
-;; TODO: should check that there is a player's piece in the card
 (defn fall-back
   "For the active player: 
    1-move piece back to the first non empty slot
@@ -30,12 +29,26 @@
    3-turn played"
   [game from]
   (let [board (board game)
-        to (index-closest-nonempty-slot board 
-                                        from)]
-    (-> (move-piece game from to) 
-        add-random-card-to-active-player 
-        turn-played)))
+        player (active-player game)
+        player-color (active-player-color game)
+        to (index-closest-nonempty-slot board
+                                        from)
+        origin-square (square board from)
+        available-pieces (num-pieces-in origin-square player-color)
+        available-destination? (not (nil? to))
+        available-piece? (and
+                          (not (nil? available-pieces))
+                          (> available-pieces 0))]
+    (if (and
+         available-piece?
+         available-destination?)
+      (do
+        (-> (move-piece game from to)
+            add-random-card-to-active-player
+            turn-played))
+      game)))
 
+;; TODO: should check that there is a player's piece in the square
 (defn play-card
   "For the active player: 
    1-use card to move piece from it's current-position to next available space -empty slot same typ or board-) 
@@ -43,9 +56,9 @@
    2-turn played"
   [game card from]
   (let [board (board game)
-        to (next-empty-slot-index board 
-                                  card 
+        to (next-empty-slot-index board
+                                  card
                                   from)]
-    (-> (move-piece game from to) 
-        (remove-played-card card) 
+    (-> (move-piece game from to)
+        (remove-played-card card)
         turn-played)))

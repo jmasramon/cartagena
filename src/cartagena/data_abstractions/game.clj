@@ -33,7 +33,6 @@
     (zipmap random-ordered-players-colors
             (rest (cycle random-ordered-players-colors)))))
 
-;; TODO: do not repeat the algorith make one by using the other
 (defn make-random-players
   "Make a list of num players"
   ([num]
@@ -170,8 +169,6 @@
         newPlayer (p/reset-actions player)]
     (update-player-in-players players color newPlayer)))
 
-;; v1 {:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
-;; v2 {:color :yellow, :cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}
 (defn decrease-actions
   "Takes one action from the player"
   [players color]

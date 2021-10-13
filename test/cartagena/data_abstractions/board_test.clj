@@ -318,17 +318,17 @@
 
 (deftest index-closest-nonempty-slot-test
   (testing "index-closest-nonempty-slot"
-    (is (= 0
+    (is (= nil
            (index-closest-nonempty-slot board 3)))
-    (is (= 0
+    (is (= nil
            (index-closest-nonempty-slot board 4)))
-    (is (= 0
+    (is (= nil
            (index-closest-nonempty-slot board 5)))
-    (is (= 0
+    (is (= nil
            (index-closest-nonempty-slot board 6)))
-    (is (= 0
+    (is (= nil
            (index-closest-nonempty-slot board 7)))
-    (is (= 0
+    (is (= nil
            (index-closest-nonempty-slot board 8)))
     (is (= 8
            (index-closest-nonempty-slot board 9)))

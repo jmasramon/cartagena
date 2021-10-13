@@ -53,7 +53,7 @@
   (let [component (proxy [Component] []
                     (paint [graphics]
                       (doto graphics
-                        (draw-squares (board @game)) ;; TODO: refactor dependency on implementation out
+                        (draw-squares (board @game)) 
                         (draw-cards (active-player @game))
                         (draw-pieces (board @game)))))]
     (.addMouseListener component (clicker component game))

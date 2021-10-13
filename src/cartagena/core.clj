@@ -9,9 +9,7 @@
 (def starting-actions 3)
 (def num-starting-pieces 6)
 
-
 ;; DATA ABSTRACTIONS
-
 
 ;; -- moves --  ; change the game
 ;; -- game --   ; contains players, cards, and board

@@ -163,8 +163,12 @@
   [board origin]
   (let [sub-board (subvec board 0 origin)
         non-empty-slots-indexes (keep-indexed #(if (nonempty-slot? %2) %1  nil) sub-board)]
-    (if (> (count non-empty-slots-indexes) 0)
-      (last non-empty-slots-indexes)
+    (if (> (count non-empty-slots-indexes) 
+           0)
+      (let [candidate (last non-empty-slots-indexes)]
+        (if (> candidate 0)
+          candidate
+          nil))
       nil)))
 
 
