@@ -29,7 +29,6 @@
    3-turn played"
   [game from]
   (let [board (board game)
-        player (active-player game)
         player-color (active-player-color game)
         to (index-closest-nonempty-slot board
                                         from)
@@ -42,13 +41,11 @@
     (if (and
          available-piece?
          available-destination?)
-      (do
         (-> (move-piece game from to)
             add-random-card-to-active-player
-            turn-played))
+            turn-played)
       game)))
 
-;; TODO: should check that there is a player's piece in the square
 (defn play-card
   "For the active player: 
    1-use card to move piece from it's current-position to next available space -empty slot same typ or board-) 
@@ -56,9 +53,14 @@
    2-turn played"
   [game card from]
   (let [board (board game)
+        player-color (active-player-color game)
+        origin-square (square board from)
+        available-pieces (num-pieces-in origin-square player-color)
         to (next-empty-slot-index board
                                   card
                                   from)]
-    (-> (move-piece game from to)
+    (if (> available-pieces 0)
+     (-> (move-piece game from to)
         (remove-played-card card)
-        turn-played)))
+        turn-played)
+      game)))
