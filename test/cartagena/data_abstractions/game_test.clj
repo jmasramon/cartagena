@@ -3,7 +3,7 @@
              [clojure.data.generators :refer [*rnd*]]
              [cartagena.core :refer [pirate-colors card-types]]
              [cartagena.data-abstractions.deck :as d]
-             [cartagena.data-abstractions.player :as p]
+             [cartagena.data-abstractions.player-bis :as p]
              [cartagena.data-abstractions.board :as b]
              [cartagena.data-abstractions.game :refer :all]))
 
@@ -43,9 +43,9 @@
   (testing "make-turn-order-turn"
     (binding [*rnd* (java.util.Random. 12345)]
       (is (=  {:green :red, :red :yellow, :yellow :green}
-              (make-turn-order  (flatten (map keys (make-random-players 3 pirate-colors 6 card-types))))))
+              (make-turn-order  (colors (make-random-players 3 pirate-colors 6 card-types)))))
       (is (=  {:green :red, :red :yellow, :yellow :green}
-              (make-turn-order  (flatten (map keys (make-random-players 3 pirate-colors 6 card-types)))))))))
+              (make-turn-order  (colors (make-random-players 3 pirate-colors 6 card-types))))))))
 
 (deftest make-random-players-test
   (testing "Random players"
@@ -207,15 +207,16 @@
 (deftest update-player-test
   (testing "update-player"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [new-player (p/make-player :green (d/random-deck 6))]
+      (let [new-player (p/make-player the-turn (d/random-deck 6))
+            current-player (player the-players the-turn)]
         (is (=  new-player
-                (update-player   :green
+                (update-player   the-turn
                                  new-player
-                                 (player the-players :green))))
-        (is (=  (player the-players :green)
+                                 current-player)))
+        (is (=  current-player
                 (update-player   :brown
                                  {:whatever 0}
-                                 (player the-players :green))))))))
+                                 current-player)))))))
 
 (deftest update-player-in-players-test
   (testing "update-player-in-players"
@@ -296,7 +297,6 @@
         (is (=  (count new-cards)
                 (+ 1 (count original-cards))))))))
 
-
 (deftest reset-actions-test
   (testing "reset-actions"
     (let [new-players  (reset-actions (decrease-actions the-players :red) :red)
@@ -320,12 +320,18 @@
     (is (= true
            (player-has-card? the-players
                              :green
-                             :keys)))
-
+                             :keys))
+        "The green player should have the :keys card")
     (is (= false
            (player-has-card? the-players
                              :green
-                             :bottle)))))
+                             :bottle))
+        "The green player should have the :bottle card")
+    (is (= true
+           (player-has-card? the-players
+                             :green
+                             :flag))
+        "The green player should not have the :flag card")))
 
 (deftest actions-test
   (testing "actions-test"
@@ -341,5 +347,5 @@
 
 (deftest player-test
   (testing "player-test"
-        (is (= yellow-player
-               (player the-players :yellow)))))
+    (is (= yellow-player
+           (player the-players :yellow)))))

@@ -1,7 +1,7 @@
 (ns cartagena.data-abstractions.moves-test
   (:require [clojure.test :refer [deftest is testing]]
             [clojure.data.generators :refer [*rnd*]]
-            [cartagena.data-abstractions.player :refer [actions cards]]
+            [cartagena.data-abstractions.player-bis :refer [actions cards]]
             [cartagena.data-abstractions.game :refer [make-game players player]]
             [cartagena.data-abstractions.moves :refer [pass fall-back play-card]]))
 

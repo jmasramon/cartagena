@@ -5,7 +5,8 @@
 
 ;; Functions that need to know how player is implemented
 ;; player:
-;;  {color {cards actions}} ex: {:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+;;  {color {cards actions}} 
+;; ex: {:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
 ;; Internal entities (concepts) are:
 ;;   color  (constant; unchangeable)
 ;;   actions 

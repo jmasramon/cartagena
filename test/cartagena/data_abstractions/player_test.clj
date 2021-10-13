@@ -1,9 +1,7 @@
 (ns cartagena.data-abstractions.player-test
   (:require [clojure.test :refer :all]
             [clojure.data.generators :refer [*rnd*]]
-            [cartagena.core :refer [pirate-colors card-types]]
-            [cartagena.data-abstractions.player :refer :all]
-            [cartagena.data-abstractions.game :refer [make-random-players]]))
+            [cartagena.data-abstractions.player :refer :all]))
 
 (deftest make-player-test
   (testing "make-player"
@@ -33,7 +31,7 @@
 (deftest set-cards-test
   (testing "set-cards-test"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [player (first (make-random-players 1 pirate-colors 6 card-types))]
+      (let [player (make-player :green '())]
         (is (= '(:sword :pistol :keys :flag :flag :sword)
                (cards (set-cards player '(:sword :pistol :keys :flag :flag :sword)))))))))
 
@@ -57,7 +55,7 @@
 (deftest color-test
   (testing "color-test"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [player (first (make-random-players 1 pirate-colors 6 card-types))]
+      (let [player (make-player :yellow '())]
         (is (= :yellow
                (color player)))))))
 

@@ -2,7 +2,7 @@
   (:require [clojure.test :refer [deftest is testing]]
             [clojure.data.generators :refer [*rnd*]]
             [cartagena.core :refer [card-types]]
-            [cartagena.data-abstractions.player :refer [make-player]]
+            [cartagena.data-abstractions.player-bis :refer [make-player]]
             [cartagena.data-abstractions.deck :refer [random-deck]]
             [cartagena.data-abstractions.square-bis :refer [pieces-in num-pieces-in type-of is-square?]]
             [cartagena.data-abstractions.board :refer :all]))

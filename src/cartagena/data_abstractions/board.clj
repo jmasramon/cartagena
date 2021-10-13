@@ -2,7 +2,7 @@
   (:require
    [clojure.data.generators :refer [shuffle]]
    [cartagena.core :refer [card-types]]
-   [cartagena.data-abstractions.player :refer [color]]
+   [cartagena.data-abstractions.player-bis :refer [color]]
    [cartagena.data-abstractions.square-bis :as sq
     :refer [make-square type-of num-pieces-in square-of-type?]]))
 

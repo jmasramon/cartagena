@@ -3,7 +3,7 @@
    [clojure.data.generators :refer [rand-nth shuffle]]
    [cartagena.core :refer [def-num-players num-cards card-types pirate-colors]]
    [cartagena.data-abstractions.square-bis :refer [pieces-numbers]]
-   [cartagena.data-abstractions.player :as p :refer [make-player color set-cards]]
+   [cartagena.data-abstractions.player-bis :as p :refer [make-player color set-cards]]
    [cartagena.data-abstractions.deck :refer [random-deck remove-card-from]]
    [cartagena.data-abstractions.board :as b :refer [make-board boat]]))
 
@@ -69,7 +69,7 @@
 (defn player
   "Get one player from a list of players"
   [players color]
-  (first (filter #(= color (first (keys %)))
+  (first (filter #(= color (p/color %))
                  players)))
 
 (defn turn-order [game]
@@ -92,7 +92,7 @@
   [game]
   (let [turn (turn game)
         players (players game)]
-    (first (filter #(= turn (first (keys %))) players))))
+    (first (filter #(= turn (p/color %)) players))))
 
 (defn active-player-color
   "Returns the color of the active play from the game"
@@ -111,19 +111,22 @@
 (defn actions
   "Get the actions of the player"
   [players color]
-  (:actions (color (player players color))))
+  (p/actions (player players color)))
 
 (defn cards
   "Get the cards of a player"
   [players color]
-  (:cards (color (player players color))))
+  (p/cards (player players color)))
 
 ;; testers
 (defn player-has-card?
   "Does the player have a card?"
   [players color card]
-  (let [player (player players color)]
-    (= card (some #{card} (:cards (color player))))))
+  (let [player (player players color)
+        ]
+    (= card 
+       (some #{card} 
+             (p/cards player)))))
 
 ;; setters
 (defn set-players [game players]
@@ -145,10 +148,10 @@
 ;; TODO: this function makes no sense. Remove it
 (defn update-player
   "Updates a player if it is of a color"
-  [color newPlayer player]
-  (if (= color (first (keys player)))
-    newPlayer
-    player))
+  [color new-player current-player]
+  (if (= color (p/color current-player))
+    new-player
+    current-player))
 
 (defn update-player-in-players
   "Changes a player in the list of players"
@@ -165,14 +168,16 @@
   "Puts actions back to 3"
   [players color]
   (let [player (player players color)
-        newPlayer (assoc-in player [color :actions] 3)]
+        newPlayer (p/reset-actions player)]
     (update-player-in-players players color newPlayer)))
 
+;; v1 {:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
+;; v2 {:color :yellow, :cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}
 (defn decrease-actions
   "Takes one action from the player"
   [players color]
   (let [player (player players color)
-        newPlayer (update-in player [color :actions] dec)]
+        newPlayer (p/decrease-actions player)]
     (update-player-in-players players color newPlayer)))
 
 (defn add-random-card-to-active-player
