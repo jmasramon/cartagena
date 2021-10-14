@@ -4,8 +4,6 @@
             [cartagena.data-abstractions.square-bis 
              :refer [type-of remove-piece-from add-piece-to make-square square-pieces-as-vector square-of-type? pieces-in num-pieces-in]]))
 
-;; TODO: it makes the pieces to disaapear from the ui. Find solution implement test
-
 (deftest make-pieces-test
   (testing "make-pieces"
     (let [make-pieces #'cartagena.data-abstractions.square-bis/make-pieces]

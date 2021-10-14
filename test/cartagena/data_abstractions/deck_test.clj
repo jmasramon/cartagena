@@ -31,9 +31,8 @@
 
 (deftest cards-amounts-test
   (testing "cards-amounts"
-    (let [res (cards-amounts [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat])]
       (is (=  {:bottle 2, :flag 4, :hat 4, :keys 1, :pistol 2, :pistolhat 1, :sword 4}
-              res)))))
+              (cards-amounts [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat])))))
 
 (deftest playable-cards-test
   (testing "playable-cards"

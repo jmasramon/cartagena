@@ -5,7 +5,13 @@
              [cartagena.data-abstractions.deck :as d]
              [cartagena.data-abstractions.player-bis :as p]
              [cartagena.data-abstractions.board :as b]
-             [cartagena.data-abstractions.game :refer :all]))
+             [cartagena.data-abstractions.game :refer [actions active-player active-player-color add-random-card-to-active-player add-random-card-to-player-in-players board cards deck decrease-actions make-game move-piece next-turn player-has-card? players remove-played-card reset-actions set-board set-deck set-players set-turn set-turn-order turn turn-order turn-played update-player-in-players winner?]]))
+
+(def random-initial-turn #'cartagena.data-abstractions.game/random-initial-turn)
+(def make-turn-order #'cartagena.data-abstractions.game/make-turn-order)
+(def make-random-players #'cartagena.data-abstractions.game/make-random-players)
+(def colors #'cartagena.data-abstractions.game/colors)
+(def player #'cartagena.data-abstractions.game/player)
 
 (binding [*rnd* (java.util.Random. 12345)]
   (def yellow-cards (d/random-deck 6))
@@ -204,20 +210,6 @@
            (deck (set-deck the-game [:pistol :bottle :flag :sword :hat :flag :sword :hat  :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]))))))
 
 ;;state-changers
-(deftest update-player-test
-  (testing "update-player"
-    (binding [*rnd* (java.util.Random. 12345)]
-      (let [new-player (p/make-player the-turn (d/random-deck 6))
-            current-player (player the-players the-turn)]
-        (is (=  new-player
-                (update-player   the-turn
-                                 new-player
-                                 current-player)))
-        (is (=  current-player
-                (update-player   :brown
-                                 {:whatever 0}
-                                 current-player)))))))
-
 (deftest update-player-in-players-test
   (testing "update-player-in-players"
     (binding [*rnd* (java.util.Random. 12345)]

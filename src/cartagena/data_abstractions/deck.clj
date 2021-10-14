@@ -28,11 +28,10 @@
   [deck]
   (frequencies deck))
 
-;; TODO: this function makes no sense because cards-amounts never returns zeroes, remove it
 (defn playable-cards
-  "returns array of key-value card-frequencies with frequencies bigger than 0"
+  "returns list of key-value card-frequencies with frequencies bigger than 0"
   [cards]
-  (filter #(> (val %) 0) (cards-amounts cards)))
+  (reverse (into '() (cards-amounts cards))))
 
 (declare from-freqs-to-seq)
 
@@ -59,11 +58,12 @@
   (let [[card & newDeck] deck]
     [card newDeck]))
 
-;; TODO: change param order so a partial application can generate ex: draw-3-from
 (defn draw
   "Returns the n first cards from a deck and the deck without the removed cards: [cards deck']"
   [deck n]
-  (loop [deck deck n n acc []]
+  (loop [deck deck 
+         n n 
+         acc []]
     (if (= n 0)
       [(reverse acc) deck]
       (let [[card new-deck] (draw-one-from deck)]

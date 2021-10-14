@@ -123,7 +123,6 @@
   [board index color]
   (> (square-pieces board index color) 0))
 
-;; TODO: does it make sense that type is a param?
 (defn empty-slot?
   "Is the square of certain type and empty of pieces (of certain color)?"
   ([square type color]
@@ -157,7 +156,6 @@
        (dec (count board))))))
 
 ;; TODO: check that returning nil is well managed by the rest of the system
-;; also we should not consider the :start square as a potential answer
 (defn index-closest-nonempty-slot
   "Index of closest slot before origin with somebody already there"
   [board origin]

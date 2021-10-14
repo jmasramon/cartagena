@@ -2,8 +2,10 @@
   (:require [clojure.test :refer [deftest is testing]]
             [clojure.data.generators :refer [*rnd*]]
             [cartagena.data-abstractions.player-bis :as p :refer [actions cards]]
-            [cartagena.data-abstractions.game :refer [make-game active-player remove-played-card turn-played players player move-piece]]
+            [cartagena.data-abstractions.game :refer [make-game active-player remove-played-card turn-played players  move-piece]]
             [cartagena.data-abstractions.moves :refer [pass fall-back play-card]]))
+
+(def player #'cartagena.data-abstractions.game/player)
 
 (def game
   (binding [*rnd* (java.util.Random. 12345)]

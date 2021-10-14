@@ -19,21 +19,26 @@
 ;;          {:pieces {:green 0, :red 0, :yellow 0}, :type :boat}]
 ;;  :deck [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]}
 
+;; TODO: make as many functions as possible private
+;; TODO: most functions shuold receive and return a game
+
 ;; Functions that need to know how game is implemented
 ;; game-state: {players turn-order turn board deck}
-(defn random-initial-turn
+
+;; builders
+(defn- random-initial-turn
   "Choose a new random color out of the players colors"
   [turns-reservoir]
   (rand-nth (seq turns-reservoir)))
 
-(defn make-turn-order
+(defn- make-turn-order
   "Define the random order in which the players will play"
   [players-colors]
   (let [random-ordered-players-colors (shuffle players-colors)]
     (zipmap random-ordered-players-colors
             (rest (cycle random-ordered-players-colors)))))
 
-(defn make-random-players
+(defn- make-random-players
   "Make a list of num players"
   ([num]
    (make-random-players num pirate-colors num-cards card-types))
@@ -43,10 +48,7 @@
                        (random-deck cardNum
                                     cards-reservoir))))))
 
-(defn colors
-  "Get list of colors from list of players"
-  [players]
-  (map color players))
+(declare colors)
 
 (defn make-game
   "Create a new game"
@@ -65,11 +67,16 @@
 (defn players [game]
   (game :players))
 
-(defn player
+(defn- player
   "Get one player from a list of players"
   [players color]
   (first (filter #(= color (p/color %))
                  players)))
+
+(defn- colors
+  "Get list of colors from list of players"
+  [players]
+  (map color players))
 
 (defn turn-order [game]
   (game :turn-order))
@@ -98,14 +105,8 @@
   [game]
   (turn game))
 
-(defn next-player [game]
+(defn next-player-color [game]
   (next-turn game))
-
-(defn winner? [game]
-  (let [board (board game)
-        boat (boat board)
-        pieces (pieces-numbers-list-in boat)]
-    (> (count (filter #(= % num-cards) pieces)) 0)))
 
 (defn actions
   "Get the actions of the player"
@@ -126,6 +127,12 @@
        (some #{card}
              (p/cards player)))))
 
+(defn winner? [game]
+  (let [board (board game)
+        boat (boat board)
+        pieces (pieces-numbers-list-in boat)]
+    (> (count (filter #(= % num-cards) pieces)) 0)))
+
 ;; setters
 (defn set-players [game players]
   (assoc-in game [:players] players))
@@ -142,39 +149,16 @@
 (defn set-deck [game deck]
   (assoc-in game [:deck] deck))
 
-;; state-changers
-;; TODO: this function makes no sense. Remove it
-(defn update-player
-  "Updates a player if it is of a color"
-  [color new-player current-player]
-  (if (= color (p/color current-player))
-    new-player
-    current-player))
-
 (defn update-player-in-players
   "Changes a player in the list of players"
-  [players color newPlayer]
-  (map (partial update-player color newPlayer) players))
+  [players color new-player]
+  (map  #(if (= color (p/color %1)) new-player %1) players))
 
 (defn add-random-card-to-player-in-players
   [players color]
   (let [player (player players color)
         new-player (p/add-random-card-to-player-in-players player)]
     (update-player-in-players players color new-player)))
-
-(defn reset-actions
-  "Puts actions back to 3"
-  [players color]
-  (let [player (player players color)
-        newPlayer (p/reset-actions player)]
-    (update-player-in-players players color newPlayer)))
-
-(defn decrease-actions
-  "Takes one action from the player"
-  [players color]
-  (let [player (player players color)
-        newPlayer (p/decrease-actions player)]
-    (update-player-in-players players color newPlayer)))
 
 (defn add-random-card-to-active-player
   "Add a (random) card to the active player"
@@ -184,32 +168,72 @@
         updated-players (add-random-card-to-player-in-players players color)]
     (set-players game updated-players)))
 
-(defn move-piece
-  "Moves a piece from to"
-  [game from to]
-  (let [board (board game)
-        color (active-player-color game)]
-    (set-board game (b/move-piece board from to color))))
+(defn decrease-actions
+  "Takes one action from the player"
+  [players color]
+  (let [player (player players color)
+        newPlayer (p/decrease-actions player)]
+    (update-player-in-players players color newPlayer)))
 
-(defn turn-played
-  "Reduces the num of actions from the active user.
-   If zero remaining, set 3 actions to next user"
+(defn decrease-actions-from-active-player
+  "Takes one action from the player"
   [game]
   (let [color (active-player-color game)
-        next-player (next-player game)
-      	;; TODO: next four lines require its own abstraction new-players-state-after-turn
-        decreased-action-players (decrease-actions (players game) color)
-        remaining-actions (actions decreased-action-players color)
-        new-players (if (= 0 remaining-actions)
-                      (reset-actions decreased-action-players next-player)
-                      decreased-action-players)
-        new-game (set-players game new-players)]
+        players (players game)
+        player (player players color)]
+    (set-players game
+                 (update-player-in-players players color
+                                           (p/decrease-actions player)))))
+
+(defn reset-actions
+  "Puts one player's actions in players back to 3"
+  [players color]
+  (let [player (player players color)
+        newPlayer (p/reset-actions player)]
+    (update-player-in-players players color newPlayer)))
+
+(defn pass-turn
+  "Pass a turn by
+   1- set 3 actions to next user 
+   2- set turn to next user"
+  [game]
+  (let [next-player-color (next-player-color game)
+        new-players (reset-actions (players game) next-player-color)]
+    (set-turn
+     (set-players game new-players)
+     next-player-color)))
+
+(defn move-piece
+  "Moves a piece from to
+   1-gets board 
+   2-moves piece in board
+   3-updates board in game"
+  [game from to]
+  (let [board (board game)
+        color (active-player-color game)
+        new-board (b/move-piece board from to color)]
+    (set-board game new-board)))
+
+(defn turn-played
+  "Plays a turn by:
+   1-Reduce the num of actions from the active player
+   2- If zero remaining, 
+     2-1- set 3 actions to next user 
+     2-1- set turn to next user"
+  [game]
+  (let [color (active-player-color game)
+        decreased-action-game (decrease-actions-from-active-player game)
+        decreased-action-players  (players decreased-action-game)
+        remaining-actions (actions decreased-action-players color)]
     (if (= 0 remaining-actions)
-      (set-turn new-game next-player)
-      new-game)))
+      (pass-turn decreased-action-game)
+      decreased-action-game)))
 
 (defn remove-played-card
-  "Removes card played from active user"
+  "Removes card played from active user
+   1-gets the active player's cards
+   2-removes the card
+   3-updates player in game"
   [game card]
   (let [players (players game)
         active-player (active-player game)

@@ -2,8 +2,11 @@
   (:require [clojure.test :refer [deftest is testing]]
             [clojure.data.generators :refer [*rnd*]]
             [cartagena.core :refer [pirate-colors card-types]]
-            [cartagena.data-abstractions.game :refer [make-random-players]]
+            [cartagena.data-abstractions.game]
             [cartagena.data-abstractions.player-bis :refer [actions add-random-card-to-player-in-players cards color decrease-actions make-player player-has-card? reset-actions set-actions set-cards]]))
+
+(def make-random-players #'cartagena.data-abstractions.game/make-random-players)
+
 
 (deftest make-player-test
   (testing "make-player"
@@ -55,14 +58,6 @@
     (let [player (make-player :red '(:bottle :pistol :flag :flag :keys :bottle) 3)]
       (is (= 2
              (actions (decrease-actions player)))))))
-
-;; (deftest color-test
-;;   (testing "color-test"
-;;     (binding [*rnd* (java.util.Random. 12345)]
-;;       (let [player (first (make-random-players 1 pirate-colors 6 card-types))]
-;;         (println player)
-;;         (is (= :yellow
-;;                (color player)))))))
 
 (deftest player-has-card?-test
   (testing "player-has-card?"

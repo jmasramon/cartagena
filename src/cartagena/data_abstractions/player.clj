@@ -12,7 +12,6 @@
 ;;   actions 
 ;;   cards
 
-;; TODO: change player data structure implementation so color is not so problematic
 ;; right now we need to know the color of a player in order to interact with it
 ;; Better implementation alternatives: 
 ;;   {:color :yellow, :cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}
@@ -28,7 +27,6 @@
    {color {:actions actions, :cards cards}}))
 
 ;; getters
-;; TODO: this one belongs to the game?
 (defn color
   "Get the color of the player"
   [player]
