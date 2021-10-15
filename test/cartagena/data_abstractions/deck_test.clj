@@ -34,11 +34,6 @@
       (is (=  {:bottle 2, :flag 4, :hat 4, :keys 1, :pistol 2, :pistolhat 1, :sword 4}
               (cards-amounts [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat])))))
 
-(deftest playable-cards-test
-  (testing "playable-cards"
-    (is (=  '([:flag 4] [:sword 4] [:hat 4] [:pistol 2] [:bottle 2] [:keys 1] [:pistolhat 1])
-            (playable-cards [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat])))))
-
 (deftest from-freqs-to-seq-test
   (testing "from-freqs-to-seq"
     (let [res (from-freqs-to-seq {:bottle 2, :flag 4, :hat 4, :keys 1, :pistol 2, :pistolhat 1, :sword 4})]

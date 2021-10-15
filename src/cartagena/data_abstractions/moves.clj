@@ -1,8 +1,6 @@
 (ns cartagena.data-abstractions.moves
   (:require
-   [cartagena.data-abstractions.game :refer [board active-player active-player-color add-random-card-to-active-player move-piece turn-played move-piece remove-played-card]]
-   [cartagena.data-abstractions.board :refer [square index-closest-nonempty-slot next-empty-slot-index]]
-   [cartagena.data-abstractions.square-bis :refer [num-pieces-in]]))
+   [cartagena.data-abstractions.game :as g]))
 
 ;; moves: actions triggered by the players. Each player has 3 actions while it is her turn
 ;; Each action represents a modification of the state (the "game")
@@ -20,7 +18,7 @@
   "Player with turn looses an action. 
    If last turn, next's players turn begins."
   [game]
-  (turn-played game))
+  (g/turn-played game))
 
 (defn fall-back
   "For the active player: 
@@ -28,22 +26,13 @@
    2-add a random card to the player; 
    3-turn played"
   [game from]
-  (let [board (board game)
-        player-color (active-player-color game)
-        to (index-closest-nonempty-slot board
-                                        from)
-        origin-square (square board from)
-        available-pieces (num-pieces-in origin-square player-color)
-        available-destination? (not (nil? to))
-        available-piece? (and
-                          (not (nil? available-pieces))
-                          (> available-pieces 0))]
+  (let [to (g/fallback-square-index game from)]
     (if (and
-         available-piece?
-         available-destination?)
-        (-> (move-piece game from to)
-            add-random-card-to-active-player
-            turn-played)
+         (g/available-piece? game from)
+         (g/available-fall-back? game from))
+      (-> (g/move-piece game from to)
+          g/add-random-card-to-active-player
+          g/turn-played)
       game)))
 
 (defn play-card
@@ -52,15 +41,9 @@
    2-remove used card
    2-turn played"
   [game card from]
-  (let [board (board game)
-        player-color (active-player-color game)
-        origin-square (square board from)
-        available-pieces (num-pieces-in origin-square player-color)
-        to (next-empty-slot-index board
-                                  card
-                                  from)]
-    (if (> available-pieces 0)
-     (-> (move-piece game from to)
-        (remove-played-card card)
-        turn-played)
+  (let [to (g/next-empty-slot-index game card from)]
+    (if (g/available-piece? game from)
+      (-> (g/move-piece game from to)
+          (g/remove-played-card card)
+          g/turn-played)
       game)))

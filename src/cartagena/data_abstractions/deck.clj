@@ -28,10 +28,10 @@
   [deck]
   (frequencies deck))
 
-(defn playable-cards
-  "returns list of key-value card-frequencies with frequencies bigger than 0"
-  [cards]
-  (reverse (into '() (cards-amounts cards))))
+;; (defn playable-cards
+;;   "Returns a list with how many cards of each type we have in deck"
+;;   [cards]
+;;   (reverse (into '() (cards-amounts cards))))
 
 (declare from-freqs-to-seq)
 

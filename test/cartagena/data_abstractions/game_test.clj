@@ -5,7 +5,7 @@
              [cartagena.data-abstractions.deck :as d]
              [cartagena.data-abstractions.player-bis :as p]
              [cartagena.data-abstractions.board :as b]
-             [cartagena.data-abstractions.game :refer [actions active-player active-player-color add-random-card-to-active-player add-random-card-to-player-in-players board cards deck decrease-actions make-game move-piece next-turn player-has-card? players remove-played-card reset-actions set-board set-deck set-players set-turn set-turn-order turn turn-order turn-played update-player-in-players winner?]]))
+             [cartagena.data-abstractions.game :refer [active-player-actions active-player active-player-color add-random-card-to-active-player add-random-card-to-player-in-players board active-player-cards playable-cards deck decrease-actions make-game move-piece next-turn player-has-card? players remove-played-card reset-actions set-board set-deck set-players set-turn set-turn-order turn turn-order turn-played update-player-in-players winner?]]))
 
 (def random-initial-turn #'cartagena.data-abstractions.game/random-initial-turn)
 (def make-turn-order #'cartagena.data-abstractions.game/make-turn-order)
@@ -228,8 +228,7 @@
   (testing "add-random-card-to-active-player"
     (binding [*rnd* (java.util.Random. 12345)]
       (let [new-game (add-random-card-to-active-player the-game)
-            new-players (players new-game)
-            new-cards (cards new-players the-turn)
+            new-cards (active-player-cards new-game)
             new-card-amounts (d/cards-amounts new-cards)
             old-card-amounts (d/cards-amounts (p/cards (active-player the-game)))]
         (is (not= old-card-amounts
@@ -315,17 +314,22 @@
                              :flag))
         "The green player should not have the :flag card")))
 
-(deftest actions-test
-  (testing "actions-test"
+(deftest active-player-actions-test
+  (testing "active-player-actions-test"
     (is (= 3
-           (actions the-players :green)
-           (actions the-players :yellow)
-           (actions the-players :red)))))
+           (active-player-actions the-game)
+        ))))
 
-(deftest cards-test
-  (testing "cards-test"
+(deftest active-player-cards-test
+  (testing "active-player-cards-test"
     (is (= green-cards
-           (cards the-players :green)))))
+           (active-player-cards the-game)))))
+
+(deftest playable-cards-test
+  (testing "playable-cards"
+    (is (=  '([:flag 4] [:sword 4] [:hat 4] [:pistol 2] [:bottle 2] [:keys 1] [:pistolhat 1])
+            (playable-cards the-game)))))
+
 
 (deftest player-test
   (testing "player-test"

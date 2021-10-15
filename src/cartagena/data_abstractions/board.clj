@@ -4,7 +4,7 @@
    [cartagena.core :refer [card-types]]
    [cartagena.data-abstractions.player-bis :refer [color]]
    [cartagena.data-abstractions.square-bis :as sq
-    :refer [make-square type-of num-pieces-in square-of-type?]]))
+    :refer [make-square type-of square-of-type?]]))
 
 ;; Functions that need to know how board is implemented
 
@@ -55,18 +55,24 @@
       (make-square :boat used-colors)))))
 
 ;; getters
-(defn boat [board]
+(defn boat 
+  [board]
   (last board))
 
-(defn square [board index]
+(defn square 
+  [board index]
   (board index))
 
-(defn square-pieces
+(defn pieces-in 
+  [board index]
+  (sq/pieces-in (square board index)))
+
+(defn num-pieces-in
   "Number of pieces in a square. Global or one color only"
   ([board index]
-   (num-pieces-in (square board index)))
+   (sq/num-pieces-in (square board index)))
   ([board index color]
-   (num-pieces-in (square board index) color)))
+   (sq/num-pieces-in (square board index) color)))
 
 (defn square-pieces-as-vector
   "Convert the pieces on the square at board's index to a vector of pieces"
@@ -87,6 +93,7 @@
   "Returns ordered list of all squares of type"
   [board type]
   (keep-indexed #(when (square-of-type? type %2) %1) board))
+
 
 ;; setters
 (defn add-piece-to
@@ -112,7 +119,7 @@
 (defn space-available?
   "Does the square have space available for another piece? (max 3)"
   [board index]
-  (<= (num-pieces-in (square board index)) 2))
+  (<= (sq/num-pieces-in (square board index)) 2))
 
 (def square-full?
   "Is the square full?"
@@ -121,23 +128,23 @@
 (defn square-has-color?
   "Has the square a piece of certain color?"
   [board index color]
-  (> (square-pieces board index color) 0))
+  (> (num-pieces-in board index color) 0))
 
 (defn empty-slot?
   "Is the square of certain type and empty of pieces (of certain color)?"
   ([square type color]
    (and
     (square-of-type? type square)
-    (= 0 (num-pieces-in square color))))
+    (= 0 (sq/num-pieces-in square color))))
   ([square type]
    (and
     (square-of-type? type square)
-    (= 0 (num-pieces-in square)))))
+    (= 0 (sq/num-pieces-in square)))))
 
 (defn nonempty-slot?
   "Has the square any piece?"
   [square]
-  (not= 0 (num-pieces-in square)))
+  (not= 0 (sq/num-pieces-in square)))
 
 ;; finders
 (defn next-empty-slot-index

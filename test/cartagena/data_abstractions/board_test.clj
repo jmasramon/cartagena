@@ -4,7 +4,7 @@
             [cartagena.core :refer [card-types]]
             [cartagena.data-abstractions.player-bis :refer [make-player]]
             [cartagena.data-abstractions.deck :refer [random-deck]]
-            [cartagena.data-abstractions.square-bis :refer [pieces-in num-pieces-in type-of is-square?]]
+            [cartagena.data-abstractions.square-bis :as sq :refer [type-of is-square?]]
             [cartagena.data-abstractions.board :refer :all]))
 
 (deftest make-board-section-test
@@ -33,7 +33,7 @@
                         :boat))
           "should not have :boat")
       (is (= 0
-             (reduce + (map num-pieces-in a-section)))
+             (reduce + (map sq/num-pieces-in a-section)))
           "all sections should be empty"))))
 
 (deftest make-board-test
@@ -44,8 +44,8 @@
                                  (make-player :green (random-deck 6) 2)])]
                                 (is (= 38 (count board)))
                                 (is (= :start (square-type board 0)))
-                                (is (= 2 (count (pieces-in (first board)))))
-                                (is (= 12 (num-pieces-in (first board))))
+                                (is (= 2 (count (sq/pieces-in (first board)))))
+                                (is (= 12 (sq/num-pieces-in (first board))))
                                 (let [subsections (subvec board 1 (count board))]
                                   (is (= false (contains? (into subsections
                                                                 #{})
@@ -54,7 +54,7 @@
                                                                 #{})
                                                           :boat))))
                                 (is (= :boat (type-of (last board))))
-                                (is (= 12 (reduce + (map num-pieces-in board))))))))
+                                (is (= 12 (reduce + (map sq/num-pieces-in board))))))))
 
 (def board
   (binding [*rnd* (java.util.Random. 12345)]
@@ -80,21 +80,34 @@
     (is (=  :hat
             (type-of (square board
                              4)))))
-  (testing "square-pieces"
+  (testing "pieces-in"
+    (is (=  {:green 6, :red 6, :yellow 6}
+            (pieces-in board
+                           0))
+        "should return start pieces")
+    (is (=  {:green 0, :red 0, :yellow 0}
+            (pieces-in board
+                           (dec (count board))))
+        "should return boat pieces")
+    (is (=  {:green 1, :red 1, :yellow 0}
+            (pieces-in board
+                           8))
+        "should return pieces"))
+  (testing "num-pieces-in"
     (is (=  18
-            (square-pieces board
+            (num-pieces-in board
                            0))
         "should return start pieces")
     (is (=  0
-            (square-pieces board
+            (num-pieces-in board
                            (dec (count board))))
         "should return boat pieces")
     (is (=  2
-            (square-pieces board
+            (num-pieces-in board
                            8))
         "should return pieces")
     (is (=  1
-            (square-pieces board
+            (num-pieces-in board
                            8
                            :green))
         "should only green pieces"))
@@ -192,15 +205,15 @@
           modified-square (nth new-board 1)
           original-square (nth board 1)]
       (is (= 0
-             (num-pieces-in original-square)))
+             (sq/num-pieces-in original-square)))
       (is (= 1
-             (num-pieces-in modified-square)))
+             (sq/num-pieces-in modified-square)))
       (is (= 1
-             (num-pieces-in modified-square :red)))
+             (sq/num-pieces-in modified-square :red)))
       (is (= 0
-             (num-pieces-in modified-square :green)))
+             (sq/num-pieces-in modified-square :green)))
       (is (= 0
-             (num-pieces-in modified-square :yellow))))))
+             (sq/num-pieces-in modified-square :yellow))))))
 
 (deftest remove-piece-from-test
   (testing "remove-piece-from"
@@ -210,21 +223,21 @@
           modified-square (nth new-board 8)
           original-square (nth board 8)]
       (is (= 2
-             (num-pieces-in original-square)))
+             (sq/num-pieces-in original-square)))
       (is (= 1
-             (num-pieces-in modified-square)))
+             (sq/num-pieces-in modified-square)))
       (is (= 1
-             (num-pieces-in original-square :red)))
+             (sq/num-pieces-in original-square :red)))
       (is (= 1
-             (num-pieces-in original-square :green)))
+             (sq/num-pieces-in original-square :green)))
       (is (= 0
-             (num-pieces-in original-square :yellow)))
+             (sq/num-pieces-in original-square :yellow)))
       (is (= 1
-             (num-pieces-in modified-square :red)))
+             (sq/num-pieces-in modified-square :red)))
       (is (= 0
-             (num-pieces-in modified-square :green)))
+             (sq/num-pieces-in modified-square :green)))
       (is (= 0
-             (num-pieces-in modified-square :yellow))))))
+             (sq/num-pieces-in modified-square :yellow))))))
 
 (deftest empty-slot?-test
   (testing "empty-slot? two params"

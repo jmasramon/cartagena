@@ -1,9 +1,9 @@
 (ns cartagena.swingUI.drawing
   (:require [clojure.java.io :as io]
-            [cartagena.data-abstractions.square-bis :refer [pieces-in pieces-to-vector]]
-            [cartagena.data-abstractions.board :refer [square square-type]]
-            [cartagena.data-abstractions.player-bis :refer [color cards]]
-            [cartagena.data-abstractions.deck :refer [cards-amounts]]
+            [cartagena.data-abstractions.square-bis :as sq]
+            [cartagena.data-abstractions.board :as b]
+            [cartagena.data-abstractions.player-bis :as p]
+            [cartagena.data-abstractions.deck :as d]
             [cartagena.swingUI.shaping :refer [track-shapes hand-shapes]])
   (:import (java.awt Color Graphics2D)
            (javax.imageio ImageIO)
@@ -33,22 +33,25 @@
   (.drawImage graphics image (.getMinX shape) (.getMinY shape) (.getMaxX shape) (.getMaxY shape)
               0 0 (.getWidth image) (.getHeight image) nil))
 
-(defn draw-squares [^Graphics2D graphics board]
+(defn- draw-square [graphics board index]
+  (let [image ((b/square-type board index) images)
+        ^RectangularShape shape (get track-shapes index)]
+    (doto graphics
+      (.draw shape) ; draw the square
+      (draw-image image shape)))) ; draw the image on top 
+
+(defn draw-board [^Graphics2D graphics board]
   (doseq [square-index (range (count board))]
-    (let [image ((square-type board square-index) images)
-          ^RectangularShape shape (get track-shapes square-index)]
-      (doto graphics
-        (.draw shape) ; draw the square
-        (draw-image image shape))))) ; draw the image on top 
+    (draw-square graphics board square-index))) 
 
-(defmulti draw-piece
+(defmulti draw-the-pieces
   (fn [_ pieces _]
-    (count (pieces-to-vector pieces))))
+    (count (sq/pieces-to-vector pieces))))
 
-(defmethod draw-piece 0 [_ _ _])
+(defmethod draw-the-pieces 0 [_ _ _])
 
-(defmethod draw-piece 1 [^Graphics2D graphics pieces boundary]
-  (let [piece (first (pieces-to-vector pieces))
+(defmethod draw-the-pieces 1 [^Graphics2D graphics pieces boundary]
+  (let [piece (first (sq/pieces-to-vector pieces))
         color (piece color-map)
         cx (.getCenterX boundary)
         cy (.getCenterY boundary)
@@ -57,10 +60,10 @@
     (.setColor graphics color)
     (.fill graphics shape)))
 
-(defmethod draw-piece 2 [^Graphics2D graphics pieces boundary]
-  (let [piece1 (first (pieces-to-vector pieces))
+(defmethod draw-the-pieces 2 [^Graphics2D graphics pieces boundary]
+  (let [piece1 (first (sq/pieces-to-vector pieces))
         color1 (piece1 color-map)
-        piece2 (second (pieces-to-vector pieces))
+        piece2 (second (sq/pieces-to-vector pieces))
         color2 (piece2 color-map)
         cx (.getCenterX boundary)
         cy (.getCenterY boundary)
@@ -70,16 +73,16 @@
     (.setColor graphics color2)
     (.fill graphics (Ellipse2D$Double. (- cx (* r 0.5)) (- (- cy (* r 0.5)) (/ r 2.0)) r r))))
 
-(defmethod draw-piece :default [^Graphics2D graphics pieces boundary]
-  (let [p (pieces-to-vector pieces)
-        n (count p)
+(defmethod draw-the-pieces :default [^Graphics2D graphics pieces boundary]
+  (let [pp (sq/pieces-to-vector pieces)
+        n (count pp)
         cx (.getCenterX boundary)
         cy (.getCenterY boundary)
         r (* 3.0 (Math/sqrt (.getWidth boundary)))
         theta (/ Math/PI (inc n) 0.5)
         cl (* 2.0 r (Math/sin (* theta 0.5)))]
     (doseq [i (range n)]
-      (let [piece (p i)
+      (let [piece (pp i)
             color (piece color-map)
             y (* r (Math/sin (* i theta)))
             x (* r (Math/cos (* i theta)))
@@ -89,16 +92,16 @@
 
 (defn draw-pieces
   ([^Graphics2D graphics pieces boundary]
-   (draw-piece graphics pieces boundary))
+   (draw-the-pieces graphics pieces boundary))
   ([^Graphics2D graphics board]
    (doseq [square-index (range (count board))]
-     (let [local-pieces (pieces-in (square board square-index))
+     (let [local-pieces (b/pieces-in board square-index)
            shape (get track-shapes square-index)]
        (draw-pieces graphics local-pieces shape)))))
 
 (defn draw-cards [^Graphics2D graphics player]
-  (let [color (color-map (color player))
-        hand (cards player)]
+  (let [color (color-map (p/color player))
+        hand (p/cards player)]
     (doseq [hand-shape hand-shapes]
       (let [shape (key hand-shape)
             card-type (val hand-shape)
@@ -110,9 +113,9 @@
           (.draw shape)
           (draw-image image shape)
           (.setPaint Color/BLACK)
-          (.drawString (str (card-type (cards-amounts hand))) 
-                       (float (+ dx1 
-                                 (.getWidth shape))) 
-                       (float (+ dy1 
+          (.drawString (str (card-type (d/cards-amounts hand)))
+                       (float (+ dx1
+                                 (.getWidth shape)))
+                       (float (+ dy1
                                  (.getHeight shape)))))))))
 

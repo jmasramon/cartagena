@@ -2,9 +2,9 @@
   (:require
    [clojure.data.generators :refer [rand-nth shuffle]]
    [cartagena.core :refer [def-num-players num-cards card-types pirate-colors]]
-   [cartagena.data-abstractions.square-bis :refer [pieces-numbers-list-in]]
+   [cartagena.data-abstractions.square-bis :as s :refer [pieces-numbers-list-in]]
    [cartagena.data-abstractions.player-bis :as p :refer [make-player color set-cards]]
-   [cartagena.data-abstractions.deck :refer [random-deck remove-card-from]]
+   [cartagena.data-abstractions.deck :as d :refer [random-deck remove-card-from]]
    [cartagena.data-abstractions.board :as b :refer [make-board boat]]))
 
 ;; Data structures
@@ -108,15 +108,20 @@
 (defn next-player-color [game]
   (next-turn game))
 
-(defn actions
+(defn active-player-actions
   "Get the actions of the player"
-  [players color]
-  (p/actions (player players color)))
+  [game]
+  (p/actions (player (players game) (turn game))))
 
-(defn cards
+(defn active-player-cards
   "Get the cards of a player"
-  [players color]
-  (p/cards (player players color)))
+  [game]
+  (p/cards (player (players game) (turn game))))
+
+(defn playable-cards
+  "Returns a list with how many cards of each type we have in deck"
+  [game]
+  (reverse (into '() (d/cards-amounts (active-player-cards game)))))
 
 ;; testers
 (defn player-has-card?
@@ -223,8 +228,7 @@
   [game]
   (let [color (active-player-color game)
         decreased-action-game (decrease-actions-from-active-player game)
-        decreased-action-players  (players decreased-action-game)
-        remaining-actions (actions decreased-action-players color)]
+        remaining-actions (active-player-actions decreased-action-game)]
     (if (= 0 remaining-actions)
       (pass-turn decreased-action-game)
       decreased-action-game)))
@@ -244,4 +248,32 @@
         updated-players (update-player-in-players players color updated-player)]
     (set-players game updated-players)))
 
+(defn available-fall-back?
+  [game from]
+  (let [board (board game)
+        to (b/index-closest-nonempty-slot board
+                                          from)]
+    (not (nil? to))))
 
+(defn available-piece?
+  [game square-index]
+  (let [board (board game)
+        player-color (active-player-color game)
+        origin-square (b/square board square-index)
+        available-pieces (s/num-pieces-in origin-square player-color)]
+    (and
+     (not (nil? available-pieces))
+     (> available-pieces 0))))
+
+(defn fallback-square-index
+  [game from]
+  (let [board (board game)]
+    (b/index-closest-nonempty-slot board
+                                   from)))
+
+(defn next-empty-slot-index
+  [game card from]
+  (let [board (board game)]
+    (b/next-empty-slot-index board
+                             card
+                             from)))
