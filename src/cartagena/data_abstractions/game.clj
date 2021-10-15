@@ -20,7 +20,7 @@
 ;;  :deck [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]}
 
 ;; TODO: make as many functions as possible private
-;; TODO: most functions shuold receive and return a game
+;; TODO: most public functions shuold receive and return a game
 
 ;; Functions that need to know how game is implemented
 ;; game-state: {players turn-order turn board deck}

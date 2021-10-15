@@ -1,7 +1,7 @@
 (ns cartagena.core)
 
 ;; Constants
-(def pirate-colors #{:red :green :yellow}) ;; TODO: there should be more colors to choose from
+(def pirate-colors #{:red :green :yellow :blue :brown}) 
 (def card-types #{:hat :flag :pistol :sword :bottle :keys})
 (def num-cards (count card-types))
 (def deck-size 50)
@@ -11,12 +11,12 @@
 
 ;; DATA ABSTRACTIONS
 
-;; -- moves --  ; change the game
-;; -- game --   ; contains players, cards, and board
+;; -- moves --  ; change the game through player actions
+;; -- game --   ; contains players, cards, and board. Also keeps track of active-player, its available moves and turn-order
   ;; -- player --
 
   ;; -- deck --
-    ;; -- cards --  
+    ;; -- cards --  ;;just a keyword so not really new data
 
   ;; -- board --
     ;; -- square --

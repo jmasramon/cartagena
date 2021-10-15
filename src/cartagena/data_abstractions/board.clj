@@ -162,7 +162,6 @@
           (first same-card-indexes))
        (dec (count board))))))
 
-;; TODO: check that returning nil is well managed by the rest of the system
 (defn index-closest-nonempty-slot
   "Index of closest slot before origin with somebody already there"
   [board origin]

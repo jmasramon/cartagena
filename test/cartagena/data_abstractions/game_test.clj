@@ -38,11 +38,11 @@
     (binding [*rnd* (java.util.Random. 12345)]
       (is (=  :green
               (random-initial-turn  pirate-colors)))
-      (is (=  :red
+      (is (=  :brown
               (random-initial-turn  pirate-colors)))
-      (is (=  :red
+      (is (=  :brown
               (random-initial-turn  pirate-colors)))
-      (is (=  :yellow
+      (is (=  :green
               (random-initial-turn  pirate-colors))))))
 
 (deftest make-turn-order-test
@@ -327,7 +327,7 @@
 
 (deftest playable-cards-test
   (testing "playable-cards"
-    (is (=  '([:flag 4] [:sword 4] [:hat 4] [:pistol 2] [:bottle 2] [:keys 1] [:pistolhat 1])
+    (is (=  '([:sword 2] [:pistol 1] [:keys 1] [:flag 2])
             (playable-cards the-game)))))
 
 
