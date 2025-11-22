@@ -9,6 +9,19 @@
            (javax.swing JFrame JPopupMenu JMenuItem JOptionPane JLabel)
            (java.awt.event MouseAdapter ActionListener MouseEvent)))
 
+;; ABSTRACTION LAYER: Layer 5 (User Interface - Event Handling)
+;;
+;; This namespace handles user interactions and delegates to game logic.
+;; It depends on:
+;;   - Layer 0: cartagena.core (for pirate-colors)
+;;   - Layer 3: cartagena.data-abstractions.game (for game state queries)
+;;   - Layer 4: cartagena.data-abstractions.moves (for game actions)
+;;   - Layer 5: cartagena.swingUI.shaping (for coordinate mapping)
+;;              cartagena.swingUI.drawing (for rendering)
+;;
+;; CRITICAL: This layer never directly manipulates board, player, deck, or
+;; square structures. All game operations go through the moves and game APIs.
+;;
 ;; Main Swing UI wiring for Cartagena.
 ;;
 ;; This namespace owns the window, event handling and connection between

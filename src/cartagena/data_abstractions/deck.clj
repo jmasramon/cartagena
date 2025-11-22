@@ -3,6 +3,15 @@
    [cartagena.core :refer [deck-size card-types]]
    [clojure.data.generators :as gen]))
 
+;; ABSTRACTION LAYER: Layer 1 (Basic Data Structures)
+;;
+;; This namespace represents a deck of cards as a simple data structure.
+;; It depends ONLY on:
+;;   - Layer 0: cartagena.core (for deck-size and card-types constants)
+;;
+;; Higher layers (game, UI) interact with decks through this namespace's
+;; public API, never directly manipulating the deck representation.
+;;
 ;; Deck data abstraction.
 ;;
 ;; A deck is represented as a simple sequence of card keywords.

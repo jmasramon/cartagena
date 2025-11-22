@@ -9,6 +9,20 @@
            (javax.imageio ImageIO)
            (java.awt.geom Ellipse2D$Double RectangularShape)))
 
+;; ABSTRACTION LAYER: Layer 5 (User Interface - Rendering)
+;;
+;; This namespace handles rendering game state to the screen.
+;; It depends on:
+;;   - Layer 1: cartagena.data-abstractions.square-bis (for piece queries)
+;;              cartagena.data-abstractions.player-bis (for player queries)
+;;              cartagena.data-abstractions.deck (for card queries)
+;;   - Layer 2: cartagena.data-abstractions.board (for board queries)
+;;   - Layer 5: cartagena.swingUI.shaping (for geometric shapes)
+;;
+;; CRITICAL: This layer only reads game state; it never modifies it.
+;; All rendering is side-effecting (Graphics2D calls), but the game
+;; data structures remain immutable.
+;;
 ;; Swing rendering helpers for Cartagena.
 ;;
 ;; This namespace is responsible for drawing the game state:

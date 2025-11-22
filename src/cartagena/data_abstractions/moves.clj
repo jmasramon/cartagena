@@ -2,6 +2,19 @@
   (:require
    [cartagena.data-abstractions.game :as g]))
 
+;; ABSTRACTION LAYER: Layer 4 (Game Rules)
+;;
+;; This namespace implements the game rules as pure transformations of game state.
+;; It depends ONLY on:
+;;   - Layer 3: cartagena.data-abstractions.game (game state operations)
+;;
+;; CRITICAL ABSTRACTION BARRIER: This layer never directly accesses board, player,
+;; deck, or square namespaces. All game state manipulation goes through the game
+;; namespace API. This ensures that:
+;;   1. Game rules are expressed at the right level of abstraction
+;;   2. Changes to lower layers don't break game logic
+;;   3. The rules remain readable and maintainable
+;;
 ;; Move primitives for the game.
 ;;
 ;; A "move" here is a rule that transforms the immutable game state in

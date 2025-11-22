@@ -1,6 +1,15 @@
 (ns cartagena.data-abstractions.square-bis
   (:require [cartagena.core :refer [num-starting-pieces]]))
 
+;; ABSTRACTION LAYER: Layer 1 (Basic Data Structures)
+;;
+;; This namespace represents a square as an individual board position.
+;; It depends ONLY on:
+;;   - Layer 0: cartagena.core (for num-starting-pieces constant)
+;;
+;; Higher layers (board, game, UI) interact with squares through this
+;; namespace's public API, never directly accessing square internals.
+;;
 ;; Alternative square representation used to validate the data abstraction
 ;; barrier. This namespace implements squares as a vector
 ;; [type-set-instance pieces-map] while keeping the same public API as

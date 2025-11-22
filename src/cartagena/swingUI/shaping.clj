@@ -2,6 +2,15 @@
   (:require [cartagena.core :refer [card-types]])
   (:import (java.awt.geom Rectangle2D$Double)))
 
+;; ABSTRACTION LAYER: Layer 5 (User Interface - Geometry)
+;;
+;; This namespace defines the fixed geometric layout for the UI.
+;; It depends ONLY on:
+;;   - Layer 0: cartagena.core (for card-types constant)
+;;
+;; This is pure geometry with no game logic or state. Other UI namespaces
+;; use these shapes for rendering and hit detection.
+;;
 ;; Swing UI geometry and shapes.
 ;;
 ;; This namespace defines the fixed geometric layout for the game:

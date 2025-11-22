@@ -2,11 +2,26 @@
   (:require
    [clojure.data.generators :as gen]
    [cartagena.core :refer [def-num-players num-cards card-types pirate-colors]]
-   [cartagena.data-abstractions.square-bis :as s :refer [pieces-numbers-list-in]]
    [cartagena.data-abstractions.player-bis :as p :refer [make-player color set-cards]]
    [cartagena.data-abstractions.deck :as d :refer [random-deck remove-card-from]]
-   [cartagena.data-abstractions.board :as b :refer [make-board boat]]))
+   [cartagena.data-abstractions.board :as b :refer [make-board]]))
 
+;; ABSTRACTION LAYER: Layer 3 (Game State)
+;;
+;; This namespace represents the complete game state and provides operations
+;; for querying and updating it. It depends ONLY on:
+;;   - Layer 0: cartagena.core (game constants)
+;;   - Layer 1: cartagena.data-abstractions.player-bis (player operations)
+;;              cartagena.data-abstractions.deck (deck operations)
+;;   - Layer 2: cartagena.data-abstractions.board (board operations)
+;;
+;; CRITICAL: This layer never directly manipulates squares or lower-level
+;; structures. All board operations go through the board namespace API.
+;; All player operations go through the player namespace API.
+;;
+;; Higher layers (moves, UI) interact with game state through this namespace's
+;; public API, treating the game as an immutable value.
+;;
 ;; Data structures
 ;; example of full game data (state of the game)
 ;; {:players [{:yellow {:cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}}
@@ -134,8 +149,8 @@
 
 (defn winner? [game]
   (let [board (board game)
-        boat (boat board)
-        pieces (pieces-numbers-list-in boat)]
+        boat-index (dec (count board))
+        pieces (b/pieces-numbers-list-in board boat-index)]
     (> (count (filter #(= % num-cards) pieces)) 0)))
 
 ;; setters
@@ -259,8 +274,7 @@
   [game square-index]
   (let [board (board game)
         player-color (active-player-color game)
-        origin-square (b/square board square-index)
-        available-pieces (s/num-pieces-in origin-square player-color)]
+        available-pieces (b/num-pieces-in board square-index player-color)]
     (and
      (not (nil? available-pieces))
      (> available-pieces 0))))

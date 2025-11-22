@@ -6,6 +6,17 @@
    [cartagena.data-abstractions.square-bis :as sq
     :refer [make-square type-of square-of-type?]]))
 
+;; ABSTRACTION LAYER: Layer 2 (Composite Structures)
+;;
+;; This namespace represents the game board as a collection of squares.
+;; It depends ONLY on:
+;;   - Layer 0: cartagena.core (for card-types constant)
+;;   - Layer 1: cartagena.data-abstractions.square-bis (square operations)
+;;              cartagena.data-abstractions.player-bis (for player colors)
+;;
+;; Higher layers (game, moves, UI) interact with the board through this
+;; namespace's public API, never directly accessing square internals.
+;;
 ;; Functions that need to know how board is implemented
 
 ;; A board is a vector of squares. Order is important
@@ -55,15 +66,15 @@
       (make-square :boat used-colors)))))
 
 ;; getters
-(defn boat 
+(defn boat
   [board]
   (last board))
 
-(defn square 
+(defn square
   [board index]
   (board index))
 
-(defn pieces-in 
+(defn pieces-in
   [board index]
   (sq/pieces-in (square board index)))
 
@@ -78,6 +89,11 @@
   "Convert the pieces on the square at board's index to a vector of pieces"
   [board index]
   (sq/square-pieces-as-vector (square board index)))
+
+(defn pieces-numbers-list-in
+  "Get list of piece counts for all players in a square"
+  [board index]
+  (sq/pieces-numbers-list-in (square board index)))
 
 (defn square-type
   "Return the type of the square"
@@ -167,7 +183,7 @@
   [board origin]
   (let [sub-board (subvec board 0 origin)
         non-empty-slots-indexes (keep-indexed #(if (nonempty-slot? %2) %1  nil) sub-board)]
-    (if (> (count non-empty-slots-indexes) 
+    (if (> (count non-empty-slots-indexes)
            0)
       (let [candidate (last non-empty-slots-indexes)]
         (if (> candidate 0)

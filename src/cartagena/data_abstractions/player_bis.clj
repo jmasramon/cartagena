@@ -3,6 +3,16 @@
    [cartagena.core :refer [starting-actions card-types]]
    [cartagena.data-abstractions.deck :refer [random-card add-card]]))
 
+;; ABSTRACTION LAYER: Layer 1 (Basic Data Structures)
+;;
+;; This namespace represents a player as an individual game entity.
+;; It depends ONLY on:
+;;   - Layer 0: cartagena.core (for starting-actions and card-types constants)
+;;              cartagena.data-abstractions.deck (for card operations)
+;;
+;; Higher layers (board, game, UI) interact with players through this
+;; namespace's public API, never directly accessing player internals.
+;;
 ;; Alternative player representation used to validate the data abstraction
 ;; barrier. This namespace defines a different concrete shape for "player"
 ;; (a map with :color, :cards and :actions) while keeping the same public
