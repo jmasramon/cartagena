@@ -9,15 +9,28 @@
            (javax.swing JFrame JPopupMenu JMenuItem JOptionPane JLabel)
            (java.awt.event MouseAdapter ActionListener MouseEvent)))
 
+;; Main Swing UI wiring for Cartagena.
+;;
+;; This namespace owns the window, event handling and connection between
+;; user interactions and the pure game logic (cartagena.data-abstractions
+;; namespaces). It:
+;;   - builds the main JFrame and drawing component
+;;   - maps mouse clicks to board squares via track-shapes
+;;   - shows context menus (Play card / Fall Back / Pass) and delegates
+;;     to the moves layer
+;;   - triggers repaints when the game atom changes
 
-(defn create-action [parent action]
+(defn create-action
+  "Create an ActionListener that runs action and repaints the parent."
+  [parent action]
   (proxy [ActionListener] []
     (actionPerformed [_]
       (action)
       (.repaint parent))))
 
 (defn popup
-  "Main game logic is called from here"
+  "Show a context menu for the clicked square, wiring menu items to moves.
+   The menu includes options to play a card, fall back, or pass."
   [parent ^MouseEvent event game square-index]
   (let [playable-cards (g/playable-cards @game)
         f (fn [menu]
@@ -32,10 +45,14 @@
              (.getComponent event) (.x (.getPoint event)) (.y (.getPoint event)))
       nil)))
 
-(defn get-click-index [x y]
+(defn get-click-index
+  "Return the index of the board square at screen coordinates (x, y), or nil."
+  [x y]
   (first (filter #(.contains ^Shape (get track-shapes %) x y) (range (count track-shapes)))))
 
-(defn clicker [parent game]
+(defn clicker
+  "Create a MouseAdapter that reacts to clicks by opening the popup menu."
+  [parent game]
   (let [click-handler #(when-let [clicked (get-click-index (-> % .getPoint .x) (-> % .getPoint .y))]
                          (popup parent %
                                 game clicked))]
@@ -43,17 +60,21 @@
       (mousePressed [event] (click-handler event))
       (mouseReleased [event] (click-handler event)))))
 
-(defn draw-board [game]
+(defn draw-board
+  "Create the Swing component responsible for drawing the current game."
+  [game]
   (let [component (proxy [Component] []
                     (paint [graphics]
                       (doto graphics
-                        (dw/draw-board (g/board @game)) 
+                        (dw/draw-board (g/board @game))
                         (draw-cards (g/active-player @game))
                         (draw-pieces (g/board @game)))))]
     (.addMouseListener component (clicker component game))
     component))
 
-(defn frame [initial-game-state exit-condition]
+(defn frame
+  "Create and show the main game window for the given initial game state."
+  [initial-game-state exit-condition]
   (let [frame (JFrame. "Cartagena!")
         game (atom initial-game-state)]
     (doto frame
@@ -65,7 +86,9 @@
       (.repaint))
     frame))
 
-(defn -main []
+(defn -main
+  "Entry point. Ask for number of players, then start a new game window."
+  []
   (let [n (JOptionPane/showInputDialog nil "Enter players (2-5):")
         colors (take (read-string n) pirate-colors)
         players (map #(str % "-player") colors)]

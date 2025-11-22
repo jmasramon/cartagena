@@ -9,15 +9,32 @@
            (javax.imageio ImageIO)
            (java.awt.geom Ellipse2D$Double RectangularShape)))
 
+;; Swing rendering helpers for Cartagena.
+;;
+;; This namespace is responsible for drawing the game state:
+;;   - board squares and their background images
+;;   - pieces on the board
+;;   - players' hands and card counts
+;;
+;; It consumes pure data structures from the data-abstractions layer and the
+;; geometric shapes from cartagena.swingUI.shaping, and issues side-effecting
+;; drawing calls on a Graphics2D context.
+
 (def color-map
+  "Map from player color keywords to Java AWT Color instances."
   {:red Color/RED :green Color/GREEN :blue Color/BLUE :yellow Color/YELLOW :brown (Color. 139 69 19)})
 
-(defn centered-circle [cx cy r]
+(defn centered-circle
+  "Create a circle shape of radius r centered at (cx, cy)."
+  [cx cy r]
   (Ellipse2D$Double. (- cx r) (- cy r) (* r 2) (* r 2)))
 
-(defn load-image [s] (-> s
-                         io/input-stream
-                         ImageIO/read))
+(defn load-image
+  "Load an image from the given path or classpath resource."
+  [s]
+  (-> s
+      io/input-stream
+      ImageIO/read))
 
 (def images
   {:start (load-image "./resources/cards/hands6.png")
@@ -29,20 +46,26 @@
    :pistol (load-image "./resources/cards/old3.png")
    :sword  (load-image "./resources/cards/sword1.png")})
 
-(defn draw-image [graphics image shape]
+(defn draw-image
+  "Draw the given image scaled to fill the provided shape bounds."
+  [graphics image shape]
   (.drawImage graphics image (.getMinX shape) (.getMinY shape) (.getMaxX shape) (.getMaxY shape)
               0 0 (.getWidth image) (.getHeight image) nil))
 
-(defn- draw-square [graphics board index]
+(defn- draw-square
+  "Draw a single board square image at the given index."
+  [graphics board index]
   (let [image ((b/square-type board index) images)
         ^RectangularShape shape (get track-shapes index)]
     (doto graphics
       (.draw shape) ; draw the square
       (draw-image image shape)))) ; draw the image on top 
 
-(defn draw-board [^Graphics2D graphics board]
+(defn draw-board
+  "Draw the full board (all squares) on the given Graphics2D."
+  [^Graphics2D graphics board]
   (doseq [square-index (range (count board))]
-    (draw-square graphics board square-index))) 
+    (draw-square graphics board square-index)))
 
 (defmulti draw-the-pieces
   (fn [_ pieces _]
@@ -91,6 +114,7 @@
         (.fill graphics shape)))))
 
 (defn draw-pieces
+  "Draw pieces either for a single square (arity 3) or for the whole board (arity 2)."
   ([^Graphics2D graphics pieces boundary]
    (draw-the-pieces graphics pieces boundary))
   ([^Graphics2D graphics board]
@@ -99,7 +123,9 @@
            shape (get track-shapes square-index)]
        (draw-pieces graphics local-pieces shape)))))
 
-(defn draw-cards [^Graphics2D graphics player]
+(defn draw-cards
+  "Draw the active player's hand and card counts."
+  [^Graphics2D graphics player]
   (let [color (color-map (p/color player))
         hand (p/cards player)]
     (doseq [hand-shape hand-shapes]
