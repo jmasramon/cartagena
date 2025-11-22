@@ -317,8 +317,7 @@
 (deftest active-player-actions-test
   (testing "active-player-actions-test"
     (is (= 3
-           (active-player-actions the-game)
-        ))))
+           (active-player-actions the-game)))))
 
 (deftest active-player-cards-test
   (testing "active-player-cards-test"
@@ -327,7 +326,7 @@
 
 (deftest playable-cards-test
   (testing "playable-cards"
-    (is (=  '([:sword 2] [:pistol 1] [:keys 1] [:flag 2])
+    (is (=  '([:flag 2] [:keys 1] [:pistol 1] [:sword 2])
             (playable-cards the-game)))))
 
 

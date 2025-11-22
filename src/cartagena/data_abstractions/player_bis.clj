@@ -63,12 +63,12 @@
 (defn set-cards
   "Return a new player with the given sequence of cards."
   [player cards]
-  (assoc-in player [:cards] cards))
+  (assoc player :cards cards))
 
 (defn set-actions
   "Return a new player with the given remaining number of actions."
   [player actions]
-  (assoc-in player [:actions] actions))
+  (assoc player :actions actions))
 
 (defn add-random-card-to-player-in-players
   "Return a new player with one additional random card drawn from card-types."
@@ -81,7 +81,7 @@
 (defn reset-actions
   "Puts actions back to 3"
   [player]
-  (assoc-in player [:actions] starting-actions))
+  (assoc player :actions starting-actions))
 
 (defn decrease-actions
   "Takes one action from the player"

@@ -144,36 +144,36 @@
 (defn square-has-color?
   "Has the square a piece of certain color?"
   [board index color]
-  (> (num-pieces-in board index color) 0))
+  (pos? (num-pieces-in board index color)))
 
 (defn empty-slot?
   "Is the square of certain type and empty of pieces (of certain color)?"
   ([square type color]
    (and
     (square-of-type? type square)
-    (= 0 (sq/num-pieces-in square color))))
+    (zero? (sq/num-pieces-in square color))))
   ([square type]
    (and
     (square-of-type? type square)
-    (= 0 (sq/num-pieces-in square)))))
+    (zero? (sq/num-pieces-in square)))))
 
 (defn nonempty-slot?
   "Has the square any piece?"
   [square]
-  (not= 0 (sq/num-pieces-in square)))
+  (pos? (sq/num-pieces-in square)))
 
 ;; finders
 (defn next-empty-slot-index
   "Index of first slot after origin, of same type as card and with nobody (of same color) there"
   ([board card origin color]
    (let [sub-board (subvec board (inc origin))
-         same-card-indexes (keep-indexed #(if (empty-slot? %2 card color) %1  nil) sub-board)]
+         same-card-indexes (keep-indexed #(when (empty-slot? %2 card color) %1) sub-board)]
      (+ (inc origin)
         (first same-card-indexes))))
   ([board card origin]
    (let [sub-board (subvec board (inc origin))
-         same-card-indexes (keep-indexed #(if (empty-slot? %2 card) %1  nil) sub-board)]
-     (if (> (count same-card-indexes) 0)
+         same-card-indexes (keep-indexed #(when (empty-slot? %2 card) %1) sub-board)]
+     (if (seq same-card-indexes)
        (+ (inc origin)
           (first same-card-indexes))
        (dec (count board))))))
@@ -182,13 +182,10 @@
   "Index of closest slot before origin with somebody already there"
   [board origin]
   (let [sub-board (subvec board 0 origin)
-        non-empty-slots-indexes (keep-indexed #(if (nonempty-slot? %2) %1  nil) sub-board)]
-    (if (> (count non-empty-slots-indexes)
-           0)
+        non-empty-slots-indexes (keep-indexed #(when (nonempty-slot? %2) %1) sub-board)]
+    (when (seq non-empty-slots-indexes)
       (let [candidate (last non-empty-slots-indexes)]
-        (if (> candidate 0)
-          candidate
-          nil))
-      nil)))
+        (when (pos? candidate)
+          candidate)))))
 
 

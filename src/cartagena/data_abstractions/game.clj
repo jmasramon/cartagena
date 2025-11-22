@@ -57,11 +57,12 @@
   "Make a list of num players"
   ([num]
    (make-random-players num pirate-colors num-cards card-types))
-  ([num players-reservoir cardNum cards-reservoir]
-   (vec (for [a-color (take num players-reservoir)]
-          (make-player a-color
-                       (random-deck cardNum
-                                    cards-reservoir))))))
+  ([num players-reservoir card-num cards-reservoir]
+   (mapv (fn [a-color]
+           (make-player a-color
+                        (random-deck card-num
+                                     cards-reservoir)))
+         (take num players-reservoir))))
 
 (declare colors)
 
@@ -80,7 +81,7 @@
 
 ;; getters
 (defn players [game]
-  (game :players))
+  (:players game))
 
 (defn- player
   "Get one player from a list of players"
@@ -94,19 +95,19 @@
   (map color players))
 
 (defn turn-order [game]
-  (game :turn-order))
+  (:turn-order game))
 
 (defn turn [game]
-  (game :turn))
+  (:turn game))
 
 (defn next-turn [game]
   ((turn game) (turn-order game)))
 
 (defn deck [game]
-  (game :deck))
+  (:deck game))
 
 (defn board [game]
-  (game :board))
+  (:board game))
 
 (defn active-player
   "Returns the active player from the game"
@@ -136,7 +137,10 @@
 (defn playable-cards
   "Returns a list with how many cards of each type we have in deck"
   [game]
-  (reverse (into '() (d/cards-amounts (active-player-cards game)))))
+  (->> game
+       active-player-cards
+       d/cards-amounts
+       (sort-by first)))
 
 ;; testers
 (defn player-has-card?
@@ -151,23 +155,23 @@
   (let [board (board game)
         boat-index (dec (count board))
         pieces (b/pieces-numbers-list-in board boat-index)]
-    (> (count (filter #(= % num-cards) pieces)) 0)))
+    (pos? (count (filter #(= % num-cards) pieces)))))
 
 ;; setters
 (defn set-players [game players]
-  (assoc-in game [:players] players))
+  (assoc game :players players))
 
 (defn set-turn-order [game turn-order]
-  (assoc-in game [:turn-order] turn-order))
+  (assoc game :turn-order turn-order))
 
 (defn set-turn [game turn]
-  (assoc-in game [:turn] turn))
+  (assoc game :turn turn))
 
 (defn set-board [game board]
-  (assoc-in game [:board] board))
+  (assoc game :board board))
 
 (defn set-deck [game deck]
-  (assoc-in game [:deck] deck))
+  (assoc game :deck deck))
 
 (defn update-player-in-players
   "Changes a player in the list of players"
@@ -192,8 +196,8 @@
   "Takes one action from the player"
   [players color]
   (let [player (player players color)
-        newPlayer (p/decrease-actions player)]
-    (update-player-in-players players color newPlayer)))
+        new-player (p/decrease-actions player)]
+    (update-player-in-players players color new-player)))
 
 (defn decrease-actions-from-active-player
   "Takes one action from the player"
@@ -209,8 +213,8 @@
   "Puts one player's actions in players back to 3"
   [players color]
   (let [player (player players color)
-        newPlayer (p/reset-actions player)]
-    (update-player-in-players players color newPlayer)))
+        new-player (p/reset-actions player)]
+    (update-player-in-players players color new-player)))
 
 (defn pass-turn
   "Pass a turn by
@@ -244,7 +248,7 @@
   (let [color (active-player-color game)
         decreased-action-game (decrease-actions-from-active-player game)
         remaining-actions (active-player-actions decreased-action-game)]
-    (if (= 0 remaining-actions)
+    (if (zero? remaining-actions)
       (pass-turn decreased-action-game)
       decreased-action-game)))
 
@@ -268,7 +272,7 @@
   (let [board (board game)
         to (b/index-closest-nonempty-slot board
                                           from)]
-    (not (nil? to))))
+    (some? to)))
 
 (defn available-piece?
   [game square-index]
@@ -276,8 +280,8 @@
         player-color (active-player-color game)
         available-pieces (b/num-pieces-in board square-index player-color)]
     (and
-     (not (nil? available-pieces))
-     (> available-pieces 0))))
+     (some? available-pieces)
+     (pos? available-pieces))))
 
 (defn fallback-square-index
   [game from]
