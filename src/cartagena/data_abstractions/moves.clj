@@ -2,29 +2,36 @@
   (:require
    [cartagena.data-abstractions.game :as g]))
 
-;; moves: actions triggered by the players. Each player has 3 actions while it is her turn
-;; Each action represents a modification of the state (the "game")
-;; modifications available are: 
-;;   Decrease active player's number of turns
-;;   Decrease/Increase active player's cards
-;;   Change of active player. New active player receives 3 turns
-;;   
-;; Things to check:
-;;   Spot where a played car ends
-;;   Spot where a falled-back card ends
-;;   How many pieces are there in a fall-back slot
+;; Move primitives for the game.
+;;
+;; A "move" here is a rule that transforms the immutable game state in
+;; response to a player's action. Each player has a limited number of
+;; actions (see cartagena.core/starting-actions) on their turn.
+;;
+;; High-level effects of moves:
+;;   - Decrease the active player's remaining actions.
+;;   - Move pieces forward or backward on the board.
+;;   - Add/remove cards from the active player's hand.
+;;   - Change the active player when a turn ends; the new active
+;;     player receives a fresh set of actions.
+;;
+;; Invariants these functions rely on / help enforce:
+;;   - Where a played card causes a piece to land.
+;;   - Where a fall-back move lands a piece.
+;;   - How many pieces may occupy a fall-back destination square.
 
 (defn pass
-  "Player with turn looses an action. 
-   If last turn, next's players turn begins."
+  "Consume one action from the active player.
+   If this was the last action, advance the turn to the next player
+   and reset their actions."
   [game]
   (g/turn-played game))
 
 (defn fall-back
-  "For the active player: 
-   1-move piece back to the first non empty slot
-   2-add a random card to the player; 
-   3-turn played"
+  "Execute a fall-back move for the active player.
+   1. Move a piece back to the closest non-empty slot behind it.
+   2. Add a random card to the active player's hand.
+   3. Consume one action (and possibly pass the turn)."
   [game from]
   (let [to (g/fallback-square-index game from)]
     (if (and
@@ -36,10 +43,11 @@
       game)))
 
 (defn play-card
-  "For the active player: 
-   1-use card to move piece from it's current-position to next available space -empty slot same typ or board-) 
-   2-remove used card
-   2-turn played"
+  "Play a card for the active player.
+   1. Use the given card to move a piece from its current position to
+      the next empty slot of the same type (or to the boat if none).
+   2. Remove the used card from the active player's hand.
+   3. Consume one action (and possibly pass the turn)."
   [game card from]
   (let [to (g/next-empty-slot-index game card from)]
     (if (g/available-piece? game from)

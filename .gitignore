@@ -12,3 +12,9 @@ pom.xml.asc
 /.clj-kondo
 /.lsp
 
+# Environment files (keep .java-version for project consistency)
+# .java-version
+
+# Coverage reports
+/target/coverage/
+

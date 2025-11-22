@@ -51,3 +51,12 @@
     (let [res (add-card [:flag :sword :hat :pistol :bottle :flag :sword :hat :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat] :hat)]
       (is (=  [:flag :flag :flag :flag :sword :sword :sword :sword :hat :hat :hat :hat :hat :pistol :pistol :bottle :bottle :keys :pistolhat]
               res)))))
+
+(deftest random-card-test
+  (testing "random-card"
+    (binding [*rnd* (java.util.Random. 12345)]
+      (let [card (random-card card-types)]
+        (is (contains? card-types card)
+            "Should return a valid card type")
+        (is (= :sword card)
+            "Should return predictable result with fixed seed")))))

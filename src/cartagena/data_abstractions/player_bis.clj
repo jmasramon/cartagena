@@ -3,6 +3,12 @@
    [cartagena.core :refer [starting-actions card-types]]
    [cartagena.data-abstractions.deck :refer [random-card add-card]]))
 
+;; Alternative player representation used to validate the data abstraction
+;; barrier. This namespace defines a different concrete shape for "player"
+;; (a map with :color, :cards and :actions) while keeping the same public
+;; API as cartagena.data-abstractions.player. The rest of the code and tests
+;; should work unchanged when switching between these implementations.
+;;
 ;; Functions that need to know how player is implemented
 ;; player:
 ;;  {color, cards, actions} 
@@ -45,17 +51,17 @@
 
 ;; setters
 (defn set-cards
-  ""
+  "Return a new player with the given sequence of cards."
   [player cards]
   (assoc-in player [:cards] cards))
 
 (defn set-actions
-  ""
+  "Return a new player with the given remaining number of actions."
   [player actions]
   (assoc-in player [:actions] actions))
 
 (defn add-random-card-to-player-in-players
-  ""
+  "Return a new player with one additional random card drawn from card-types."
   [player]
   (let [cards (cards player)
         new-card (random-card card-types)

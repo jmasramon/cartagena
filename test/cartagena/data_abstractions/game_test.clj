@@ -5,7 +5,7 @@
              [cartagena.data-abstractions.deck :as d]
              [cartagena.data-abstractions.player-bis :as p]
              [cartagena.data-abstractions.board :as b]
-             [cartagena.data-abstractions.game :refer [active-player-actions active-player active-player-color add-random-card-to-active-player add-random-card-to-player-in-players board active-player-cards playable-cards deck decrease-actions make-game move-piece next-turn player-has-card? players remove-played-card reset-actions set-board set-deck set-players set-turn set-turn-order turn turn-order turn-played update-player-in-players winner?]]))
+             [cartagena.data-abstractions.game :refer [active-player-actions active-player active-player-color add-random-card-to-active-player add-random-card-to-player-in-players board active-player-cards playable-cards deck decrease-actions make-game move-piece next-turn player-has-card? players remove-played-card reset-actions set-board set-deck set-players set-turn set-turn-order turn turn-order turn-played update-player-in-players winner? available-fall-back? available-piece? fallback-square-index next-empty-slot-index next-player-color pass-turn decrease-actions-from-active-player]]))
 
 (def random-initial-turn #'cartagena.data-abstractions.game/random-initial-turn)
 (def make-turn-order #'cartagena.data-abstractions.game/make-turn-order)
@@ -335,3 +335,68 @@
   (testing "player-test"
     (is (= yellow-player
            (player the-players :yellow)))))
+
+(deftest next-player-color-test
+  (testing "next-player-color"
+    (is (= :yellow
+           (next-player-color the-game))
+        "Should return the next player color based on turn order")))
+
+(deftest pass-turn-test
+  (testing "pass-turn"
+    (binding [*rnd* (java.util.Random. 12345)]
+      (let [passed-game (pass-turn the-game)
+            next-player (active-player passed-game)]
+        (is (= :yellow
+               (active-player-color passed-game))
+            "Should change to next player")
+        (is (= 3
+               (p/actions next-player))
+            "Next player should have 3 actions reset")))))
+
+(deftest decrease-actions-from-active-player-test
+  (testing "decrease-actions-from-active-player"
+    (let [decreased-game (decrease-actions-from-active-player the-game)
+          active-player-after (active-player decreased-game)]
+      (is (= 2
+             (p/actions active-player-after))
+          "Active player should have one less action"))))
+
+(deftest available-piece?-test
+  (testing "available-piece?"
+    (is (= true
+           (available-piece? the-game 0))
+        "Should return true for start square with pieces")
+    (is (= false
+           (available-piece? the-game 1))
+        "Should return false for empty square")))
+
+(deftest available-fall-back?-test
+  (testing "available-fall-back?"
+    ;; Create a scenario where we have pieces at start (0) and move some to create a fallback scenario
+    (let [game-with-pieces-moved (-> the-game
+                                     (move-piece 0 3)  ; Move one piece to position 3
+                                     (move-piece 0 8))] ; Move another piece to position 8
+      (is (= true
+             (available-fall-back? game-with-pieces-moved 8))
+          "Should return true when there's a non-empty square to fall back to")
+      (is (= false
+             (available-fall-back? the-game 1))
+          "Should return false when there's no non-empty square to fall back to"))))
+
+(deftest fallback-square-index-test
+  (testing "fallback-square-index"
+    ;; Create a scenario with pieces at multiple positions
+    (let [game-with-pieces-moved (-> the-game
+                                     (move-piece 0 3)  ; Move one piece to position 3
+                                     (move-piece 0 8))] ; Move another piece to position 8
+      (is (= 3
+             (fallback-square-index game-with-pieces-moved 8))
+          "Should return index of closest non-empty square"))))
+
+(deftest next-empty-slot-index-test
+  (testing "next-empty-slot-index"
+    (binding [*rnd* (java.util.Random. 12345)]
+      (let [game (make-game)]
+        (is (number? (next-empty-slot-index game :keys 0))
+            "Should return a valid index for next empty slot of given card type")))))

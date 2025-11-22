@@ -1,30 +1,36 @@
 (ns cartagena.data-abstractions.deck
   (:require
    [cartagena.core :refer [deck-size card-types]]
-   [clojure.data.generators :refer [rand-nth]]))
+   [clojure.data.generators :as gen]))
 
-;; A deck is just a list ofc cards. Order is not needed
+;; Deck data abstraction.
+;;
+;; A deck is represented as a simple sequence of card keywords.
+;; Order is not important for most operations; we mostly care about
+;; how many of each card type exist, and about drawing/removing cards.
+;;
+;; This namespace groups all functions that need to know how a deck is
+;; represented internally (sequence of card keywords).
 
-;; Functions that need to know how deck is implemented
 ;; builders
 (defn random-card
-  "Returns a random valid card"
+  "Return a random valid card from the given reservoir of card types."
   [cards-reservoir]
-  (rand-nth (seq cards-reservoir)))
+  (gen/rand-nth (seq cards-reservoir)))
 
 (defn random-deck
-  "Creates a random deck"
+  "Create a random deck as a sequence of card keywords."
   ([]
    (random-deck deck-size card-types))
   ([num]
    (random-deck num card-types))
   ([num cards-reservoir]
-   (repeatedly num 
-               #(rand-nth (seq cards-reservoir)))))
+   (repeatedly num
+               #(gen/rand-nth (seq cards-reservoir)))))
 
 ;; getters
 (defn cards-amounts
-  "Returns a map with how many cards of each type we have in deck"
+  "Return a map from card type to the number of occurrences in deck."
   [deck]
   (frequencies deck))
 
@@ -37,14 +43,14 @@
 
 ;; modifiers
 (defn remove-card-from
-  "Removes card from deck"
+  "Remove a single instance of card from deck, returning a new deck."
   [deck card]
   (let [cards-amounts (cards-amounts deck)
         new-cards-amounts (update-in cards-amounts [card] dec)]
     (from-freqs-to-seq new-cards-amounts)))
 
 (defn add-card
-  "Add a card to a deck"
+  "Add a single instance of card to deck, returning a new deck."
   [deck card]
   (let [cards-amounts (cards-amounts deck)
         new-cards-amounts (if (card cards-amounts)
@@ -53,16 +59,16 @@
     (from-freqs-to-seq new-cards-amounts)))
 
 (defn draw-one-from
-  "Returns the first card from a deck and the deck without the removed card: [card deck']"
+  "Return [card deck'] with the first card and the rest of the deck."
   [deck]
   (let [[card & newDeck] deck]
     [card newDeck]))
 
 (defn draw
-  "Returns the n first cards from a deck and the deck without the removed cards: [cards deck']"
+  "Draw n cards from deck, returning [cards deck']."
   [deck n]
-  (loop [deck deck 
-         n n 
+  (loop [deck deck
+         n n
          acc []]
     (if (= n 0)
       [(reverse acc) deck]
@@ -71,7 +77,7 @@
 
 ;; helper function
 (defn from-freqs-to-seq
-  "Converts map of freqs to seq of cards"
+  "Convert a frequency map {:card n, ...} to a sequence of cards."
   [freqs-map]
   (reduce #(concat  %1 (repeat (val %2) (key %2))) nil freqs-map))
 

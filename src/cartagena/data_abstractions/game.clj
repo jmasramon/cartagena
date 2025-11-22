@@ -1,6 +1,6 @@
 (ns cartagena.data-abstractions.game
   (:require
-   [clojure.data.generators :refer [rand-nth shuffle]]
+   [clojure.data.generators :as gen]
    [cartagena.core :refer [def-num-players num-cards card-types pirate-colors]]
    [cartagena.data-abstractions.square-bis :as s :refer [pieces-numbers-list-in]]
    [cartagena.data-abstractions.player-bis :as p :refer [make-player color set-cards]]
@@ -29,12 +29,12 @@
 (defn- random-initial-turn
   "Choose a new random color out of the players colors"
   [turns-reservoir]
-  (rand-nth (seq turns-reservoir)))
+  (gen/rand-nth (seq turns-reservoir)))
 
 (defn- make-turn-order
   "Define the random order in which the players will play"
   [players-colors]
-  (let [random-ordered-players-colors (shuffle players-colors)]
+  (let [random-ordered-players-colors (gen/shuffle players-colors)]
     (zipmap random-ordered-players-colors
             (rest (cycle random-ordered-players-colors)))))
 

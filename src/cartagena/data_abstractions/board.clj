@@ -1,6 +1,6 @@
 (ns cartagena.data-abstractions.board
   (:require
-   [clojure.data.generators :refer [shuffle]]
+   [clojure.data.generators :as gen]
    [cartagena.core :refer [card-types]]
    [cartagena.data-abstractions.player-bis :refer [color]]
    [cartagena.data-abstractions.square-bis :as sq
@@ -32,7 +32,7 @@
   ([used-colors]
    (make-board-section card-types used-colors))
   ([types used-colors]
-   (let [shuffled-types (shuffle (vec types))]
+   (let [shuffled-types (gen/shuffle (vec types))]
      (vec (for [type shuffled-types]
             (make-square type used-colors))))))
 
