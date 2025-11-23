@@ -1,7 +1,7 @@
 (ns cartagena.data-abstractions.board-test
   (:require [clojure.test :refer [deftest is testing]]
             [clojure.data.generators :refer [*rnd*]]
-            [cartagena.core :refer [card-types]]
+            [cartagena.core :refer [CARD-TYPES]]
             [cartagena.data-abstractions.player-bis :refer [make-player]]
             [cartagena.data-abstractions.deck :refer [random-deck]]
             [cartagena.data-abstractions.square-bis :as sq :refer [type-of is-square?]]
@@ -10,7 +10,7 @@
 (deftest make-board-section-test
   (testing "make-board-section"
     (let [make-board-section #'cartagena.data-abstractions.board/make-board-section
-          a-section (make-board-section card-types
+          a-section (make-board-section CARD-TYPES
                                         [:yellow :green :red])]
       (is (= true
              (vector? a-section))
@@ -39,32 +39,32 @@
 (deftest make-board-test
   (testing "make-board"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [board (make-board   card-types
-                                [(make-player :yellow (random-deck 6) 0)
-                                 (make-player :green (random-deck 6) 2)])]
-                                (is (= 38 (count board)))
-                                (is (= :start (square-type board 0)))
-                                (is (= 2 (count (sq/pieces-in (first board)))))
-                                (is (= 12 (sq/num-pieces-in (first board))))
-                                (let [subsections (subvec board 1 (count board))]
-                                  (is (= false (contains? (into subsections
-                                                                #{})
-                                                          :start)))
-                                  (is (= false (contains? (into subsections
-                                                                #{})
-                                                          :boat))))
-                                (is (= :boat (type-of (last board))))
-                                (is (= 12 (reduce + (map sq/num-pieces-in board))))))))
+      (let [board (make-board   CARD-TYPES
+                                [(make-player :yellow (random-deck) 0)
+                                 (make-player :green (random-deck) 2)])]
+        (is (= 38 (count board)))
+        (is (= :start (square-type board 0)))
+        (is (= 2 (count (sq/pieces-in (first board)))))
+        (is (= 12 (sq/num-pieces-in (first board))))
+        (let [subsections (subvec board 1 (count board))]
+          (is (= false (contains? (into subsections
+                                        #{})
+                                  :start)))
+          (is (= false (contains? (into subsections
+                                        #{})
+                                  :boat))))
+        (is (= :boat (type-of (last board))))
+        (is (= 12 (reduce + (map sq/num-pieces-in board))))))))
 
 (def board
   (binding [*rnd* (java.util.Random. 12345)]
     (add-piece-to
      (add-piece-to
-      (make-board   card-types
-                    [(make-player :yellow (random-deck 6) 0)
-                     (make-player :green (random-deck 6) 2)
-                     (make-player :red (random-deck 6) 2)])
-       8
+      (make-board   CARD-TYPES
+                    [(make-player :yellow (random-deck) 0)
+                     (make-player :green (random-deck) 2)
+                     (make-player :red (random-deck) 2)])
+      8
       :green)
      8
      :red)))
@@ -83,15 +83,15 @@
   (testing "pieces-in"
     (is (=  {:green 6, :red 6, :yellow 6}
             (pieces-in board
-                           0))
+                       0))
         "should return start pieces")
     (is (=  {:green 0, :red 0, :yellow 0}
             (pieces-in board
-                           (dec (count board))))
+                       (dec (count board))))
         "should return boat pieces")
     (is (=  {:green 1, :red 1, :yellow 0}
             (pieces-in board
-                           8))
+                       8))
         "should return pieces"))
   (testing "num-pieces-in"
     (is (=  18

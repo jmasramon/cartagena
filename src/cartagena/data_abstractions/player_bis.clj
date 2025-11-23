@@ -1,7 +1,7 @@
 (ns cartagena.data-abstractions.player-bis
   (:require
-   [cartagena.core :refer [starting-actions card-types]]
-   [cartagena.data-abstractions.deck :refer [random-card add-card]]))
+   [cartagena.core :as c]
+   [cartagena.data-abstractions.deck :as d]))
 
 ;; ABSTRACTION LAYER: Layer 1 (Basic Data Structures)
 ;;
@@ -32,7 +32,7 @@
 (defn make-player
   "Make a player with a color and a list of cards. It has 3 actions"
   ([color cards]
-   (make-player color cards starting-actions))
+   (make-player color cards c/STARTING-ACTIONS))
   ([color cards actions]
    {:color color :actions actions, :cards cards}))
 
@@ -74,14 +74,14 @@
   "Return a new player with one additional random card drawn from card-types."
   [player]
   (let [cards (cards player)
-        new-card (random-card card-types)
-        new-cards (add-card cards new-card)]
+        new-card (d/random-card)
+        new-cards (d/add-card cards new-card)]
     (set-cards player new-cards)))
 
 (defn reset-actions
   "Puts actions back to 3"
   [player]
-  (assoc player :actions starting-actions))
+  (assoc player :actions c/STARTING-ACTIONS))
 
 (defn decrease-actions
   "Takes one action from the player"

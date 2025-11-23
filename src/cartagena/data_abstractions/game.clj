@@ -1,10 +1,10 @@
 (ns cartagena.data-abstractions.game
   (:require
    [clojure.data.generators :as gen]
-   [cartagena.core :refer [def-num-players num-cards card-types pirate-colors]]
-   [cartagena.data-abstractions.player-bis :as p :refer [make-player color set-cards]]
-   [cartagena.data-abstractions.deck :as d :refer [random-deck remove-card-from]]
-   [cartagena.data-abstractions.board :as b :refer [make-board]]))
+   [cartagena.core :as c]
+   [cartagena.data-abstractions.player-bis :as p]
+   [cartagena.data-abstractions.deck :as d]
+   [cartagena.data-abstractions.board :as b]))
 
 ;; ABSTRACTION LAYER: Layer 3 (Game State)
 ;;
@@ -56,12 +56,11 @@
 (defn- make-random-players
   "Make a list of num players"
   ([num]
-   (make-random-players num pirate-colors num-cards card-types))
-  ([num players-reservoir card-num cards-reservoir]
+   (make-random-players num c/PIRATE-COLORS c/NUM-CARDS))
+  ([num players-reservoir card-num]
    (mapv (fn [a-color]
-           (make-player a-color
-                        (random-deck card-num
-                                     cards-reservoir)))
+           (p/make-player a-color
+                          (d/random-deck card-num)))
          (take num players-reservoir))))
 
 (declare colors)
@@ -69,15 +68,15 @@
 (defn make-game
   "Create a new game"
   ([]
-   (make-game def-num-players))
+   (make-game c/DEF-NUM-PLAYERS))
   ([num-players]
    (let [players (make-random-players num-players)
          players-colors (colors players)]
      {:players players
       :turn-order (make-turn-order players-colors)
       :turn (random-initial-turn players-colors)
-      :deck (random-deck)
-      :board (make-board players)})))
+      :deck (d/random-deck)
+      :board (b/make-board players)})))
 
 ;; getters
 (defn players [game]
@@ -92,8 +91,9 @@
 (defn- colors
   "Get list of colors from list of players"
   [players]
-  (map color players))
+  (map p/color players))
 
+; to hide implementation details from external namespaces
 (defn turn-order [game]
   (:turn-order game))
 
@@ -155,7 +155,7 @@
   (let [board (board game)
         boat-index (dec (count board))
         pieces (b/pieces-numbers-list-in board boat-index)]
-    (pos? (count (filter #(= % num-cards) pieces)))))
+    (pos? (count (filter #(= % c/NUM-CARDS) pieces)))))
 
 ;; setters
 (defn set-players [game players]
@@ -245,8 +245,7 @@
      2-1- set 3 actions to next user 
      2-1- set turn to next user"
   [game]
-  (let [color (active-player-color game)
-        decreased-action-game (decrease-actions-from-active-player game)
+  (let [decreased-action-game (decrease-actions-from-active-player game)
         remaining-actions (active-player-actions decreased-action-game)]
     (if (zero? remaining-actions)
       (pass-turn decreased-action-game)
@@ -260,10 +259,10 @@
   [game card]
   (let [players (players game)
         active-player (active-player game)
-        color (color active-player)
+        color (p/color active-player)
         cards (p/cards active-player)
-        new-cards (remove-card-from cards card)
-        updated-player (set-cards active-player new-cards)
+        new-cards (d/remove-card-from cards card)
+        updated-player (p/set-cards active-player new-cards)
         updated-players (update-player-in-players players color updated-player)]
     (set-players game updated-players)))
 

@@ -1,6 +1,6 @@
 (ns cartagena.data-abstractions.deck
   (:require
-   [cartagena.core :refer [deck-size card-types]]
+   [cartagena.core :as c]
    [clojure.data.generators :as gen]))
 
 ;; ABSTRACTION LAYER: Layer 1 (Basic Data Structures)
@@ -24,18 +24,16 @@
 ;; builders
 (defn random-card
   "Return a random valid card from the given reservoir of card types."
-  [cards-reservoir]
-  (gen/rand-nth (seq cards-reservoir)))
+  []
+  (gen/rand-nth (seq c/CARD-TYPES)))
 
 (defn random-deck
   "Create a random deck as a sequence of card keywords."
   ([]
-   (random-deck deck-size card-types))
+   (random-deck c/DECK-SIZE))
   ([num]
-   (random-deck num card-types))
-  ([num cards-reservoir]
    (repeatedly num
-               #(gen/rand-nth (seq cards-reservoir)))))
+               #(random-card))))
 
 ;; getters
 (defn cards-amounts

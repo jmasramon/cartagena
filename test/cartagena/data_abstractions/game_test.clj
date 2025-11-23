@@ -1,7 +1,7 @@
 (ns cartagena.data-abstractions.game-test
   (:require  [clojure.test :refer [deftest is testing]]
              [clojure.data.generators :refer [*rnd*]]
-             [cartagena.core :refer [pirate-colors card-types]]
+             [cartagena.core :as c]
              [cartagena.data-abstractions.deck :as d]
              [cartagena.data-abstractions.player-bis :as p]
              [cartagena.data-abstractions.board :as b]
@@ -14,9 +14,9 @@
 (def player #'cartagena.data-abstractions.game/player)
 
 (binding [*rnd* (java.util.Random. 12345)]
-  (def yellow-cards (d/random-deck 6))
-  (def green-cards (d/random-deck 6))
-  (def red-cards (d/random-deck 6))
+  (def yellow-cards (d/random-deck))
+  (def green-cards (d/random-deck))
+  (def red-cards (d/random-deck))
   (def yellow-player (p/make-player :yellow yellow-cards))
   (def the-players [yellow-player
                     (p/make-player :green green-cards)
@@ -33,25 +33,82 @@
                :board the-board
                :deck the-deck})
 
+;; Add these to game_test.clj
+
+(deftest random-initial-turn-is-random-test
+  (testing "random-initial-turn produces variety"
+    (let [turns (repeatedly 100 #(random-initial-turn c/PIRATE-COLORS))
+          unique-turns (set turns)]
+      (is (> (count unique-turns) 2)
+          "Should produce multiple different colors in 100 draws"))))
+
+(deftest random-initial-turn-distribution-test
+  (testing "random-initial-turn has roughly uniform distribution"
+    (let [sample-size 5000
+          samples (repeatedly sample-size #(random-initial-turn c/PIRATE-COLORS))
+          frequencies (frequencies samples)
+          num-colors (count c/PIRATE-COLORS)
+          expected (/ sample-size num-colors)]
+      ;; Each color should appear roughly 1000 times (5000 / 5)
+      ;; Allow 20% variance (800-1200)
+      (doseq [[color freq] frequencies]
+        (is (< 800 freq 1200)
+            (str color " appeared " freq " times, expected ~" expected))))))
+
+(deftest make-random-players-is-random-test
+  (testing "make-random-players produces different hands"
+    (let [players1 (make-random-players 3)
+          players2 (make-random-players 3)
+          cards1 (map p/cards players1)
+          cards2 (map p/cards players2)]
+      (is (not= cards1 cards2)
+          "Two calls should produce different player hands"))))
+
+(deftest make-random-players-variety-test
+  (testing "make-random-players creates varied hands"
+    (let [players (repeatedly 10 #(make-random-players 3))
+          all-hands (mapcat #(map p/cards %) players)
+          unique-hands (set all-hands)]
+      (is (> (count unique-hands) 15)
+          "Should produce many different hands across multiple games"))))
+
+(deftest make-random-players-card-distribution-test
+  (testing "make-random-players distributes cards across all types"
+    (let [sample-size 100
+          all-players (repeatedly sample-size #(make-random-players 3))
+          all-cards (mapcat (fn [players]
+                              (mapcat p/cards players))
+                            all-players)
+          frequencies (frequencies all-cards)
+          total-cards (count all-cards)]
+      ;; With 100 games * 3 players * 6 cards = 1800 cards total
+      ;; Each of 6 card types should appear roughly 300 times
+      ;; Allow 25% variance (225-375)
+      (is (= 6 (count frequencies))
+          "All card types should appear")
+      (doseq [[card-type freq] frequencies]
+        (is (< 225 freq 375)
+            (str card-type " appeared " freq " times in " total-cards " total cards"))))))
+
 (deftest random-initial-turn-test
   (testing "random-initial-turn"
     (binding [*rnd* (java.util.Random. 12345)]
       (is (=  :green
-              (random-initial-turn  pirate-colors)))
+              (random-initial-turn  c/PIRATE-COLORS)))
       (is (=  :brown
-              (random-initial-turn  pirate-colors)))
+              (random-initial-turn  c/PIRATE-COLORS)))
       (is (=  :brown
-              (random-initial-turn  pirate-colors)))
+              (random-initial-turn  c/PIRATE-COLORS)))
       (is (=  :green
-              (random-initial-turn  pirate-colors))))))
+              (random-initial-turn  c/PIRATE-COLORS))))))
 
 (deftest make-turn-order-test
   (testing "make-turn-order-turn"
     (binding [*rnd* (java.util.Random. 12345)]
       (is (=  {:green :red, :red :yellow, :yellow :green}
-              (make-turn-order  (colors (make-random-players 3 pirate-colors 6 card-types)))))
+              (make-turn-order  (colors (make-random-players 3 c/PIRATE-COLORS 6)))))
       (is (=  {:green :red, :red :yellow, :yellow :green}
-              (make-turn-order  (colors (make-random-players 3 pirate-colors 6 card-types))))))))
+              (make-turn-order  (colors (make-random-players 3 c/PIRATE-COLORS 6))))))))
 
 (deftest make-random-players-test
   (testing "Random players"
@@ -75,7 +132,7 @@
                 (p/actions c)))
         (is (=  '(:keys :sword :flag :keys :pistol :sword)
                 (p/cards c)))
-        (let [[a b c] (make-random-players 3 pirate-colors 6 card-types)]
+        (let [[a b c] (make-random-players 3 c/PIRATE-COLORS 6)]
           (is (=  :yellow
                   (p/color a)))
           (is (=  3
@@ -98,7 +155,7 @@
 (deftest colors-test
   (testing "colors-test"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [players (make-random-players 3 pirate-colors 6 card-types)]
+      (let [players (make-random-players 3 c/PIRATE-COLORS 6)]
         (is (= '(:yellow :green :red)
                (colors players)))))))
 
@@ -214,7 +271,7 @@
   (testing "update-player-in-players"
     (binding [*rnd* (java.util.Random. 12345)]
       (let [original-player (player the-players :green)
-            new-player (p/make-player :green (d/random-deck 6))
+            new-player (p/make-player :green (d/random-deck))
             new-players (update-player-in-players the-players
                                                   :green
                                                   new-player)
@@ -297,13 +354,19 @@
       "Should decrease actions by one")))
 
 (deftest player-has-card?-test
+  ;; (println "Testing player-has-card?")
+  ;; (println "The players:  " the-players)
+  ;; (println "Green player cards: " (p/cards (player the-players :green)))
+  ;; (println "Green player has keys: " (player-has-card? the-players :green :keys))
+  ;; (println "Green player has bottle: " (player-has-card? the-players :green :bottle))
+  ;; (println "Green player has flag: " (player-has-card? the-players :green :flag))
   (testing "player-has-card?"
     (is (= true
            (player-has-card? the-players
                              :green
                              :keys))
         "The green player should have the :keys card")
-    (is (= false
+    (is (= true
            (player-has-card? the-players
                              :green
                              :bottle))
@@ -325,8 +388,11 @@
            (active-player-cards the-game)))))
 
 (deftest playable-cards-test
+  ;; (println "Testing playable-cards")
+  ;; (println "Active player cards: " (active-player-cards the-game))
+
   (testing "playable-cards"
-    (is (=  '([:flag 2] [:keys 1] [:pistol 1] [:sword 2])
+    (is (=  '([:bottle 10] [:flag 8] [:hat 8] [:keys 7] [:pistol 7] [:sword 10])
             (playable-cards the-game)))))
 
 

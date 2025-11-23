@@ -1,7 +1,7 @@
 (ns cartagena.data-abstractions.player
   (:require
-   [cartagena.core :refer [starting-actions card-types]]
-   [cartagena.data-abstractions.deck :refer [random-card add-card]]))
+   [cartagena.core :as c]
+   [cartagena.data-abstractions.deck :as d]))
 
 ;; Functions that need to know how player is implemented
 ;; player:
@@ -22,7 +22,7 @@
 (defn make-player
   "Make a player with a color and a list of cards. It has 3 actions"
   ([color cards]
-   {color {:actions starting-actions, :cards cards}})
+   {color {:actions c/STARTING-ACTIONS, :cards cards}})
   ([color cards actions]
    {color {:actions actions, :cards cards}}))
 
@@ -67,15 +67,15 @@
   ""
   [player]
   (let [cards (cards player)
-        new-card (random-card card-types)
-        new-cards (add-card cards new-card)]
+        new-card (d/random-card)
+        new-cards (d/add-card cards new-card)]
     (set-cards player new-cards)))
 
 (defn reset-actions
   "Puts actions back to 3"
   [player]
   (let [color (color player)]
-    (assoc-in player [color :actions] starting-actions)))
+    (assoc-in player [color :actions] c/STARTING-ACTIONS)))
 
 (defn decrease-actions
   "Takes one action from the player"

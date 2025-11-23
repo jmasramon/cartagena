@@ -1,5 +1,5 @@
 (ns cartagena.swingUI.swingUI
-  (:require [cartagena.core :refer [pirate-colors]]
+  (:require [cartagena.core :refer [PIRATE-COLORS]]
             [cartagena.data-abstractions.moves :as mvs]
             [cartagena.data-abstractions.game :as g]
             [cartagena.swingUI.shaping :refer [track-shapes]]
@@ -103,7 +103,7 @@
   "Entry point. Ask for number of players, then start a new game window."
   []
   (let [n (JOptionPane/showInputDialog nil "Enter players (2-5):")
-        colors (take (read-string n) pirate-colors)
+        colors (take (read-string n) PIRATE-COLORS)
         players (map #(str % "-player") colors)]
     (println "Num players:" n "Colors:" colors "Players names:" players)
     (frame

@@ -1,7 +1,7 @@
 (ns cartagena.data-abstractions.player-bis-test
   (:require [clojure.test :refer [deftest is testing]]
             [clojure.data.generators :refer [*rnd*]]
-            [cartagena.core :refer [pirate-colors card-types]]
+            [cartagena.core :refer [PIRATE-COLORS]]
             [cartagena.data-abstractions.game]
             [cartagena.data-abstractions.player-bis :refer [actions add-random-card-to-player-in-players cards color decrease-actions make-player player-has-card? reset-actions set-actions set-cards]]))
 
@@ -36,7 +36,7 @@
 (deftest set-cards-test
   (testing "set-cards-test"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [player (first (make-random-players 1 pirate-colors 6 card-types))]
+      (let [player (first (make-random-players 1 PIRATE-COLORS 6))]
         (is (= '(:sword :pistol :keys :flag :flag :sword)
                (cards (set-cards player '(:sword :pistol :keys :flag :flag :sword)))))))))
 

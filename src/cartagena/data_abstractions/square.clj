@@ -1,5 +1,5 @@
 (ns cartagena.data-abstractions.square
-  (:require [cartagena.core :refer [num-starting-pieces]]))
+  (:require [cartagena.core :refer [NUM-STARTING-PIECES]]))
 
 ;; Functions that need to know how square is implemented
 ;; square is implemented as a map {:pieces pieces_map, :type type_set_instance}
@@ -25,7 +25,7 @@
 (defn- make-starting-square
   "creates the start square"
   [used-colors]
-  (merge (make-pieces used-colors num-starting-pieces)
+  (merge (make-pieces used-colors NUM-STARTING-PIECES)
          {:type :start}))
 
 (defn make-square

@@ -1,10 +1,9 @@
 (ns cartagena.data-abstractions.board
   (:require
    [clojure.data.generators :as gen]
-   [cartagena.core :refer [card-types]]
-   [cartagena.data-abstractions.player-bis :refer [color]]
-   [cartagena.data-abstractions.square-bis :as sq
-    :refer [make-square type-of square-of-type?]]))
+   [cartagena.core :as c]
+   [cartagena.data-abstractions.player-bis :as p]
+   [cartagena.data-abstractions.square-bis :as sq]))
 
 ;; ABSTRACTION LAYER: Layer 2 (Composite Structures)
 ;;
@@ -35,35 +34,35 @@
 ;; find 
 ;;   empty square to move a piece to
 ;;   occupied square to draw back a piece to
-;;   empty square to move a piece to
+
 
 ;; builders
 (defn- make-board-section
   "Creates a board section (6 squares)"
   ([used-colors]
-   (make-board-section card-types used-colors))
+   (make-board-section c/CARD-TYPES used-colors))
   ([types used-colors]
    (let [shuffled-types (gen/shuffle (vec types))]
      (vec (for [type shuffled-types]
-            (make-square type used-colors))))))
+            (sq/make-square type used-colors))))))
 
 (defn make-board
   "Creates an initial board"
   ([players]
-   (make-board card-types players))
+   (make-board c/CARD-TYPES players))
   ([types players]
-   (let [used-colors (map color players)]
+   (let [used-colors (map p/color players)]
      (conj
       (into []
             (concat
-             [(make-square :start used-colors)]
+             [(sq/make-square :start used-colors)]
              (make-board-section types used-colors)
              (make-board-section types used-colors)
              (make-board-section types used-colors)
              (make-board-section types used-colors)
              (make-board-section types used-colors)
              (make-board-section types used-colors)))
-      (make-square :boat used-colors)))))
+      (sq/make-square :boat used-colors)))))
 
 ;; getters
 (defn boat
@@ -98,17 +97,17 @@
 (defn square-type
   "Return the type of the square"
   [board index]
-  (type-of (square board index)))
+  (sq/type-of (square board index)))
 
 (defn squares-of-type
   "Returns vector of all squares of a type"
   [board type]
-  (filter (partial square-of-type? type) board))
+  (filter (partial sq/square-of-type? type) board))
 
 (defn indexes-squares-of-type
   "Returns ordered list of all squares of type"
   [board type]
-  (keep-indexed #(when (square-of-type? type %2) %1) board))
+  (keep-indexed #(when (sq/square-of-type? type %2) %1) board))
 
 
 ;; setters
@@ -150,11 +149,11 @@
   "Is the square of certain type and empty of pieces (of certain color)?"
   ([square type color]
    (and
-    (square-of-type? type square)
+    (sq/square-of-type? type square)
     (zero? (sq/num-pieces-in square color))))
   ([square type]
    (and
-    (square-of-type? type square)
+    (sq/square-of-type? type square)
     (zero? (sq/num-pieces-in square)))))
 
 (defn nonempty-slot?

@@ -8,25 +8,25 @@
 ;; game state and moves).
 
 ;; Available player colors.
-(def pirate-colors #{:red :green :yellow :blue :brown})
+(def PIRATE-COLORS #{:red :green :yellow :blue :brown})
 
 ;; Card types used both on the board and in players' hands.
-(def card-types #{:hat :flag :pistol :sword :bottle :keys})
+(def CARD-TYPES #{:hat :flag :pistol :sword :bottle :keys})
 
 ;; Number of distinct card types.
-(def num-cards (count card-types))
+(def NUM-CARDS (count CARD-TYPES))
 
 ;; Size of a freshly generated deck.
-(def deck-size 50)
+(def DECK-SIZE 50)
 
 ;; Default number of players if none is specified.
-(def def-num-players 3)
+(def DEF-NUM-PLAYERS 3)
 
 ;; Number of actions a player receives at the start of their turn.
-(def starting-actions 3)
+(def STARTING-ACTIONS 3)
 
 ;; Number of pieces each player starts with on the start square.
-(def num-starting-pieces 6)
+(def NUM-STARTING-PIECES 6)
 
 ;;
 ;; ABSTRACTION BARRIER DESIGN (following SICP principles):

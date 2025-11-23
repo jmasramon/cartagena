@@ -1,5 +1,5 @@
 (ns cartagena.data-abstractions.square-bis
-  (:require [cartagena.core :refer [num-starting-pieces]]))
+  (:require [cartagena.core :as c]))
 
 ;; ABSTRACTION LAYER: Layer 1 (Basic Data Structures)
 ;;
@@ -42,7 +42,7 @@
 (defn- make-starting-square
   "creates the start square"
   [used-colors]
-  (conj [:start] (make-pieces used-colors num-starting-pieces)))
+  (conj [:start] (make-pieces used-colors c/NUM-STARTING-PIECES)))
 
 (defn make-square
   "Creates a square of specific type"
