@@ -1,6 +1,5 @@
 (ns cartagena.data-abstractions.deck
   (:require
-   [cartagena.core :as c]
    [clojure.data.generators :as gen]))
 
 ;; ABSTRACTION LAYER: Layer 1 (Basic Data Structures)

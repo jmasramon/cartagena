@@ -1,6 +1,5 @@
 (ns cartagena.swingUI.shaping
-  (:require [cartagena.core :as c]
-            [cartagena.data-abstractions.board :as b]
+  (:require [cartagena.data-abstractions.board :as b]
             [cartagena.data-abstractions.game :as g])
   (:import (java.awt.geom Rectangle2D$Double)))
 

@@ -1,7 +1,6 @@
 (ns cartagena.data-abstractions.square-bis-test
   (:require [clojure.test :refer [deftest is testing]]
-            [cartagena.core]
-            [cartagena.data-abstractions.square-bis 
+            [cartagena.data-abstractions.square-bis
              :refer [type-of remove-piece-from add-piece-to make-square square-pieces-as-vector square-of-type? pieces-in num-pieces-in]]))
 
 (deftest make-pieces-test
@@ -53,7 +52,7 @@
 
 (deftest add-piece-to-test
   (testing "add-piece-to"
-    (is (=  [:start {:green 0, :red 1, :yellow 0}] 
+    (is (=  [:start {:green 0, :red 1, :yellow 0}]
             (add-piece-to [:start {:green 0, :red 0, :yellow 0}]
                           :red)))))
 
@@ -99,8 +98,7 @@
     (is (= [:green :red :red :yellow :yellow :yellow]
            (square-pieces-as-vector [:start {:green 1, :red 2, :yellow 3}])))
     (is (= []
-           (square-pieces-as-vector [:start {:green 0, :red 0, :yellow 0}]))))
-  )
+           (square-pieces-as-vector [:start {:green 0, :red 0, :yellow 0}])))))
 
 (deftest square-of-type?-test
   (testing "square-of-type?"

@@ -1,6 +1,5 @@
 (ns cartagena.data-abstractions.square-test
   (:require [clojure.test :refer [deftest is testing]]
-            [cartagena.core]
             [cartagena.data-abstractions.square :refer [type-of remove-piece-from add-piece-to make-square square-pieces-as-vector square-of-type? pieces-in num-pieces-in pieces-numbers-list-in is-square?]]))
 
 (deftest make-pieces-test

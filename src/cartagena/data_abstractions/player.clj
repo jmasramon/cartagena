@@ -1,6 +1,5 @@
 (ns cartagena.data-abstractions.player
   (:require
-   [cartagena.core :as c]
    [cartagena.data-abstractions.deck :as d]))
 
 ;; Functions that need to know how player is implemented

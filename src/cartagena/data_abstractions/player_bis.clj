@@ -1,6 +1,5 @@
 (ns cartagena.data-abstractions.player-bis
   (:require
-   [cartagena.core :as c]
    [cartagena.data-abstractions.deck :as d]))
 
 ;; ABSTRACTION LAYER: Layer 1 (Basic Data Structures)

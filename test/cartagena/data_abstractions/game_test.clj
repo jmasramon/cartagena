@@ -1,7 +1,6 @@
 (ns cartagena.data-abstractions.game-test
   (:require  [clojure.test :refer [deftest is testing]]
              [clojure.data.generators :refer [*rnd*]]
-             [cartagena.core :as c]
              [cartagena.data-abstractions.deck :as d]
              [cartagena.data-abstractions.player-bis :as p]
              [cartagena.data-abstractions.board :as b]
