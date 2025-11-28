@@ -1,16 +1,15 @@
 (ns cartagena.data-abstractions.board-test
   (:require [clojure.test :refer [deftest is testing]]
             [clojure.data.generators :refer [*rnd*]]
-            [cartagena.core :refer [CARD-TYPES]]
             [cartagena.data-abstractions.player-bis :refer [make-player]]
             [cartagena.data-abstractions.deck :refer [random-deck]]
             [cartagena.data-abstractions.square-bis :as sq :refer [type-of is-square?]]
-            [cartagena.data-abstractions.board :refer :all]))
+            [cartagena.data-abstractions.board :as b]))
 
 (deftest make-board-section-test
   (testing "make-board-section"
     (let [make-board-section #'cartagena.data-abstractions.board/make-board-section
-          a-section (make-board-section CARD-TYPES
+          a-section (make-board-section b/SQUARE-TYPES
                                         [:yellow :green :red])]
       (is (= true
              (vector? a-section))
@@ -39,11 +38,11 @@
 (deftest make-board-test
   (testing "make-board"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [board (make-board   CARD-TYPES
-                                [(make-player :yellow (random-deck) 0)
-                                 (make-player :green (random-deck) 2)])]
+      (let [board (b/make-board   b/SQUARE-TYPES
+                                  [(make-player :yellow (random-deck) 0)
+                                   (make-player :green (random-deck) 2)])]
         (is (= 38 (count board)))
-        (is (= :start (square-type board 0)))
+        (is (= :start (b/square-type board 0)))
         (is (= 2 (count (sq/pieces-in (first board)))))
         (is (= 12 (sq/num-pieces-in (first board))))
         (let [subsections (subvec board 1 (count board))]
@@ -58,12 +57,12 @@
 
 (def board
   (binding [*rnd* (java.util.Random. 12345)]
-    (add-piece-to
-     (add-piece-to
-      (make-board   CARD-TYPES
-                    [(make-player :yellow (random-deck) 0)
-                     (make-player :green (random-deck) 2)
-                     (make-player :red (random-deck) 2)])
+    (b/add-piece-to
+     (b/add-piece-to
+      (b/make-board   b/SQUARE-TYPES
+                      [(make-player :yellow (random-deck) 0)
+                       (make-player :green (random-deck) 2)
+                       (make-player :red (random-deck) 2)])
       8
       :green)
      8
@@ -72,136 +71,136 @@
 (deftest getters-tests
   (testing "boat"
     (is (=  :boat
-            (type-of (boat board)))))
+            (type-of (b/boat board)))))
   (testing "square"
     (is (=  :start
-            (type-of (square board
-                             0))))
+            (type-of (b/square board
+                               0))))
     (is (=  :hat
-            (type-of (square board
-                             4)))))
+            (type-of (b/square board
+                               4)))))
   (testing "pieces-in"
     (is (=  {:green 6, :red 6, :yellow 6}
-            (pieces-in board
-                       0))
+            (b/pieces-in board
+                         0))
         "should return start pieces")
     (is (=  {:green 0, :red 0, :yellow 0}
-            (pieces-in board
-                       (dec (count board))))
+            (b/pieces-in board
+                         (dec (count board))))
         "should return boat pieces")
     (is (=  {:green 1, :red 1, :yellow 0}
-            (pieces-in board
-                       8))
+            (b/pieces-in board
+                         8))
         "should return pieces"))
   (testing "num-pieces-in"
     (is (=  18
-            (num-pieces-in board
-                           0))
+            (b/num-pieces-in board
+                             0))
         "should return start pieces")
     (is (=  0
-            (num-pieces-in board
-                           (dec (count board))))
+            (b/num-pieces-in board
+                             (dec (count board))))
         "should return boat pieces")
     (is (=  2
-            (num-pieces-in board
-                           8))
+            (b/num-pieces-in board
+                             8))
         "should return pieces")
     (is (=  1
-            (num-pieces-in board
-                           8
-                           :green))
+            (b/num-pieces-in board
+                             8
+                             :green))
         "should only green pieces"))
   (testing "square-pieces-as-vector"
     (is (=  [:green :green :green :green :green :green :red :red :red :red :red :red :yellow :yellow :yellow :yellow :yellow :yellow]
-            (square-pieces-as-vector board
-                                     0))
+            (b/square-pieces-as-vector board
+                                       0))
         "should return start pieces")
     (is (=  [:green :red]
-            (square-pieces-as-vector board
-                                     8))
+            (b/square-pieces-as-vector board
+                                       8))
         "should return boat pieces"))
   (testing "square-type"
     (is (=  :start
-            (square-type board
-                         0))
+            (b/square-type board
+                           0))
         "should :start")
     (is (=  :hat
-            (square-type board
-                         7))
+            (b/square-type board
+                           7))
         "should return :boat"))
   (testing "squares-of-type"
     (is (=  1
-            (count (squares-of-type board
-                                    :start))
-            (count (squares-of-type board
-                                    :boat)))
+            (count (b/squares-of-type board
+                                      :start))
+            (count (b/squares-of-type board
+                                      :boat)))
         "should :start")
     (is (=  6
-            (count (squares-of-type board
-                                    :sword)))
+            (count (b/squares-of-type board
+                                      :sword)))
         "should return :boat"))
   (testing "indexes-squares-of-type"
     (is (= '(0)
-           (indexes-squares-of-type board
-                                    :start))
+           (b/indexes-squares-of-type board
+                                      :start))
         "should :start")
     (is (= '(6 12 13 19 25 31)
-           (indexes-squares-of-type board
-                                    :sword))
+           (b/indexes-squares-of-type board
+                                      :sword))
         "should return :boat")
     (is (= '(4 7 16 20 27 34)
-           (indexes-squares-of-type board
-                                    :hat))
+           (b/indexes-squares-of-type board
+                                      :hat))
         "should return :boat")))
 
 (deftest space-available?-test
   (testing "space-available?"
     (is (= false
-           (space-available? board
-                             0)))
+           (b/space-available? board
+                               0)))
     (is (= true
-           (space-available? board
-                             1)))
+           (b/space-available? board
+                               1)))
     (is (= true
-           (space-available? board
-                             8)))))
+           (b/space-available? board
+                               8)))))
 
 (deftest square-full?-test
   (testing "square-full?"
     (is (= true
-           (square-full? board
-                         0)))
+           (b/square-full? board
+                           0)))
     (is (= false
-           (square-full? board
-                         1)))
+           (b/square-full? board
+                           1)))
     (is (= false
-           (square-full? board
-                         8)))))
+           (b/square-full? board
+                           8)))))
 
 (deftest square-has-color?-test
   (testing "square-has-color?"
     (is (= false
-           (square-has-color? board
-                              3
-                              :green)))
+           (b/square-has-color? board
+                                3
+                                :green)))
     (is (= true
-           (square-has-color? board
-                              0
-                              :red)))
+           (b/square-has-color? board
+                                0
+                                :red)))
     (is (= true
-           (square-has-color? board
-                              8
-                              :red)))
+           (b/square-has-color? board
+                                8
+                                :red)))
     (is (= false
-           (square-has-color? board
-                              8
-                              :yellow)))))
+           (b/square-has-color? board
+                                8
+                                :yellow)))))
 
 (deftest add-piece-to-test
   (testing "add-piece-to"
-    (let [new-board (add-piece-to board
-                                  1
-                                  :red)
+    (let [new-board (b/add-piece-to board
+                                    1
+                                    :red)
           modified-square (nth new-board 1)
           original-square (nth board 1)]
       (is (= 0
@@ -217,9 +216,9 @@
 
 (deftest remove-piece-from-test
   (testing "remove-piece-from"
-    (let [new-board (remove-piece-from board
-                                       8
-                                       :green)
+    (let [new-board (b/remove-piece-from board
+                                         8
+                                         :green)
           modified-square (nth new-board 8)
           original-square (nth board 8)]
       (is (= 2
@@ -242,130 +241,130 @@
 (deftest empty-slot?-test
   (testing "empty-slot? two params"
     (is (= true
-           (empty-slot?
+           (b/empty-slot?
             (nth board 3)
             :bottle
             :green)))
     (is (= true
-           (empty-slot?
+           (b/empty-slot?
             (nth board 5)
             :keys
             :red)))
     (is (= false
-           (empty-slot?
+           (b/empty-slot?
             (nth board 8)
             :flag
             :green)))
     (is (= true
-           (empty-slot?
+           (b/empty-slot?
             (nth board 8)
             :flag
             :yellow))))
   (testing "empty-slot? one param"
     (is (= true
-           (empty-slot?
+           (b/empty-slot?
             (nth board 3)
             :bottle)))
     (is (= true
-           (empty-slot?
+           (b/empty-slot?
             (nth board 5)
             :keys)))
     (is (= false
-           (empty-slot?
+           (b/empty-slot?
             {:pieces {:green 0, :red 0, :yellow 1}, :type :pistol}
             :pistol)))
     (is (= false
-           (empty-slot?
+           (b/empty-slot?
             (nth board 8)
             :flag)))))
 
 (deftest next-empty-slot-index-test
   (testing "next-empty-slot-index"
     (is (= 5
-           (next-empty-slot-index board :keys 0 :green)))
+           (b/next-empty-slot-index board :keys 0 :green)))
     (is (= 3
-           (next-empty-slot-index board :bottle 0 :red)))
+           (b/next-empty-slot-index board :bottle 0 :red)))
 
     (is (= 10
-           (next-empty-slot-index board :keys 6 :yellow)))
+           (b/next-empty-slot-index board :keys 6 :yellow)))
     (is (= 10
-           (next-empty-slot-index board :keys 5 :green)))
+           (b/next-empty-slot-index board :keys 5 :green)))
     (is (= 5
-           (next-empty-slot-index board :keys 4 :red)))
+           (b/next-empty-slot-index board :keys 4 :red)))
 
     (is (= 8
-           (next-empty-slot-index board :flag 2 :yellow))))
+           (b/next-empty-slot-index board :flag 2 :yellow))))
   (testing "next-empty-slot-index two params"
     (is (= 5
-           (next-empty-slot-index board :keys 0)))
+           (b/next-empty-slot-index board :keys 0)))
     (is (= 3
-           (next-empty-slot-index board :bottle 0)))
+           (b/next-empty-slot-index board :bottle 0)))
     (is (= 10
-           (next-empty-slot-index board :keys 6)))
+           (b/next-empty-slot-index board :keys 6)))
     (is (= 10
-           (next-empty-slot-index board :keys 5)))
+           (b/next-empty-slot-index board :keys 5)))
     (is (= 5
-           (next-empty-slot-index board :keys 4)))
+           (b/next-empty-slot-index board :keys 4)))
     (is (= 15
-           (next-empty-slot-index board :flag 2)))
+           (b/next-empty-slot-index board :flag 2)))
     (is (= 15
-           (next-empty-slot-index board :flag 10)))))
+           (b/next-empty-slot-index board :flag 10)))))
 
 (deftest nonempty-slot?-test
   (testing "nonempty-slot?"
     (is (= true
-           (nonempty-slot?
+           (b/nonempty-slot?
             (first board))))
 
     (is (= false
-           (nonempty-slot?
+           (b/nonempty-slot?
             (nth board 2))))
 
     (is (= true
-           (nonempty-slot?
+           (b/nonempty-slot?
             (nth board 8))))
 
     (is (= false
-           (nonempty-slot?
+           (b/nonempty-slot?
             (last board))))))
 
 (deftest index-closest-nonempty-slot-test
   (testing "index-closest-nonempty-slot"
     (is (= nil
-           (index-closest-nonempty-slot board 3)))
+           (b/index-closest-nonempty-slot board 3)))
     (is (= nil
-           (index-closest-nonempty-slot board 4)))
+           (b/index-closest-nonempty-slot board 4)))
     (is (= nil
-           (index-closest-nonempty-slot board 5)))
+           (b/index-closest-nonempty-slot board 5)))
     (is (= nil
-           (index-closest-nonempty-slot board 6)))
+           (b/index-closest-nonempty-slot board 6)))
     (is (= nil
-           (index-closest-nonempty-slot board 7)))
+           (b/index-closest-nonempty-slot board 7)))
     (is (= nil
-           (index-closest-nonempty-slot board 8)))
+           (b/index-closest-nonempty-slot board 8)))
     (is (= 8
-           (index-closest-nonempty-slot board 9)))
+           (b/index-closest-nonempty-slot board 9)))
     (is (= 8
-           (index-closest-nonempty-slot board 10)))
+           (b/index-closest-nonempty-slot board 10)))
     (is (= 8
-           (index-closest-nonempty-slot board 11)))
+           (b/index-closest-nonempty-slot board 11)))
     (is (= nil
-           (index-closest-nonempty-slot (subvec board 1)
-                                        7)))))
+           (b/index-closest-nonempty-slot (subvec board 1)
+                                          7)))))
 
 (deftest move-piece-test
   (testing "move-piece"
-    (let [new-board (move-piece board
-                                8
-                                7
-                                :red)]
+    (let [new-board (b/move-piece board
+                                  8
+                                  7
+                                  :red)]
       (is (= true
-             (square-has-color? board 8 :red)))
+             (b/square-has-color? board 8 :red)))
       (is (= false
-             (square-has-color? board 7 :red)))
+             (b/square-has-color? board 7 :red)))
       (is (= false
-             (square-has-color? new-board 8 :red)))
+             (b/square-has-color? new-board 8 :red)))
       (is (= true
-             (square-has-color? new-board 7 :red))))))
+             (b/square-has-color? new-board 7 :red))))))
 
 

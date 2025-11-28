@@ -20,12 +20,14 @@
 ;;
 ;; This namespace groups all functions that need to know how a deck is
 ;; represented internally (sequence of card keywords).
+;; Card types used both on the board and in players' hands.
+(def CARD-TYPES #{:hat :flag :pistol :sword :bottle :keys})
 
 ;; builders
 (defn random-card
   "Return a random valid card from the given reservoir of card types."
   []
-  (gen/rand-nth (seq c/CARD-TYPES)))
+  (gen/rand-nth (seq CARD-TYPES)))
 
 (defn random-deck
   "Create a random deck as a sequence of card keywords."

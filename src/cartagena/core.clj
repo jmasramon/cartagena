@@ -11,8 +11,6 @@
 ;; Maximum number of players allowed in a game.
 ;; (def MAX-PLAYERS (count PIRATE-COLORS))
 
-;; Card types used both on the board and in players' hands.
-(def CARD-TYPES #{:hat :flag :pistol :sword :bottle :keys})
 
 ;; Number of cards each player gets.
 (def NUM-CARDS 6)

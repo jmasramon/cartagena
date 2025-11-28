@@ -34,13 +34,13 @@
 ;; find 
 ;;   empty square to move a piece to
 ;;   occupied square to draw back a piece to
-
+(def SQUARE-TYPES #{:hat :flag :pistol :sword :bottle :keys})
 
 ;; builders
 (defn- make-board-section
   "Creates a board section (6 squares)"
   ([used-colors]
-   (make-board-section c/CARD-TYPES used-colors))
+   (make-board-section SQUARE-TYPES used-colors))
   ([types used-colors]
    (let [shuffled-types (gen/shuffle (vec types))]
      (vec (for [type shuffled-types]
@@ -49,7 +49,7 @@
 (defn make-board
   "Creates an initial board"
   ([players]
-   (make-board c/CARD-TYPES players))
+   (make-board SQUARE-TYPES players))
   ([types players]
    (let [used-colors (map p/color players)]
      (conj
