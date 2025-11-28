@@ -102,6 +102,7 @@
   "Entry point. Ask for number of players, then start a new game window."
   []
   (let [num-players (JOptionPane/showInputDialog nil "Enter players (2-5):")]
+
     (frame
-     (g/make-game num-players)
+     (g/make-game (read-string num-players))
      JFrame/EXIT_ON_CLOSE)))
