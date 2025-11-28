@@ -1,6 +1,5 @@
 (ns cartagena.swingUI.swingUI
-  (:require [cartagena.core :refer [PIRATE-COLORS]]
-            [cartagena.data-abstractions.moves :as mvs]
+  (:require [cartagena.data-abstractions.moves :as mvs]
             [cartagena.data-abstractions.game :as g]
             [cartagena.swingUI.shaping :refer [track-shapes]]
             [cartagena.swingUI.drawing :as dw :refer [draw-cards draw-pieces]])
@@ -102,10 +101,7 @@
 (defn -main
   "Entry point. Ask for number of players, then start a new game window."
   []
-  (let [n (JOptionPane/showInputDialog nil "Enter players (2-5):")
-        colors (take (read-string n) PIRATE-COLORS)
-        players (map #(str % "-player") colors)]
-    (println "Num players:" n "Colors:" colors "Players names:" players)
+  (let [num-players (JOptionPane/showInputDialog nil "Enter players (2-5):")]
     (frame
-     (g/make-game (count colors)) ; filter just the chosen players
+     (g/make-game num-players)
      JFrame/EXIT_ON_CLOSE)))

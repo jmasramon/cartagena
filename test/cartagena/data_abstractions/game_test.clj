@@ -5,13 +5,14 @@
              [cartagena.data-abstractions.deck :as d]
              [cartagena.data-abstractions.player-bis :as p]
              [cartagena.data-abstractions.board :as b]
-             [cartagena.data-abstractions.game :refer [active-player-actions active-player active-player-color add-random-card-to-active-player add-random-card-to-player-in-players board active-player-cards playable-cards deck decrease-actions make-game move-piece next-turn player-has-card? players remove-played-card reset-actions set-board set-deck set-players set-turn set-turn-order turn turn-order turn-played update-player-in-players winner? available-fall-back? available-piece? fallback-square-index next-empty-slot-index next-player-color pass-turn decrease-actions-from-active-player]]))
+             [cartagena.data-abstractions.game :as g]))
 
-(def random-initial-turn #'cartagena.data-abstractions.game/random-initial-turn)
-(def make-turn-order #'cartagena.data-abstractions.game/make-turn-order)
-(def make-random-players #'cartagena.data-abstractions.game/make-random-players)
-(def colors #'cartagena.data-abstractions.game/colors)
-(def player #'cartagena.data-abstractions.game/player)
+;; trick to get private functions
+(def g-random-initial-turn #'cartagena.data-abstractions.game/random-initial-turn)
+(def g-make-turn-order #'cartagena.data-abstractions.game/make-turn-order)
+(def g-make-random-players #'cartagena.data-abstractions.game/make-random-players)
+(def g-colors #'cartagena.data-abstractions.game/colors)
+(def g-player #'cartagena.data-abstractions.game/player)
 
 (binding [*rnd* (java.util.Random. 12345)]
   (def yellow-cards (d/random-deck))
@@ -21,8 +22,8 @@
   (def the-players [yellow-player
                     (p/make-player :green green-cards)
                     (p/make-player :red red-cards)])
-  (def the-turn (random-initial-turn (colors the-players)))
-  (def the-turn-order (make-turn-order (colors the-players)))
+  (def the-turn (g-random-initial-turn (g-colors the-players)))
+  (def the-turn-order (g-make-turn-order (g-colors the-players)))
   (def the-board (b/make-board the-players))
   (def the-deck (d/random-deck)))
 
@@ -37,7 +38,7 @@
 
 (deftest random-initial-turn-is-random-test
   (testing "random-initial-turn produces variety"
-    (let [turns (repeatedly 100 #(random-initial-turn c/PIRATE-COLORS))
+    (let [turns (repeatedly 100 #(g-random-initial-turn g/PIRATE-COLORS))
           unique-turns (set turns)]
       (is (> (count unique-turns) 2)
           "Should produce multiple different colors in 100 draws"))))
@@ -45,9 +46,9 @@
 (deftest random-initial-turn-distribution-test
   (testing "random-initial-turn has roughly uniform distribution"
     (let [sample-size 5000
-          samples (repeatedly sample-size #(random-initial-turn c/PIRATE-COLORS))
+          samples (repeatedly sample-size #(g-random-initial-turn g/PIRATE-COLORS))
           frequencies (frequencies samples)
-          num-colors (count c/PIRATE-COLORS)
+          num-colors (count g/PIRATE-COLORS)
           expected (/ sample-size num-colors)]
       ;; Each color should appear roughly 1000 times (5000 / 5)
       ;; Allow 20% variance (800-1200)
@@ -57,8 +58,8 @@
 
 (deftest make-random-players-is-random-test
   (testing "make-random-players produces different hands"
-    (let [players1 (make-random-players 3)
-          players2 (make-random-players 3)
+    (let [players1 (g-make-random-players 3)
+          players2 (g-make-random-players 3)
           cards1 (map p/cards players1)
           cards2 (map p/cards players2)]
       (is (not= cards1 cards2)
@@ -66,7 +67,7 @@
 
 (deftest make-random-players-variety-test
   (testing "make-random-players creates varied hands"
-    (let [players (repeatedly 10 #(make-random-players 3))
+    (let [players (repeatedly 10 #(g-make-random-players 3))
           all-hands (mapcat #(map p/cards %) players)
           unique-hands (set all-hands)]
       (is (> (count unique-hands) 15)
@@ -75,7 +76,7 @@
 (deftest make-random-players-card-distribution-test
   (testing "make-random-players distributes cards across all types"
     (let [sample-size 100
-          all-players (repeatedly sample-size #(make-random-players 3))
+          all-players (repeatedly sample-size #(g-make-random-players 3))
           all-cards (mapcat (fn [players]
                               (mapcat p/cards players))
                             all-players)
@@ -94,26 +95,26 @@
   (testing "random-initial-turn"
     (binding [*rnd* (java.util.Random. 12345)]
       (is (=  :green
-              (random-initial-turn  c/PIRATE-COLORS)))
+              (g-random-initial-turn  g/PIRATE-COLORS)))
       (is (=  :brown
-              (random-initial-turn  c/PIRATE-COLORS)))
+              (g-random-initial-turn  g/PIRATE-COLORS)))
       (is (=  :brown
-              (random-initial-turn  c/PIRATE-COLORS)))
+              (g-random-initial-turn  g/PIRATE-COLORS)))
       (is (=  :green
-              (random-initial-turn  c/PIRATE-COLORS))))))
+              (g-random-initial-turn  g/PIRATE-COLORS))))))
 
 (deftest make-turn-order-test
   (testing "make-turn-order-turn"
     (binding [*rnd* (java.util.Random. 12345)]
       (is (=  {:green :red, :red :yellow, :yellow :green}
-              (make-turn-order  (colors (make-random-players 3 c/PIRATE-COLORS 6)))))
+              (g-make-turn-order  (g-colors (g-make-random-players 3)))))
       (is (=  {:green :red, :red :yellow, :yellow :green}
-              (make-turn-order  (colors (make-random-players 3 c/PIRATE-COLORS 6))))))))
+              (g-make-turn-order  (g-colors (g-make-random-players 3))))))))
 
 (deftest make-random-players-test
   (testing "Random players"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [[a b c] (make-random-players 3)]
+      (let [[a b c] (g-make-random-players 3)]
         (is (=  :yellow
                 (p/color a)))
         (is (=  3
@@ -132,7 +133,7 @@
                 (p/actions c)))
         (is (=  '(:keys :sword :flag :keys :pistol :sword)
                 (p/cards c)))
-        (let [[a b c] (make-random-players 3 c/PIRATE-COLORS 6)]
+        (let [[a b c] (g-make-random-players 3)]
           (is (=  :yellow
                   (p/color a)))
           (is (=  3
@@ -155,84 +156,84 @@
 (deftest colors-test
   (testing "colors-test"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [players (make-random-players 3 c/PIRATE-COLORS 6)]
+      (let [players (g-make-random-players 3)]
         (is (= '(:yellow :green :red)
-               (colors players)))))))
+               (g-colors players)))))))
 
 (deftest make-game-test
   (testing "make-turn-order-turn"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [game (make-game)]
+      (let [game (g/make-game)]
         (is (= 3
-               (count (players game))))
+               (count (g/players game))))
         (is (= '(:yellow :green :red)
-               (colors (players game))))
+               (g-colors (g/players game))))
         (is (= 3
-               (count (turn-order game))))
+               (count (g/turn-order game))))
         (is (= :red
-               (turn game)))
+               (g/turn game)))
         (is (= :yellow
-               (next-turn game)))
+               (g/next-turn game)))
         (is (= 50
-               (count (deck game))))
+               (count (g/deck game))))
         (is (= 38
-               (count (board game))))
+               (count (g/board game))))
         (is (= false
-               (winner? game)))))))
+               (g/winner? game)))))))
 
 ;; getters
 (deftest players-test
   (testing "players"
     (is (= the-players
-           (players the-game)))))
+           (g/players the-game)))))
 
 (deftest turn-order-test
   (testing "turn-order"
     (is (= the-turn-order
-           (turn-order the-game)))))
+           (g/turn-order the-game)))))
 
 (deftest turn-test
   (testing "getting the turn"
     (is (= the-turn
-           (turn the-game)))))
+           (g/turn the-game)))))
 
 (deftest active-player-test
   (testing "active-player"
-    (is (=  (player the-players the-turn)
-            (active-player the-game)))))
+    (is (=  (g-player the-players the-turn)
+            (g/active-player the-game)))))
 
 (deftest active-player-color-test
   (testing "getting the active-player-color"
     (is (= the-turn
-           (active-player-color the-game)))))
+           (g/active-player-color the-game)))))
 
 (deftest next-turn-test
   (testing "players"
     (is (= :yellow
-           (next-turn the-game)))))
+           (g/next-turn the-game)))))
 
 (deftest board-test
   (testing "board"
     (is (=  the-board
-            (board the-game)))))
+            (g/board the-game)))))
 
 (deftest deck-test
   (testing "deck"
     (is (= the-deck
-           (deck the-game)))))
+           (g/deck the-game)))))
 
 (deftest winner-test
   (testing "winner?"
     (is (= false
-           (winner? the-game)))
-    (let [final-game (move-piece
-                      (move-piece
-                       (move-piece
-                        (move-piece
-                         (move-piece
-                          (move-piece the-game 0 37) 0 37) 0 37) 0 37) 0 37) 0 37)]
+           (g/winner? the-game)))
+    (let [final-game (g/move-piece
+                      (g/move-piece
+                       (g/move-piece
+                        (g/move-piece
+                         (g/move-piece
+                          (g/move-piece the-game 0 37) 0 37) 0 37) 0 37) 0 37) 0 37)]
       (is (= true
-             (winner? final-game))))))
+             (g/winner? final-game))))))
 
 ;;setters
 (deftest set-players-test
@@ -240,7 +241,7 @@
     (binding [*rnd* (java.util.Random. 12345)]
       (let [player-1 (p/make-player :yellow '(:bottle :keys :pistol :bottle :keys) 3)
             player-2 (p/make-player :red '(:keys :bottle :pistol :bottle :keys :sword) 0)
-            [player-1' player-2'] (players (set-players the-game [player-1 player-2]))]
+            [player-1' player-2'] (g/players (g/set-players the-game [player-1 player-2]))]
         (is (= [player-1 player-2]
                [player-1' player-2']))))))
 
@@ -248,34 +249,34 @@
 (deftest set-turn-order-test
   (testing "set-turn-order"
     (is (= {:red :yellow, :green :red, :yellow :green}
-           (turn-order (set-turn-order the-game {:red :yellow, :green :red, :yellow :green}))))))
+           (g/turn-order (g/set-turn-order the-game {:red :yellow, :green :red, :yellow :green}))))))
 
 (deftest set-turn-test
   (testing "set-turn"
     (is (= :yellow
-           (turn (set-turn the-game :yellow))))))
+           (g/turn (g/set-turn the-game :yellow))))))
 
 (deftest set-board-test
   (let [new-board (b/move-piece the-board 0 2 :green)]
     (testing "set-board"
       (is (=  new-board
-              (board (set-board the-game new-board)))))))
+              (g/board (g/set-board the-game new-board)))))))
 
 (deftest set-deck-test
   (testing "set-deck"
     (is (= [:pistol :bottle :flag :sword :hat :flag :sword :hat  :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]
-           (deck (set-deck the-game [:pistol :bottle :flag :sword :hat :flag :sword :hat  :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]))))))
+           (g/deck (g/set-deck the-game [:pistol :bottle :flag :sword :hat :flag :sword :hat  :keys :flag :sword :hat :pistolhat :pistol :bottle :flag :sword :hat]))))))
 
 ;;state-changers
 (deftest update-player-in-players-test
   (testing "update-player-in-players"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [original-player (player the-players :green)
+      (let [original-player (g-player the-players :green)
             new-player (p/make-player :green (d/random-deck))
-            new-players (update-player-in-players the-players
-                                                  :green
-                                                  new-player)
-            updated-player (player new-players :green)]
+            new-players (g/update-player-in-players the-players
+                                                    :green
+                                                    new-player)
+            updated-player (g-player new-players :green)]
         (is (not=  original-player
                    updated-player))
         (is (=  new-player
@@ -284,10 +285,10 @@
 (deftest add-random-card-to-active-player-test
   (testing "add-random-card-to-active-player"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [new-game (add-random-card-to-active-player the-game)
-            new-cards (active-player-cards new-game)
+      (let [new-game (g/add-random-card-to-active-player the-game)
+            new-cards (g/active-player-cards new-game)
             new-card-amounts (d/cards-amounts new-cards)
-            old-card-amounts (d/cards-amounts (p/cards (active-player the-game)))]
+            old-card-amounts (d/cards-amounts (p/cards (g/active-player the-game)))]
         (is (not= old-card-amounts
                   new-card-amounts))
         (is (not= (d/from-freqs-to-seq old-card-amounts)
@@ -298,11 +299,11 @@
 (deftest turn-played-test
   (testing "turn-played"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [one-turn-game  (turn-played the-game)
-            two-turn-game  (turn-played one-turn-game)
-            one-turn-act-pl-actions (p/actions (active-player one-turn-game))
-            two-turn-act-pl-actions (p/actions (active-player two-turn-game))
-            original-actions (p/actions (active-player the-game))]
+      (let [one-turn-game  (g/turn-played the-game)
+            two-turn-game  (g/turn-played one-turn-game)
+            one-turn-act-pl-actions (p/actions (g/active-player one-turn-game))
+            two-turn-act-pl-actions (p/actions (g/active-player two-turn-game))
+            original-actions (p/actions (g/active-player the-game))]
         (is (= one-turn-act-pl-actions
                (- original-actions 1))
             "Only the actions of the active (green) player should change from 2 to 1")
@@ -314,10 +315,10 @@
   (testing "remove-played-card"
     (binding [*rnd* (java.util.Random. 12345)]
       (let [removed-key :keys
-            new-game (remove-played-card the-game removed-key)
-            new-player (active-player new-game)
+            new-game (g/remove-played-card the-game removed-key)
+            new-player (g/active-player new-game)
             new-cards (p/cards new-player)
-            original-cards (p/cards (active-player the-game))]
+            original-cards (p/cards (g/active-player the-game))]
         (is (= (count new-cards)
                (- (count original-cards) 1))
             "The actions of the active player should go down by 1")
@@ -328,27 +329,27 @@
 (deftest add-random-card-to-player-in-players-test
   (testing "add-random-card-to-active-player"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [new-players (add-random-card-to-player-in-players the-players
-                                                              :green)
-            new-cards (p/cards (player new-players :green))
-            original-cards (p/cards (player the-players :green))]
+      (let [new-players (g/add-random-card-to-player-in-players the-players
+                                                                :green)
+            new-cards (p/cards (g-player new-players :green))
+            original-cards (p/cards (g-player the-players :green))]
         (is (=  (count new-cards)
                 (+ 1 (count original-cards))))))))
 
 (deftest reset-actions-test
   (testing "reset-actions"
-    (let [new-players  (reset-actions (decrease-actions the-players :red) :red)
-          new-actions (p/actions (player new-players :red))
-          original-actions (p/actions (player the-players :red))]
+    (let [new-players  (g/reset-actions (g/decrease-actions the-players :red) :red)
+          new-actions (p/actions (g-player new-players :red))
+          original-actions (p/actions (g-player the-players :red))]
       (is (= new-actions
              original-actions))
       "Should put the decreased actions back to 3")))
 
 (deftest decrease-actions-test
   (testing "decrease-actions"
-    (let [new-players  (decrease-actions the-players :red)
-          new-actions (p/actions (player new-players :red))
-          original-actions (p/actions (player the-players :red))]
+    (let [new-players  (g/decrease-actions the-players :red)
+          new-actions (p/actions (g-player new-players :red))
+          original-actions (p/actions (g-player the-players :red))]
       (is (= new-actions
              (- original-actions 1)))
       "Should decrease actions by one")))
@@ -362,58 +363,58 @@
   ;; (println "Green player has flag: " (player-has-card? the-players :green :flag))
   (testing "player-has-card?"
     (is (= true
-           (player-has-card? the-players
-                             :green
-                             :keys))
+           (g/player-has-card? the-players
+                               :green
+                               :keys))
         "The green player should have the :keys card")
     (is (= true
-           (player-has-card? the-players
-                             :green
-                             :bottle))
+           (g/player-has-card? the-players
+                               :green
+                               :bottle))
         "The green player should have the :bottle card")
     (is (= true
-           (player-has-card? the-players
-                             :green
-                             :flag))
+           (g/player-has-card? the-players
+                               :green
+                               :flag))
         "The green player should not have the :flag card")))
 
 (deftest active-player-actions-test
   (testing "active-player-actions-test"
     (is (= 3
-           (active-player-actions the-game)))))
+           (g/active-player-actions the-game)))))
 
 (deftest active-player-cards-test
   (testing "active-player-cards-test"
     (is (= green-cards
-           (active-player-cards the-game)))))
+           (g/active-player-cards the-game)))))
 
 (deftest playable-cards-test
   ;; (println "Testing playable-cards")
-  ;; (println "Active player cards: " (active-player-cards the-game))
+  ;; (println "Active player cards: " (g/active-player-cards the-game))
 
   (testing "playable-cards"
     (is (=  '([:bottle 10] [:flag 8] [:hat 8] [:keys 7] [:pistol 7] [:sword 10])
-            (playable-cards the-game)))))
+            (g/playable-cards the-game)))))
 
 
 (deftest player-test
   (testing "player-test"
     (is (= yellow-player
-           (player the-players :yellow)))))
+           (g-player the-players :yellow)))))
 
 (deftest next-player-color-test
   (testing "next-player-color"
     (is (= :yellow
-           (next-player-color the-game))
+           (g/next-player-color the-game))
         "Should return the next player color based on turn order")))
 
 (deftest pass-turn-test
   (testing "pass-turn"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [passed-game (pass-turn the-game)
-            next-player (active-player passed-game)]
+      (let [passed-game (g/pass-turn the-game)
+            next-player (g/active-player passed-game)]
         (is (= :yellow
-               (active-player-color passed-game))
+               (g/active-player-color passed-game))
             "Should change to next player")
         (is (= 3
                (p/actions next-player))
@@ -421,8 +422,8 @@
 
 (deftest decrease-actions-from-active-player-test
   (testing "decrease-actions-from-active-player"
-    (let [decreased-game (decrease-actions-from-active-player the-game)
-          active-player-after (active-player decreased-game)]
+    (let [decreased-game (g/decrease-actions-from-active-player the-game)
+          active-player-after (g/active-player decreased-game)]
       (is (= 2
              (p/actions active-player-after))
           "Active player should have one less action"))))
@@ -430,38 +431,38 @@
 (deftest available-piece?-test
   (testing "available-piece?"
     (is (= true
-           (available-piece? the-game 0))
+           (g/available-piece? the-game 0))
         "Should return true for start square with pieces")
     (is (= false
-           (available-piece? the-game 1))
+           (g/available-piece? the-game 1))
         "Should return false for empty square")))
 
 (deftest available-fall-back?-test
   (testing "available-fall-back?"
     ;; Create a scenario where we have pieces at start (0) and move some to create a fallback scenario
     (let [game-with-pieces-moved (-> the-game
-                                     (move-piece 0 3)  ; Move one piece to position 3
-                                     (move-piece 0 8))] ; Move another piece to position 8
+                                     (g/move-piece 0 3)  ; Move one piece to position 3
+                                     (g/move-piece 0 8))] ; Move another piece to position 8
       (is (= true
-             (available-fall-back? game-with-pieces-moved 8))
+             (g/available-fall-back? game-with-pieces-moved 8))
           "Should return true when there's a non-empty square to fall back to")
       (is (= false
-             (available-fall-back? the-game 1))
+             (g/available-fall-back? the-game 1))
           "Should return false when there's no non-empty square to fall back to"))))
 
 (deftest fallback-square-index-test
   (testing "fallback-square-index"
     ;; Create a scenario with pieces at multiple positions
     (let [game-with-pieces-moved (-> the-game
-                                     (move-piece 0 3)  ; Move one piece to position 3
-                                     (move-piece 0 8))] ; Move another piece to position 8
+                                     (g/move-piece 0 3)  ; Move one piece to position 3
+                                     (g/move-piece 0 8))] ; Move another piece to position 8
       (is (= 3
-             (fallback-square-index game-with-pieces-moved 8))
+             (g/fallback-square-index game-with-pieces-moved 8))
           "Should return index of closest non-empty square"))))
 
 (deftest next-empty-slot-index-test
   (testing "next-empty-slot-index"
     (binding [*rnd* (java.util.Random. 12345)]
-      (let [game (make-game)]
-        (is (number? (next-empty-slot-index game :keys 0))
+      (let [game (g/make-game)]
+        (is (number? (g/next-empty-slot-index game :keys 0))
             "Should return a valid index for next empty slot of given card type")))))

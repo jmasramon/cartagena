@@ -7,14 +7,15 @@
 ;; used across the data-abstraction layers (players, deck, board,
 ;; game state and moves).
 
-;; Available player colors.
-(def PIRATE-COLORS #{:red :green :yellow :blue :brown})
+
+;; Maximum number of players allowed in a game.
+;; (def MAX-PLAYERS (count PIRATE-COLORS))
 
 ;; Card types used both on the board and in players' hands.
 (def CARD-TYPES #{:hat :flag :pistol :sword :bottle :keys})
 
-;; Number of distinct card types.
-(def NUM-CARDS (count CARD-TYPES))
+;; Number of cards each player gets.
+(def NUM-CARDS 6)
 
 ;; Size of a freshly generated deck.
 (def DECK-SIZE 50)
@@ -26,7 +27,7 @@
 (def STARTING-ACTIONS 3)
 
 ;; Number of pieces each player starts with on the start square.
-(def NUM-STARTING-PIECES 6)
+(def NUM-STARTING-PIECES NUM-CARDS)
 
 ;;
 ;; ABSTRACTION BARRIER DESIGN (following SICP principles):

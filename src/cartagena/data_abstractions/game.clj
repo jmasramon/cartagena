@@ -40,6 +40,9 @@
 ;; Functions that need to know how game is implemented
 ;; game-state: {players turn-order turn board deck}
 
+;; Available player colors.
+(def PIRATE-COLORS #{:red :green :yellow :blue :brown})
+
 ;; builders
 (defn- random-initial-turn
   "Choose a new random color out of the players colors"
@@ -56,12 +59,10 @@
 (defn- make-random-players
   "Make a list of num players"
   ([num]
-   (make-random-players num c/PIRATE-COLORS c/NUM-CARDS))
-  ([num players-reservoir card-num]
    (mapv (fn [a-color]
            (p/make-player a-color
-                          (d/random-deck card-num)))
-         (take num players-reservoir))))
+                          (d/random-deck c/NUM-CARDS)))
+         (take num PIRATE-COLORS))))
 
 (declare colors)
 
