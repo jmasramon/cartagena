@@ -28,11 +28,14 @@
 ;;   actions 
 ;;   cards
 
+;; Number of actions a player receives at the start of their turn.
+(def STARTING-ACTIONS 3)
+
 ;; builders
 (defn make-player
   "Make a player with a color and a list of cards. It has 3 actions"
   ([color cards]
-   (make-player color cards c/STARTING-ACTIONS))
+   (make-player color cards STARTING-ACTIONS))
   ([color cards actions]
    {:color color :actions actions, :cards cards}))
 
@@ -81,7 +84,7 @@
 (defn reset-actions
   "Puts actions back to 3"
   [player]
-  (assoc player :actions c/STARTING-ACTIONS))
+  (assoc player :actions STARTING-ACTIONS))
 
 (defn decrease-actions
   "Takes one action from the player"

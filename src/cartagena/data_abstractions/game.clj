@@ -1,7 +1,6 @@
 (ns cartagena.data-abstractions.game
   (:require
    [clojure.data.generators :as gen]
-   [cartagena.core :as c]
    [cartagena.data-abstractions.player-bis :as p]
    [cartagena.data-abstractions.deck :as d]
    [cartagena.data-abstractions.board :as b]))
@@ -40,6 +39,12 @@
 ;; Functions that need to know how game is implemented
 ;; game-state: {players turn-order turn board deck}
 
+;; Number of cards each player gets.
+(def NUM-CARDS 6)
+
+;; Default number of players if none is specified.
+(def DEF-NUM-PLAYERS 3)
+
 ;; Available player colors.
 (def PIRATE-COLORS #{:red :green :yellow :blue :brown})
 
@@ -61,7 +66,7 @@
   ([num]
    (mapv (fn [a-color]
            (p/make-player a-color
-                          (d/random-deck c/NUM-CARDS)))
+                          (d/random-deck NUM-CARDS)))
          (take num PIRATE-COLORS))))
 
 (declare colors)
@@ -69,7 +74,7 @@
 (defn make-game
   "Create a new game"
   ([]
-   (make-game c/DEF-NUM-PLAYERS))
+   (make-game DEF-NUM-PLAYERS))
   ([num-players]
    (let [players (make-random-players num-players)
          players-colors (colors players)]
@@ -156,7 +161,7 @@
   (let [board (board game)
         boat-index (dec (count board))
         pieces (b/pieces-numbers-list-in board boat-index)]
-    (pos? (count (filter #(= % c/NUM-CARDS) pieces)))))
+    (pos? (count (filter #(= % NUM-CARDS) pieces)))))
 
 ;; setters
 (defn set-players [game players]

@@ -1,5 +1,4 @@
-(ns cartagena.data-abstractions.square-bis
-  (:require [cartagena.core :as c]))
+(ns cartagena.data-abstractions.square-bis)
 
 ;; ABSTRACTION LAYER: Layer 1 (Basic Data Structures)
 ;;
@@ -28,6 +27,9 @@
 ;;   - get/add/remove pieces
 ;;   - get type (never changes)
 
+;; TODO: this belongs to board namespace?
+(def NUM-STARTING-PIECES 6)
+
 ;; builders
 (defn- make-pieces
   "Create a pieces map for a square for the given colors, each with num-pieces."
@@ -39,10 +41,11 @@
   [used-colors]
   (make-pieces used-colors 0))
 
+;; TODO: this belongs to board namespace?
 (defn- make-starting-square
   "creates the start square"
   [used-colors]
-  (conj [:start] (make-pieces used-colors c/NUM-STARTING-PIECES)))
+  (conj [:start] (make-pieces used-colors NUM-STARTING-PIECES)))
 
 (defn make-square
   "Creates a square of specific type"

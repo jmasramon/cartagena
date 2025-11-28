@@ -22,6 +22,8 @@
 ;; represented internally (sequence of card keywords).
 ;; Card types used both on the board and in players' hands.
 (def CARD-TYPES #{:hat :flag :pistol :sword :bottle :keys})
+;; Size of a freshly generated deck.
+(def DECK-SIZE 50)
 
 ;; builders
 (defn random-card
@@ -32,7 +34,7 @@
 (defn random-deck
   "Create a random deck as a sequence of card keywords."
   ([]
-   (random-deck c/DECK-SIZE))
+   (random-deck DECK-SIZE))
   ([num]
    (repeatedly num
                #(random-card))))

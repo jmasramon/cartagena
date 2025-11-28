@@ -1,6 +1,7 @@
 (ns cartagena.swingUI.shaping
   (:require [cartagena.core :as c]
-            [cartagena.data-abstractions.board :as b])
+            [cartagena.data-abstractions.board :as b]
+            [cartagena.data-abstractions.game :as g])
   (:import (java.awt.geom Rectangle2D$Double)))
 
 ;; ABSTRACTION LAYER: Layer 5 (User Interface - Geometry)
@@ -48,5 +49,5 @@
 (def hand-shapes
   "Map of hand slot shapes to card types for drawing player hands."
   (zipmap
-   (map #(create-square [9 %] cards-size) (range c/NUM-CARDS))
+   (map #(create-square [9 %] cards-size) (range g/NUM-CARDS))
    b/SQUARE-TYPES))

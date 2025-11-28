@@ -12,20 +12,6 @@
 ;; (def MAX-PLAYERS (count PIRATE-COLORS))
 
 
-;; Number of cards each player gets.
-(def NUM-CARDS 6)
-
-;; Size of a freshly generated deck.
-(def DECK-SIZE 50)
-
-;; Default number of players if none is specified.
-(def DEF-NUM-PLAYERS 3)
-
-;; Number of actions a player receives at the start of their turn.
-(def STARTING-ACTIONS 3)
-
-;; Number of pieces each player starts with on the start square.
-(def NUM-STARTING-PIECES NUM-CARDS)
 
 ;;
 ;; ABSTRACTION BARRIER DESIGN (following SICP principles):

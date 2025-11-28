@@ -1,7 +1,6 @@
 (ns cartagena.data-abstractions.board
   (:require
    [clojure.data.generators :as gen]
-   [cartagena.core :as c]
    [cartagena.data-abstractions.player-bis :as p]
    [cartagena.data-abstractions.square-bis :as sq]))
 

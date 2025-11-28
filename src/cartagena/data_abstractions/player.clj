@@ -17,12 +17,13 @@
 ;;   {:color :yellow, :cards '(:bottle :keys :pistol :bottle :keys :sword), :actions 0}
 ;;   '(:yellow '(:bottle :keys :pistol :bottle :keys :sword) 0)
 ;; Good test of data abstraction barriers -> nothing else should need changing
+(def STARTING-ACTIONS 3)
 
 ;; builders
 (defn make-player
   "Make a player with a color and a list of cards. It has 3 actions"
   ([color cards]
-   {color {:actions c/STARTING-ACTIONS, :cards cards}})
+   {color {:actions STARTING-ACTIONS, :cards cards}})
   ([color cards actions]
    {color {:actions actions, :cards cards}}))
 
@@ -75,7 +76,7 @@
   "Puts actions back to 3"
   [player]
   (let [color (color player)]
-    (assoc-in player [color :actions] c/STARTING-ACTIONS)))
+    (assoc-in player [color :actions] STARTING-ACTIONS)))
 
 (defn decrease-actions
   "Takes one action from the player"

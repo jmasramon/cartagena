@@ -1,5 +1,4 @@
-(ns cartagena.data-abstractions.square
-  (:require [cartagena.core :refer [NUM-STARTING-PIECES]]))
+(ns cartagena.data-abstractions.square)
 
 ;; Functions that need to know how square is implemented
 ;; square is implemented as a map {:pieces pieces_map, :type type_set_instance}
@@ -10,6 +9,9 @@
 ;;   constructor piece (needs type and colors of players)
 ;;   get/add/remove pieces
 ;;   get type (never changes)
+;; Number of pieces each player starts with on the start square.
+;; TODO: this belongs to board namespace?
+(def NUM-STARTING-PIECES 6)
 
 ;; builders
 (defn- make-pieces
@@ -22,6 +24,7 @@
   [used-colors]
   (make-pieces used-colors 0))
 
+;; TODO: this belongs to board namespace?
 (defn- make-starting-square
   "creates the start square"
   [used-colors]
